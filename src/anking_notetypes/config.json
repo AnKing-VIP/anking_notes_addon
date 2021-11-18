@@ -1,11 +1,1 @@
-{
-    "Cloze-AnKing": {
-        "front_tts": true
-    },
-    "Cloze-AnKingMaster-v3": {
-        "front_tts": true
-    },
-    "Cloze-AnKingDerm": {
-        "front_tts": true
-    }
-}
+{"Cloze-AnKing": {"front_tts": false}, "Cloze-AnKingMaster-v3": {"front_tts": false}, "Cloze-AnKingDerm": {"front_tts": false}}

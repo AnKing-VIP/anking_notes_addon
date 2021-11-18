@@ -37,10 +37,10 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "re_checkbox",
         "file": "front",
-        "regex": "(<!--)|({{)tts en_US voices=Apple_Samantha speed=1.4:cloze:Text(-->)|(}})",
+        "regex": "(<!--|{{)tts en_US voices=Apple_Samantha speed=1.4:cloze:Text(-->|\}\})",
         "checked_value": "{{tts en_US voices=Apple_Samantha speed=1.4:cloze:Text}}",
         "unchecked_value": "<!--tts en_US voices=Apple_Samantha speed=1.4:cloze:Text-->",
-        "default": True,
+        "default": False,
     },
     "signal_tag": {
         "name": "tag that will trigger red background",
