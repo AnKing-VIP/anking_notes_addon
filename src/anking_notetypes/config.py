@@ -31,6 +31,8 @@ class NoteTypeSetting(ABC):
             return LineEditSetting(config)
         if config["type"] == "number":
             return NumberEditSetting(config)
+        if config["type"] == "shortcut":
+            return ShortcutSetting(config)
         else:
             raise Exception(
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
@@ -149,6 +151,22 @@ class CheckboxSetting(NoteTypeSetting):
 class LineEditSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         tab.text_input(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        return re.search(self.config["regex"], section).group(1)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        result = section.replace(current_value, setting_value, 1)
+        return result
+
+class ShortcutSetting(NoteTypeSetting):
+    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+        tab.shortcut_edit(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],

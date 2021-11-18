@@ -103,7 +103,7 @@ setting_configs: Dict[str, Any] = {
     "toggle_all_buttons": {
         "name": "Toggle all buttons shortcut",
         "tooltip": "",
-        "type": "text",
+        "type": "shortcut",
         "file": "back",
         "regex": 'var +ToggleAllButtonsShortcut += +"([^"]*?)"',
         "default": "'",
