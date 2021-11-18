@@ -425,6 +425,43 @@ class ConfigLayout(QBoxLayout):
 
         return (line_edit, button)
 
+    def shortcut_edit(
+        self,
+        key,
+        description:
+        Optional[str] = None,
+        tooltip: Optional[str] = None
+    ) -> Tuple[QKeySequenceEdit, QPushButton]:
+        edit = QKeySequenceEdit()
+
+        if description is not None:
+            row = self.hlayout()
+            row.text(description, tooltip=tooltip)
+
+        def update():
+            val = self.conf.get(key)
+            if not isinstance(val, str):
+                raise InvalidConfigValueError(key, "str", val)
+            edit.setKeySequence(val)
+
+        self.widget_updates.append(update)
+
+        edit.keySequenceChanged.connect(
+            lambda s: self.conf.set(key, edit.keySequence().toString())
+        )
+
+        self.addWidget(edit)
+
+        def on_shortcut_clear_btn_click():
+            edit.clear()
+        shortcut_clear_btn = QPushButton("Clear")
+        shortcut_clear_btn.setSizePolicy(
+            QSizePolicy.Fixed, QSizePolicy.Fixed)
+        shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)
+        self.addWidget(shortcut_clear_btn)
+
+        return edit, shortcut_clear_btn
+
     # Layout widgets
 
     def text(
