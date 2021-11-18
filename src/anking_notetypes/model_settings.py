@@ -26,7 +26,7 @@ from typing import Any, Dict
 
 
 settings_by_notetype = {
-    "Cloze-AnKing": ["front_tts"],
+    "Cloze-AnKing": ["front_tts", "signal_tag"],
     "Cloze-AnKingMaster-v3": ["front_tts"],
     "Cloze-AnKingDerm": ["front_tts"],
 }

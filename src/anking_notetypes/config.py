@@ -25,6 +25,8 @@ class NoteTypeSetting(ABC):
     def from_config(config: Dict):
         if config["type"] == "re_checkbox":
             return ReCheckboxSetting(config)
+        if config["type"] == "text":
+            return LineEditSetting(config)
         else:
             raise Exception(
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
@@ -66,12 +68,11 @@ class NoteTypeSetting(ABC):
 
 class ReCheckboxSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
-        cb = tab.checkbox(
+        tab.checkbox(
             key=self._key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
         )
-        cb.setChecked(self.config["default"])
 
     def _process_text(self, text: str, setting_value: Any) -> str:
         section_match = re.search(self.config["regex"], text)
@@ -87,7 +88,25 @@ class ReCheckboxSetting(NoteTypeSetting):
                 self.config["checked_value"], self.config["unchecked_value"], section
             )
 
-        result = text.replace(section, processed_section)
+        result = text.replace(section, processed_section, 1)
+        return result
+
+
+class LineEditSetting(NoteTypeSetting):
+    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+        tab.text_input(
+            key=self._key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+        )
+
+    def _process_text(self, text: str, setting_value: Any) -> str:
+        section_match = re.search(self.config["regex"], text)
+        assert section_match
+        section = section_match.group(0)
+        current_value = section_match.group(1)
+        processed_section = section.replace(current_value, setting_value)
+        result = text.replace(section, processed_section, 1)
         return result
 
 
