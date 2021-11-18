@@ -26,14 +26,49 @@ from typing import Any, Dict
 
 
 settings_by_notetype = {
-    "Cloze-AnKing": ["front_tts", "signal_tag"],
+    "Cloze-AnKing": [
+        "timer_minutes",
+        "timer_secs",
+        "toggle_all_buttons",
+        "front_tts",
+        "back_tts",
+        "front_signal_tag",
+        "back_signal_tag",
+    ],
     "Cloze-AnKingMaster-v3": ["front_tts"],
     "Cloze-AnKingDerm": ["front_tts"],
+    "IO-one by one": ["autoflip"],
 }
 
 setting_configs: Dict[str, Any] = {
+    "timer_secs": {
+        "name": "timer duration (seconds)",
+        "tooltip": "",
+        "type": "number",
+        "file": "front",
+        "regex": 'var +seconds += +([^ /\n]*)',
+        "min" : 0,
+        "default": 9,
+    },
+    "timer_minutes": {
+        "name": "timer duration (minutes)",
+        "tooltip": "",
+        "type": "number",
+        "file": "front",
+        "regex": 'var +minutes += +([^ /\n]*)',
+        "min" : 0,
+        "default": 0,
+    },
+    "autoflip": {
+        "name": "flip to back of card automatically\n(doesn't work on AnkiMobile)",
+        "tooltip": "",
+        "type": "checkbox",
+        "file": "front",
+        "regex": "var +autoflip += +(false|true)",
+        "default": True,
+    },
     "front_tts": {
-        "name": "TTS",
+        "name": "Front TTS",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "front",
@@ -42,20 +77,38 @@ setting_configs: Dict[str, Any] = {
         "unchecked_value": "<!--tts en_US voices=Apple_Samantha speed=1.4:cloze:Text-->",
         "default": False,
     },
-    "signal_tag": {
-        "name": "tag that will trigger red background",
+    "back_tts": {
+        "name": "Back TTS",
+        "tooltip": "",
+        "type": "re_checkbox",
+        "file": "back",
+        "regex": "(<!--|{{)tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text(-->|\}\})",
+        "checked_value": "{{tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text}}",
+        "unchecked_value": "<!--tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text-->",
+        "default": False,
+    },
+    "front_signal_tag": {
+        "name": "tag that will trigger red background for front of the card",
         "tooltip": "",
         "type": "text",
         "file": "front",
-        "regex": 'var +tagID += +"(\w+?)"',
+        "regex": 'var +tagID += +"([^"]*?)"',
+        "default": "XXXYYYZZZ",
+    },
+    "back_signal_tag": {
+        "name": "tag that will trigger red background for back of the card",
+        "tooltip": "",
+        "type": "text",
+        "file": "back",
+        "regex": 'var +tagID += +"([^"]*?)"',
         "default": "XXXYYYZZZ",
     },
     "toggle_all_buttons": {
         "name": "Toggle all buttons shortcut",
         "tooltip": "",
-        "type": "shortcut",
+        "type": "text",
         "file": "back",
-        "regex": "var +ToggleAllButtons += +'(\w+?)'",
+        "regex": "var +ToggleAllButtons += +'([^']*?)'",
         "default": "222",
     },
 }

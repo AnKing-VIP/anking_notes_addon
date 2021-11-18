@@ -23,10 +23,14 @@ class NoteTypeSetting(ABC):
 
     @staticmethod
     def from_config(config: Dict) -> "NoteTypeSetting":
+        if config["type"] == "checkbox":
+            return CheckboxSetting(config)
         if config["type"] == "re_checkbox":
             return ReCheckboxSetting(config)
         if config["type"] == "text":
             return LineEditSetting(config)
+        if config["type"] == "number":
+            return NumberEditSetting(config)
         else:
             raise Exception(
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
@@ -118,6 +122,27 @@ class ReCheckboxSetting(NoteTypeSetting):
         return result
 
 
+class CheckboxSetting(NoteTypeSetting):
+    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+        tab.checkbox(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        value = re.search(self.config["regex"], section).group(1)
+        assert value in ["true", "false"]
+        return value == "true"
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        current_value_str = "true" if current_value else "false"
+        new_value_str = "true" if setting_value else "false"
+        result = section.replace(current_value_str, new_value_str, 1)
+        return result
+
+
 class LineEditSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         tab.text_input(
@@ -132,6 +157,26 @@ class LineEditSetting(NoteTypeSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
         result = section.replace(current_value, setting_value, 1)
+        return result
+
+
+class NumberEditSetting(NoteTypeSetting):
+    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+        tab.number_input(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+            minimum=self.config.get("min", None),
+            maximum=self.config.get("max", 99999),
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        value_str = re.search(self.config["regex"], section).group(1)
+        return int(value_str)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        result = section.replace(str(current_value), str(setting_value), 1)
         return result
 
 
