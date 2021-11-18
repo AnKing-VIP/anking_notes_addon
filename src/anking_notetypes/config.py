@@ -8,9 +8,8 @@ from PyQt5.QtCore import *  # type: ignore
 from PyQt5.QtGui import *  # type: ignore
 from PyQt5.QtWidgets import *
 
-from .ankiaddonconfig.window import ConfigLayout
-
 from .ankiaddonconfig import ConfigManager, ConfigWindow
+from .ankiaddonconfig.window import ConfigLayout
 from .model_settings import setting_configs, settings_by_notetype
 
 
@@ -18,11 +17,12 @@ class NoteTypeSetting(ABC):
     def __init__(self, config: Dict):
         self.config = config
 
+    @abstractmethod
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         pass
 
     @staticmethod
-    def from_config(config: Dict):
+    def from_config(config: Dict) -> "NoteTypeSetting":
         if config["type"] == "re_checkbox":
             return ReCheckboxSetting(config)
         if config["type"] == "text":
@@ -32,22 +32,35 @@ class NoteTypeSetting(ABC):
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
             )
 
+    def setting_value(self, notetype_name: str) -> Any:
+        section = self._relevant_template_section(notetype_name)
+        result = self._extract_setting_value(section)
+        return result
+
+    def _relevant_template_section(self, notetype_name: str):
+        template_text = self._relevant_template_text(notetype_name)
+        section_match = re.search(self.config["regex"], template_text)
+        assert section_match
+        result = section_match.group(0)
+        return result
+
+    @abstractmethod
+    def _extract_setting_value(self, section: str) -> Any:
+        pass
+
     def update_notetype(self, notetype_name: str, conf: ConfigManager):
+        section = self._relevant_template_section(notetype_name)
+        setting_value = conf[self.key(notetype_name)]
+        processed_section = self._set_setting_value(section, setting_value)
+        updated_text = self._relevant_template_text(notetype_name).replace(
+            section, processed_section, 1
+        )
+
         col = mw.col
         model = col.models.by_name(notetype_name)
         templates = model["tmpls"]
         assert len(templates) == 1
         template = templates[0]
-
-        if self.config["file"] == "front":
-            text = template["qfmt"]
-        elif self.config["file"] == "back":
-            text = template["afmt"]
-        else:
-            text = model["css"]
-
-        setting_value = conf[self._key(notetype_name)]
-        updated_text = self._process_text(text, setting_value)
 
         if self.config["file"] == "front":
             template["qfmt"] = updated_text
@@ -59,54 +72,66 @@ class NoteTypeSetting(ABC):
         col.models.update_dict(model)
 
     @abstractmethod
-    def _process_text(self, text: str, setting_value: Any) -> str:
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
         pass
 
-    def _key(self, notetype_name: str):
+    def key(self, notetype_name: str):
         return f'{notetype_name}.{self.config["setting_name"]}'
+
+    def _relevant_template_text(self, notetype_name: str):
+        col = mw.col
+        model = col.models.by_name(notetype_name)
+        templates = model["tmpls"]
+        assert len(templates) == 1
+        template = templates[0]
+
+        if self.config["file"] == "front":
+            result = template["qfmt"]
+        elif self.config["file"] == "back":
+            result = template["afmt"]
+        else:
+            result = model["css"]
+        return result
 
 
 class ReCheckboxSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         tab.checkbox(
-            key=self._key(notetype_name),
+            key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
         )
 
-    def _process_text(self, text: str, setting_value: Any) -> str:
-        section_match = re.search(self.config["regex"], text)
-        assert section_match
-        section = section_match.group(0)
+    def _extract_setting_value(self, section: str) -> Any:
+        return section == self.config["checked_value"]
 
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
         if setting_value:
-            processed_section = re.sub(
+            result = re.sub(
                 self.config["unchecked_value"], self.config["checked_value"], section
             )
         else:
-            processed_section = re.sub(
+            result = re.sub(
                 self.config["checked_value"], self.config["unchecked_value"], section
             )
 
-        result = text.replace(section, processed_section, 1)
         return result
 
 
 class LineEditSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         tab.text_input(
-            key=self._key(notetype_name),
+            key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
         )
 
-    def _process_text(self, text: str, setting_value: Any) -> str:
-        section_match = re.search(self.config["regex"], text)
-        assert section_match
-        section = section_match.group(0)
-        current_value = section_match.group(1)
-        processed_section = section.replace(current_value, setting_value)
-        result = text.replace(section, processed_section, 1)
+    def _extract_setting_value(self, section: str) -> Any:
+        return re.search(self.config["regex"], section).group(1)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        result = section.replace(current_value, setting_value, 1)
         return result
 
 
@@ -142,6 +167,11 @@ def open_config_window():
             setting_config["setting_name"] = name
             nts = NoteTypeSetting.from_config(setting_config)
             ntss_by_notetype[notetype_name].append(nts)
+
+    # read in settings from notetypes and update config
+    for notetype_name, ntss in ntss_by_notetype.items():
+        for nts in ntss:
+            conf[nts.key(notetype_name)] = nts.setting_value(notetype_name)
 
     # setup tabs for all notetypes
     for notetype_name, ntss in ntss_by_notetype.items():
