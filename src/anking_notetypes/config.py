@@ -17,11 +17,11 @@ class NoteTypeSetting(ABC):
         self.config = config
 
     @abstractmethod
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         pass
 
-    def add_widget_to_general_tab(self, tab: ConfigLayout):
-        self.add_widget_to_tab(tab, "general")
+    def add_widget_to_general_config_layout(self, tab: ConfigLayout):
+        self.add_widget_to_config_layout(tab, "general")
 
     def register_general_setting(self, conf: ConfigManager):
         def update_all(key, value):
@@ -64,7 +64,9 @@ class NoteTypeSetting(ABC):
         template_text = self._relevant_template_text(notetype_name)
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
-            raise Exception(f"could not find '{self.config['regex']}' in relevant template for {notetype_name}")
+            raise Exception(
+                f"could not find '{self.config['regex']}' in relevant template for {notetype_name}"
+            )
         result = section_match.group(0)
         return result
 
@@ -119,7 +121,7 @@ class NoteTypeSetting(ABC):
 
 
 class ReCheckboxSetting(NoteTypeSetting):
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.checkbox(
             key=self.key(notetype_name),
             description=self.config["name"],
@@ -146,7 +148,7 @@ class ReCheckboxSetting(NoteTypeSetting):
 
 
 class CheckboxSetting(NoteTypeSetting):
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.checkbox(
             key=self.key(notetype_name),
             description=self.config["name"],
@@ -167,7 +169,7 @@ class CheckboxSetting(NoteTypeSetting):
 
 
 class LineEditSetting(NoteTypeSetting):
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.text_input(
             key=self.key(notetype_name),
             description=self.config["name"],
@@ -184,7 +186,7 @@ class LineEditSetting(NoteTypeSetting):
 
 
 class ShortcutSetting(NoteTypeSetting):
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.shortcut_edit(
             key=self.key(notetype_name),
             description=self.config["name"],
@@ -202,7 +204,7 @@ class ShortcutSetting(NoteTypeSetting):
 
 
 class NumberEditSetting(NoteTypeSetting):
-    def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.number_input(
             key=self.key(notetype_name),
             description=self.config["name"],
@@ -224,12 +226,12 @@ class NumberEditSetting(NoteTypeSetting):
 def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab(notetype_name)
-
+        scroll = tab.scroll_layout()
         for nts in ntss:
-            nts.add_widget_to_tab(tab, notetype_name)
-            tab.space(7)
+            nts.add_widget_to_config_layout(scroll, notetype_name)
+            scroll.space(7)
 
-        tab.stretch()
+        scroll.stretch()
 
     return tab
 
@@ -237,13 +239,13 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
 def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab("General")
-
+        scroll = tab.scroll_layout()
         for nts in ntss:
-            nts.add_widget_to_general_tab(tab)
+            nts.add_widget_to_general_config_layout(scroll)
             nts.register_general_setting(tab.conf)
-            tab.space(7)
+            scroll.space(7)
 
-        tab.stretch()
+        scroll.stretch()
 
     return tab
 
