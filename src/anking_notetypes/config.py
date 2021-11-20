@@ -50,6 +50,10 @@ class NoteTypeSetting(ABC):
             return NumberEditSetting(config)
         if config["type"] == "shortcut":
             return ShortcutSetting(config)
+        if config["type"] == "dropdown":
+            return DropdownSetting(config)
+        if config["type"] == "color":
+            return ColorSetting(config)
         else:
             raise Exception(
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
@@ -132,7 +136,8 @@ class ReCheckboxSetting(NoteTypeSetting):
         replacement_pairs = self.config["replacement_pairs"]
         checked = all(y in section for _, y in replacement_pairs)
         unchecked = all(x in section for x, _ in replacement_pairs)
-        assert (checked or unchecked) and not (checked and unchecked)
+        if not ((checked or unchecked) and not (checked and unchecked)):
+            raise Exception(f"error involving {replacement_pairs=} and {section=}")
         return checked
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
@@ -184,6 +189,39 @@ class LineEditSetting(NoteTypeSetting):
         result = section.replace(current_value, setting_value, 1)
         return result
 
+class DropdownSetting(NoteTypeSetting):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
+        tab.dropdown(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+            labels=self.config["options"],
+            values=self.config["options"],
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        return re.search(self.config["regex"], section).group(1)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        result = section.replace(current_value, setting_value, 1)
+        return result
+
+class ColorSetting(NoteTypeSetting):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
+        tab.color_input(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        return re.search(self.config["regex"], section).group(1)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        current_value = self._extract_setting_value(section)
+        result = section.replace(current_value, setting_value, 1)
+        return result
 
 class ShortcutSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
