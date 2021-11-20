@@ -426,11 +426,7 @@ class ConfigLayout(QBoxLayout):
         return (line_edit, button)
 
     def shortcut_edit(
-        self,
-        key,
-        description:
-        Optional[str] = None,
-        tooltip: Optional[str] = None
+        self, key, description: Optional[str] = None, tooltip: Optional[str] = None
     ) -> Tuple[QKeySequenceEdit, QPushButton]:
         edit = QKeySequenceEdit()
 
@@ -454,9 +450,9 @@ class ConfigLayout(QBoxLayout):
 
         def on_shortcut_clear_btn_click():
             edit.clear()
+
         shortcut_clear_btn = QPushButton("Clear")
-        shortcut_clear_btn.setSizePolicy(
-            QSizePolicy.Fixed, QSizePolicy.Fixed)
+        shortcut_clear_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)
         self.addWidget(shortcut_clear_btn)
 
