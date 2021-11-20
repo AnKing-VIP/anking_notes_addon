@@ -1,6 +1,5 @@
 import re
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from typing import Any, Callable, Dict, List
 
 from aqt import mw
@@ -10,7 +9,7 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .model_settings import setting_configs, settings_by_notetype
+from .model_settings import general_settings, setting_configs, settings_by_notetype
 
 
 class NoteTypeSetting(ABC):
@@ -20,6 +19,24 @@ class NoteTypeSetting(ABC):
     @abstractmethod
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         pass
+
+    def add_widget_to_general_tab(self, tab: ConfigLayout):
+        self.add_widget_to_tab(tab, "general")
+
+    def register_general_setting(self, conf: ConfigManager):
+        def update_all(key, value):
+            if self.key("general") != key:
+                return
+            for notetype_name in settings_by_notetype.keys():
+                if (
+                    not self.config["setting_name"]
+                    in settings_by_notetype[notetype_name]
+                ):
+                    continue
+                conf.set(self.key(notetype_name), value, trigger_change_hook=False)
+            conf.config_window.update_widgets()
+
+        conf.on_change(update_all)
 
     @staticmethod
     def from_config(config: Dict) -> "NoteTypeSetting":
@@ -46,7 +63,8 @@ class NoteTypeSetting(ABC):
     def _relevant_template_section(self, notetype_name: str):
         template_text = self._relevant_template_text(notetype_name)
         section_match = re.search(self.config["regex"], template_text)
-        assert section_match
+        if not section_match:
+            raise Exception(f"could not find '{self.config['regex']}' in relevant template for {notetype_name}")
         result = section_match.group(0)
         return result
 
@@ -164,6 +182,7 @@ class LineEditSetting(NoteTypeSetting):
         result = section.replace(current_value, setting_value, 1)
         return result
 
+
 class ShortcutSetting(NoteTypeSetting):
     def add_widget_to_tab(self, tab: ConfigLayout, notetype_name: str):
         tab.shortcut_edit(
@@ -173,7 +192,8 @@ class ShortcutSetting(NoteTypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        return re.search(self.config["regex"], section).group(1)
+        shortcut_str = re.search(self.config["regex"], section).group(1)
+        return shortcut_str.replace(" ", "")
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
@@ -214,6 +234,20 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
     return tab
 
 
+def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
+    def tab(window: ConfigWindow):
+        tab = window.add_tab("General")
+
+        for nts in ntss:
+            nts.add_widget_to_general_tab(tab)
+            nts.register_general_setting(tab.conf)
+            tab.space(7)
+
+        tab.stretch()
+
+    return tab
+
+
 def change_window_settings(window: ConfigWindow, on_save):
     window.setWindowTitle("AnKing note types")
     window.setMinimumHeight(500)
@@ -222,31 +256,45 @@ def change_window_settings(window: ConfigWindow, on_save):
     window.execute_on_save(on_save)
 
 
+def ntss_for_notetype(notetype_name):
+    result = []
+    for name in settings_by_notetype[notetype_name]:
+        setting_config = setting_configs[name]
+        setting_config["setting_name"] = name
+        result.append(NoteTypeSetting.from_config(setting_config))
+    return result
+
+
+def general_ntss():
+    result = []
+    for name in general_settings:
+        setting_config = setting_configs[name]
+        setting_config["setting_name"] = name
+        result.append(NoteTypeSetting.from_config(setting_config))
+    return result
+
+
 def open_config_window():
     conf = ConfigManager()
 
-    # construct all NoteTypeSetting objects and store them
-    ntss_by_notetype: Dict[str, List[NoteTypeSetting]] = defaultdict(lambda: [])
-    for notetype_name, setting_names in settings_by_notetype.items():
-        for name in setting_names:
-            setting_config = setting_configs[name]
-            setting_config["setting_name"] = name
-            nts = NoteTypeSetting.from_config(setting_config)
-            ntss_by_notetype[notetype_name].append(nts)
-
     # read in settings from notetypes and update config
-    for notetype_name, ntss in ntss_by_notetype.items():
-        for nts in ntss:
+    for notetype_name in settings_by_notetype.keys():
+        for nts in ntss_for_notetype(notetype_name):
             conf[nts.key(notetype_name)] = nts.setting_value(notetype_name)
 
+    # add general tab
+    conf.add_config_tab(general_tab(general_ntss()))
+
     # setup tabs for all notetypes
-    for notetype_name, ntss in ntss_by_notetype.items():
-        conf.add_config_tab(notetype_settings_tab(notetype_name, ntss))
+    for notetype_name in settings_by_notetype.keys():
+        conf.add_config_tab(
+            notetype_settings_tab(notetype_name, ntss_for_notetype(notetype_name))
+        )
 
     # setup update of notetypes on save
     def update_notetypes():
-        for notetype_name, ntss in ntss_by_notetype.items():
-            for nts in ntss:
+        for notetype_name in settings_by_notetype.keys():
+            for nts in ntss_for_notetype(notetype_name):
                 nts.update_notetype(notetype_name, conf)
 
     conf.on_window_open(

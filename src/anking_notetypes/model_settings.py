@@ -39,6 +39,15 @@ settings_by_notetype = {
     "IO-one by one": ["autoflip"],
 }
 
+# settings that apply to multiple note types
+# (the ones that have this setting listed in
+# settings_by_notetype)
+# they can be overwritten in the note types settings
+general_settings = [
+    "toggle_all_buttons",
+]
+
+
 setting_configs: Dict[str, Any] = {
     "timer_secs": {
         "name": "timer duration (seconds)",

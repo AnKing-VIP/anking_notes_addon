@@ -11,7 +11,8 @@ from .window import ConfigWindow
 class ConfigManager:
     def __init__(self) -> None:
         self.config_window: Optional[ConfigWindow] = None
-        self.window_open_hook: List[Callable[[ConfigWindow], None]] = []
+        self.window_open_hooks: List[Callable[[ConfigWindow], None]] = []
+        self.change_hooks: List[Callable] = []
         self._config: Dict
         addon_dir = __name__.split(".")[0]
         self.addon_dir = addon_dir
@@ -60,7 +61,7 @@ class ConfigManager:
     def get_default(self, key: str) -> Any:
         return self.get_from_dict(self._default, key)
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, trigger_change_hook=True) -> None:
         levels = key.split(".")
         conf_obj = self._config
         for i in range(len(levels) - 1):
@@ -75,7 +76,16 @@ class ConfigManager:
         level = levels[-1]
         if isinstance(conf_obj, list):
             level = int(level)
+            
+        if level not in conf_obj:
+            raise Exception(f"no entry for key '{key}' in config")
+
+        old_value = conf_obj[level]
         conf_obj[level] = value
+
+        if value != old_value and trigger_change_hook:
+            for hook in self.change_hooks:
+                hook(key, value)
 
     def pop(self, key: str) -> Any:
         levels = key.split(".")
@@ -118,7 +128,7 @@ class ConfigManager:
     def open_config(self) -> bool:
         config_window = ConfigWindow(self)
         self.config_window = config_window
-        for fn in self.window_open_hook:
+        for fn in self.window_open_hooks:
             fn(config_window)
         config_window.on_open()
         config_window.exec_()
@@ -128,6 +138,9 @@ class ConfigManager:
         mw.addonManager.setConfigAction(self.addon_dir, self.open_config)
 
     def on_window_open(self, fn: Callable[["ConfigWindow"], None]) -> None:
-        self.window_open_hook.append(fn)
+        self.window_open_hooks.append(fn)
 
     add_config_tab = on_window_open
+
+    def on_change(self, fn: Callable[[str, Any], None]) -> None:
+        self.change_hooks.append(fn)
