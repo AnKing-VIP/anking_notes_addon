@@ -107,17 +107,20 @@ class ReCheckboxSetting(NoteTypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        return section == self.config["checked_value"]
+        replacement_pairs = self.config["replacement_pairs"]
+        checked = all(y in section for _, y in replacement_pairs)
+        unchecked = all(x in section for x, _ in replacement_pairs)
+        assert (checked or unchecked) and not (checked and unchecked)
+        return checked
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        if setting_value:
-            result = re.sub(
-                self.config["unchecked_value"], self.config["checked_value"], section
-            )
-        else:
-            result = re.sub(
-                self.config["checked_value"], self.config["unchecked_value"], section
-            )
+        result = section
+        replacement_pairs = self.config["replacement_pairs"]
+        for x, y in replacement_pairs:
+            if setting_value:
+                result = result.replace(x, y)
+            else:
+                result = result.replace(y, x)
 
         return result
 

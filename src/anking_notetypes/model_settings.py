@@ -26,7 +26,7 @@ from typing import Any, Dict
 
 
 settings_by_notetype = {
-    "Cloze-AnKing": [
+    "AnKing": [
         "timer_minutes",
         "timer_secs",
         "toggle_all_buttons",
@@ -35,8 +35,7 @@ settings_by_notetype = {
         "front_signal_tag",
         "back_signal_tag",
     ],
-    "Cloze-AnKingMaster-v3": ["front_tts"],
-    "Cloze-AnKingDerm": ["front_tts"],
+    "Basic-AnKing": ["front_tts"],
     "IO-one by one": ["autoflip"],
 }
 
@@ -46,8 +45,8 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "number",
         "file": "front",
-        "regex": 'var +seconds += +([^ /\n]*)',
-        "min" : 0,
+        "regex": "var +seconds += +([^ /\n]*)",
+        "min": 0,
         "default": 9,
     },
     "timer_minutes": {
@@ -55,8 +54,8 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "number",
         "file": "front",
-        "regex": 'var +minutes += +([^ /\n]*)',
-        "min" : 0,
+        "regex": "var +minutes += +([^ /\n]*)",
+        "min": 0,
         "default": 0,
     },
     "autoflip": {
@@ -72,9 +71,8 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "re_checkbox",
         "file": "front",
-        "regex": "(<!--|{{)tts en_US voices=Apple_Samantha speed=1.4:cloze:Text(-->|\}\})",
-        "checked_value": "{{tts en_US voices=Apple_Samantha speed=1.4:cloze:Text}}",
-        "unchecked_value": "<!--tts en_US voices=Apple_Samantha speed=1.4:cloze:Text-->",
+        "regex": "(<!--|{{)tts.+?(-->|}})",
+        "replacement_pairs": [("<!--", "{{"), ("-->", "}}")],
         "default": False,
     },
     "back_tts": {
@@ -82,9 +80,8 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "re_checkbox",
         "file": "back",
-        "regex": "(<!--|{{)tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text(-->|\}\})",
-        "checked_value": "{{tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text}}",
-        "unchecked_value": "<!--tts en_US voices=Apple_Samantha speed=1.4:cloze-only:Text-->",
+        "regex": "(<!--|{{)tts.+?(-->|}})",
+        "replacement_pairs": [("<!--", "{{"), ("-->", "}}")],
         "default": False,
     },
     "front_signal_tag": {
@@ -108,7 +105,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "text",
         "file": "back",
-        "regex": "var +ToggleAllButtons += +'([^']*?)'",
-        "default": "222",
+        "regex": 'var +ToggleAllButtonsShortcut += +"([^"]*?)"',
+        "default": "'",
     },
 }

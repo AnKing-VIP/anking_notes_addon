@@ -1,1 +1,1 @@
-{"Cloze-AnKing": {"timer_minutes": 0, "timer_secs": 9, "toggle_all_buttons": "222", "front_tts": false, "back_tts": false, "front_signal_tag": "XXXYYYZZZ", "back_signal_tag": "XXXYYYZZZ"}, "Cloze-AnKingMaster-v3": {"front_tts": false}, "Cloze-AnKingDerm": {"front_tts": false}, "IO-one by one": {"autoflip": true}}
+{"AnKing": {"timer_minutes": 0, "timer_secs": 9, "toggle_all_buttons": "'", "front_tts": false, "back_tts": false, "front_signal_tag": "XXXYYYZZZ", "back_signal_tag": "XXXYYYZZZ"}, "Basic-AnKing": {"front_tts": false}, "IO-one by one": {"autoflip": true}}
