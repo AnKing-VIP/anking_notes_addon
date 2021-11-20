@@ -22,51 +22,10 @@
 
 # I maybe need a script to generate the config.json file from the data in the current file
 
+import re
+from collections import defaultdict
+from pathlib import Path
 from typing import Any, Dict
-
-
-settings_by_notetype = {
-    "AnKing": [
-        "timer_minutes",
-        "timer_secs",
-        "toggle_all_buttons",
-        "personal_notes_button",
-        "missed_questions_button",
-        "front_tts",
-        "back_tts",
-        "front_signal_tag",
-        "back_signal_tag",
-    ],
-    "Basic-AnKing": ["front_tts"],
-    "IO-one by one": ["autoflip"],
-    "AnKingDerm": [
-        "toggle_all_buttons",
-        "personal_notes_button",
-        "missed_questions_button",
-        "textbook_button",
-        "additional_resources_button",
-    ],
-    "AnKingMCAT": [
-        "toggle_all_buttons",
-        "lecture_notes_button",
-        "missed_questions_button",
-        "pixorize_button",
-        "additional_resources_button",
-    ],
-}
-}
-
-# settings that apply to multiple note types
-# (the ones that have this setting listed in
-# settings_by_notetype)
-# they can be overwritten in the note types settings
-general_settings = [
-    "toggle_all_buttons",
-]
-
-
-def button_shortcut_regex(name):
-    return
 
 
 def button_shortcut_setting_config(button_name, default):
@@ -155,7 +114,7 @@ setting_configs: Dict[str, Any] = {
         "default": False,
     },
     "front_signal_tag": {
-        "name": "tag that will trigger red background for front of the card",
+        "name": "tag that will trigger red background for the front",
         "tooltip": "",
         "type": "text",
         "file": "front",
@@ -163,7 +122,7 @@ setting_configs: Dict[str, Any] = {
         "default": "XXXYYYZZZ",
     },
     "back_signal_tag": {
-        "name": "tag that will trigger red background for back of the card",
+        "name": "tag that will trigger red background for the back",
         "tooltip": "",
         "type": "text",
         "file": "back",
@@ -171,3 +130,38 @@ setting_configs: Dict[str, Any] = {
         "default": "XXXYYYZZZ",
     },
 }
+
+
+def settings_by_notetype_dict():
+    result = defaultdict(lambda: [])
+    for x in (Path(__file__).parent / "note_types").iterdir():
+        if not x.is_dir():
+            continue
+        notetype_name = x.name
+
+        front_template = (x / "Front Template.html").read_text()
+        back_template = (x / ("Back Template.html")).read_text()
+        styling = (x / ("Styling.css")).read_text()
+
+        for setting_name, config in setting_configs.items():
+            if config["file"] == "front":
+                relevant_template = front_template
+            elif config["file"] == "back":
+                relevant_template = back_template
+            else:
+                relevant_template = styling
+
+            if re.search(config["regex"], relevant_template):
+                result[notetype_name].append(setting_name)
+    return result
+
+
+settings_by_notetype = settings_by_notetype_dict()
+
+# settings that apply to multiple note types
+# (the ones that have this setting listed in
+# settings_by_notetype)
+# they can be overwritten in the note types settings
+general_settings = [
+    "toggle_all_buttons",
+]
