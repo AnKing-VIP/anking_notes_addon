@@ -34,7 +34,7 @@ def button_shortcut_setting_config(button_name, default):
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": f'ButtonShortcuts += +{{[\w\W]+?"{button_name}" +: +"([^"]*)[\w\W]+?}}"',
+        "regex": f'var+ ButtonShortcuts *= *{{[\w\W]*?"{button_name}" *: *"([^"]*)"[\w\W]*?}}"',
         "default": default,
     }
 
@@ -45,21 +45,43 @@ def auto_reveal_setting_config(button_name, default):
         "tooltip": "",
         "type": "checkbox",
         "file": "back",
-        "regex": f'ButtonAutoReveal += +{{[\w\W]+?"{button_name}" +: +"([^"]*)[\w\W]+?}}"',
+        "regex": f'var+ ButtonAutoReveal *= *{{[\w\W]*?"{button_name}" *: *(true|false)[\w\W]*?}}"',
         "default": default,
     }
 
 
 setting_configs: Dict[str, Any] = {
     "lecture_notes_button": button_shortcut_setting_config("Lecture Notes", "Alt+1"),
+    "lecture_notes_autoreveal": auto_reveal_setting_config("Lecture Notes", False),
     "personal_notes_button": button_shortcut_setting_config("Personal Notes", "Alt+1"),
+    "personal_notes_autoreveal": auto_reveal_setting_config("Personal Notes", False),
     "missed_questions_button": button_shortcut_setting_config(
         "Missed Questions", "Alt+2"
     ),
+    "missed_questions_autoreveal": auto_reveal_setting_config(
+        "Missed Questions", False
+    ),
     "pixorize_button": button_shortcut_setting_config("Pixorize", "Alt+3"),
+    "pixorize_autoreveal": auto_reveal_setting_config("Pixorize", False),
     "textbook_button": button_shortcut_setting_config("Textbook", "Alt+3"),
+    "textbook_autoreveal": auto_reveal_setting_config("Textbook", False),
     "additional_resources_button": button_shortcut_setting_config(
         "Additional Resources", "Alt+4"
+    ),
+    "additional_resources_autoreveal": auto_reveal_setting_config(
+        "Additional Resources", False
+    ),
+    "extra_button": button_shortcut_setting_config("Extra", "Alt+1"),
+    "extra_autoreveal": auto_reveal_setting_config("Extra", False),
+    "definitions_button": button_shortcut_setting_config("Definitions", "Alt+1"),
+    "definitions_autoreveal": auto_reveal_setting_config("Definitions", False),
+    "examples_button": button_shortcut_setting_config("Definitions", "Alt+1"),
+    "examples_autoreveal": button_shortcut_setting_config("Definitions", "Alt+1"),
+    "alternative_translations_button": button_shortcut_setting_config(
+        "Definitions", "Alt+1"
+    ),
+    "alternative_translations_autoreveal": auto_reveal_setting_config(
+        "Definitions", False
     ),
     "toggle_all_buttons": {
         "name": "Toggle all buttons shortcut",
@@ -165,3 +187,8 @@ settings_by_notetype = settings_by_notetype_dict()
 general_settings = [
     "toggle_all_buttons",
 ]
+
+if __name__ == "__main__":
+    from pprint import pprint
+
+    pprint(settings_by_notetype)
