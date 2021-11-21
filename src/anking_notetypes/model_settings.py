@@ -1,27 +1,3 @@
-# mapping between notetypes and setting names
-
-# mapping between setting name (in config) to tuples of the form
-# (
-# setting name in ui
-# (tooltip)
-# setting/widget type (checkbox, number, text, shortcut, color_picker, dropdown (?))
-#   for dropdown: option names and values
-#   for number: min, max
-# which file it is in (front, back, style, color-picker)
-# name of setting in file / regex for substituting relevant part in template
-#   (could group variables in js and css files - css variables)
-#   if everything was grouped regex wouldnt be needed
-# default value
-# )
-
-# {
-# tagId = "asdf" // #s "id of the tag" text
-# mode = "foo" // #s dropdown ["baba", "yaga", "nada"]
-# timerS =  // #s number
-# }
-
-# I maybe need a script to generate the config.json file from the data in the current file
-
 import re
 from collections import defaultdict
 from pathlib import Path
