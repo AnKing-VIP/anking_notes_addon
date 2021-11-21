@@ -384,7 +384,7 @@ def open_config_window(clayout: CardLayout = None):
     conf.add_config_tab(general_tab(general_ntss()))
 
     # setup tabs for all notetypes
-    for notetype_name in settings_by_notetype.keys():
+    for notetype_name in sorted(settings_by_notetype.keys()):
         conf.add_config_tab(
             notetype_settings_tab(notetype_name, ntss_for_notetype(notetype_name))
         )
