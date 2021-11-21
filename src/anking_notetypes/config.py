@@ -250,7 +250,7 @@ class ShortcutSetting(NoteTypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         shortcut_str = re.search(self.config["regex"], section).group(1)
-        return shortcut_str.replace(" ", "")
+        return shortcut_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
