@@ -187,8 +187,9 @@ class LineEditSetting(NoteTypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
-        result = section.replace(current_value, setting_value, 1)
+        m = re.search(self.config["regex"], section)
+        start, end = m.span(1)
+        result = section[:start] + setting_value + section[end:]
         return result
 
 
@@ -253,8 +254,9 @@ class ShortcutSetting(NoteTypeSetting):
         return shortcut_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
-        result = section.replace(current_value, setting_value, 1)
+        m = re.search(self.config["regex"], section)
+        start, end = m.span(1)
+        result = section[:start] + setting_value + section[end:]
         return result
 
 
