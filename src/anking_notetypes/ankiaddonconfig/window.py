@@ -340,6 +340,7 @@ class ConfigLayout(QBoxLayout):
             button.setToolTip(tooltip)
 
         color_dialog = QColorDialog(self.config_window)
+        color_dialog.setOption(QColorDialog.ShowAlphaChannel)
 
         def set_color(rgb: str) -> None:
             button.setStyleSheet(
@@ -354,10 +355,13 @@ class ConfigLayout(QBoxLayout):
 
         def update() -> None:
             value = self.conf.get(key)
-            set_color(value)
+            if value != "inherit":
+                set_color(value)
+            else:
+                set_color("transparent")
 
         def save(color: QColor) -> None:
-            rgb = color.name(QColor.HexRgb)
+            rgb = color.name(QColor.HexArgb)
             self.conf.set(key, rgb)
             set_color(rgb)
 

@@ -189,6 +189,7 @@ class LineEditSetting(NoteTypeSetting):
         result = section.replace(current_value, setting_value, 1)
         return result
 
+
 class DropdownSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.dropdown(
@@ -207,6 +208,7 @@ class DropdownSetting(NoteTypeSetting):
         result = section.replace(current_value, setting_value, 1)
         return result
 
+
 class ColorSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.color_input(
@@ -216,12 +218,20 @@ class ColorSetting(NoteTypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        return re.search(self.config["regex"], section).group(1)
+        color_str = re.search(self.config["regex"], section).group(1)
+        if self.config.get("with_inherit_option", False) and str(color_str) in ["transparent", " #00000000"]:
+            return "inherit"
+        return color_str
+
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
-        result = section.replace(current_value, setting_value, 1)
+        if self.config.get("with_inherit_option", False) and setting_value  in ["transparent", "#00000000"]:
+            result = section.replace(current_value, "inherit", 1)
+        else:
+            result = section.replace(current_value, setting_value, 1)
         return result
+
 
 class ShortcutSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
@@ -296,7 +306,7 @@ def change_window_settings(window: ConfigWindow, on_save):
     window.execute_on_save(on_save)
 
 
-def ntss_for_notetype(notetype_name):
+def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
     result = []
     for name in settings_by_notetype[notetype_name]:
         setting_config = setting_configs[name]

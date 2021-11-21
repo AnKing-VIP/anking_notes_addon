@@ -25,7 +25,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 
 def button_shortcut_setting_config(button_name, default):
@@ -105,7 +105,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +revealClozeShortcut += +"([^"]*?)"',
-        "default": True,
+        "default": "N",
     },
     "reveal_cloze_word_shortcut": {
         "name": "Reveal Cloze Word Shortcut",
@@ -245,7 +245,7 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "style",
         "regex": ".card.*\n*kbd *{[^}]*?font-family: (.+);",
-        "default": 28,
+        "default": "Arial Greek, Arial",
     },
     "image_height": {
         "name": "Max Image Height",
@@ -268,7 +268,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".card *{[^}]*?color: (.+);",
+        "regex": ".card *{[^}]*?color: (.+?);",
         "default": "black",
     },
     "background_text_color": {
@@ -276,7 +276,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".card *{[^}]*?background-color: (.+);",
+        "regex": ".card *{[^}]*?background-color: (.+?);",
         "default": "#D1CFCE",
     },
     "cloze_color": {
@@ -284,7 +284,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".cloze *{[^}]*?color: (.+);",
+        "regex": ".cloze *{[^}]*?color: (.+?);",
         "default": "blue",
     },
     "extra_text_color": {
@@ -292,7 +292,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": "#extra *{[^}]*?color: (.+);",
+        "regex": "#extra *{[^}]*?color: (.+?);",
         "default": "navy",
     },
     "hint_text_color": {
@@ -300,7 +300,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".hints *{[^}]*?color: (.+);",
+        "regex": ".hints *{[^}]*?color: (.+?);",
         "default": "#4297F9",
     },
     "missed_text_color": {
@@ -308,7 +308,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": "#missed *{[^}]*?color: (.+);",
+        "regex": "#missed *{[^}]*?color: (.+?);",
         "default": "red",
     },
     "timer_text_color": {
@@ -316,7 +316,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".timer *{[^}]*?color: (.+);",
+        "regex": ".timer *{[^}]*?color: (.+?);",
         "default": "transparent",
     },
     "nm_text_color": {
@@ -324,15 +324,15 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".night_mode .card *{[^}]*?color: (.+) +(!important)?;",
-        "default": "#FFAFA",
+        "regex": ".night_mode .card *{[^}]*?color: (.+?) +(!important)?;",
+        "default": "#FFFAFA",
     },
     "nm_background_color": {
         "name": "Night Mode Background color",
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".night_mode .card *{[^}]*?background-color: (.+) +(!important)?;",
+        "regex": ".night_mode .card *{[^}]*?background-color: (.+?) +(!important)?;",
         "default": "#272828",
     },
     "nm_cloze_color": {
@@ -340,7 +340,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".night_mode .cloze *{[^}]*?color: (.+) +(!important)?;",
+        "regex": ".night_mode .cloze *{[^}]*?color: (.+?) +(!important)?;",
         "default": "#4297F9",
     },
     "nm_extra_color": {
@@ -348,7 +348,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".night_mode #extra *{[^}]*?color: (.+) +(!important)?;",
+        "regex": ".night_mode #extra *{[^}]*?color: (.+?) +(!important)?;",
         "default": "magenta",
     },
     "nm_hint_color": {
@@ -356,13 +356,40 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "color",
         "file": "style",
-        "regex": ".night_mode .hints *{[^}]*?color: (.+) *(!important)?;",
+        "regex": ".night_mode .hints *{[^}]*?color: (.+?) *(!important)?;",
         "default": "cyan",
+    },
+    "bold_text_color": {
+        "name": "Bold Text color",
+        "tooltip": "set to transparent for normal color",
+        "type": "color",
+        "file": "style",
+        "regex": "b *{[^}]*?color: (.+?) *(!important)?;",
+        "with_inherit_option": True,
+        "default": "inherit",
+    },
+    "underlined_text_color": {
+        "name": "Underlined Text color",
+        "tooltip": "set to transparent for normal color",
+        "type": "color",
+        "file": "style",
+        "regex": "u *{[^}]*?color: (.+?) *(!important)?;",
+        "with_inherit_option": True,
+        "default": "inherit",
+    },
+    "italic_text_color": {
+        "name": "Italic Text color",
+        "tooltip": "set to transparent for normal color",
+        "type": "color",
+        "file": "style",
+        "regex": "i *{[^}]*?color: (.+?) *(!important)?;",
+        "with_inherit_option": True,
+        "default": "inherit",
     },
 }
 
 
-def settings_by_notetype_dict():
+def settings_by_notetype_dict() -> Dict[str, List[str]]:
     result = defaultdict(lambda: [])
     for x in (Path(__file__).parent / "note_types").iterdir():
         if not x.is_dir():
