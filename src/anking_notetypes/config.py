@@ -61,8 +61,7 @@ class NoteTypeSetting(ABC):
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
             )
 
-    def setting_value(self, notetype_name: str) -> Any:
-        model = mw.col.models.by_name(notetype_name)
+    def setting_value(self, model: NotetypeDict) -> Any:
         section = self._relevant_template_section(model)
         result = self._extract_setting_value(section)
         return result
@@ -336,10 +335,19 @@ def general_ntss():
 def open_config_window(clayout: CardLayout = None):
     conf = ConfigManager()
 
-    # read in settings from notetypes and update config
+    # read in settings from notetypes and update config and save
     for notetype_name in settings_by_notetype.keys():
+        model = mw.col.models.by_name(notetype_name)
         for nts in ntss_for_notetype(notetype_name):
-            conf[nts.key(notetype_name)] = nts.setting_value(notetype_name)
+            conf[nts.key(notetype_name)] = nts.setting_value(model)
+    conf.save()
+
+    # if in live preview mode read in current not confirmed settings
+    if clayout:
+        model = clayout.model
+        notetype_name = clayout.model["name"]
+        for nts in ntss_for_notetype(notetype_name):
+            conf[nts.key(notetype_name)] = nts.setting_value(model)
 
     # add general tab
     conf.add_config_tab(general_tab(general_ntss()))
