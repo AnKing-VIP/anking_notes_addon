@@ -271,8 +271,8 @@ setting_configs: Dict[str, Any] = {
         "regex": ".card *{[^}]*?color: (.+?);",
         "default": "black",
     },
-    "background_text_color": {
-        "name": "Background Text color",
+    "background_color": {
+        "name": "Background color",
         "tooltip": "",
         "type": "color",
         "file": "style",
