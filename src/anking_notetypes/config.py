@@ -221,13 +221,19 @@ class ColorSetting(NoteTypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         color_str = re.search(self.config["regex"], section).group(1)
-        if self.config.get("with_inherit_option", False) and str(color_str) != "transparent":
+        if (
+            self.config.get("with_inherit_option", False)
+            and str(color_str) != "transparent"
+        ):
             return "inherit"
         return color_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
-        if self.config.get("with_inherit_option", False) and setting_value != "transparent":
+        if (
+            self.config.get("with_inherit_option", False)
+            and setting_value != "transparent"
+        ):
             result = section.replace(current_value, "inherit", 1)
         else:
             result = section.replace(current_value, setting_value, 1)
@@ -300,12 +306,25 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
     return tab
 
 
-def change_window_settings(window: ConfigWindow, on_save):
+def change_window_settings(window: ConfigWindow, on_save, clayout=None):
     window.setWindowTitle("AnKing note types")
     window.setMinimumHeight(500)
     window.setMinimumWidth(500)
 
     window.execute_on_save(on_save)
+
+    def update_clayout_on_reset():
+        model = clayout.model
+        notetype_name = model["name"]
+        for nts in ntss_for_notetype(notetype_name):
+            model = nts.updated_model(model, notetype_name, window.conf)
+
+        clayout.model = model
+        clayout.change_tracker.mark_basic()
+        clayout.update_current_ordinal_and_redraw(clayout.ord)
+
+    if clayout:
+        window.reset_btn.clicked.connect(update_clayout_on_reset)  # type: ignore
 
 
 def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
@@ -378,7 +397,9 @@ def open_config_window(clayout: CardLayout = None):
             mw.col.models.update_dict(model)
 
     conf.on_window_open(
-        lambda window: change_window_settings(window, on_save=update_notetypes)
+        lambda window: change_window_settings(
+            window, on_save=update_notetypes, clayout=clayout
+        )
     )
 
     # open the config window
