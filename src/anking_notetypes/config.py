@@ -295,6 +295,14 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
 def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab("General")
+
+        tab.text(
+            "Changes made here will be applied to all notetypes that have this setting",
+            bold=True,
+            multiline=True,
+        )
+        tab.space(10)
+
         scroll = tab.scroll_layout()
         for nts in ntss:
             nts.add_widget_to_general_config_layout(scroll)
@@ -328,7 +336,10 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
         change_tab_to_current_notetype(window, clayout)
 
 
-def change_tab_to_current_notetype(window: ConfigWindow, clayout: CardLayout, ) -> None:
+def change_tab_to_current_notetype(
+    window: ConfigWindow,
+    clayout: CardLayout,
+) -> None:
     notetype_name = clayout.model["name"]
     tab_widget = window.main_tab
 
