@@ -296,13 +296,6 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab("General")
 
-        tab.text(
-            "Changes made here will be applied to all notetypes that have this setting",
-            bold=True,
-            multiline=True,
-        )
-        tab.space(10)
-
         scroll = tab.scroll_layout()
         for nts in ntss:
             nts.add_widget_to_general_config_layout(scroll)
@@ -310,6 +303,13 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
             scroll.space(7)
 
         scroll.stretch()
+
+        tab.space(10)
+        tab.text(
+            "Changes made here will be applied to all notetypes that have this setting",
+            bold=True,
+            multiline=True,
+        )
 
     return tab
 
