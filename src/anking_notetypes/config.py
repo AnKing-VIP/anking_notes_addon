@@ -325,6 +325,24 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
 
     if clayout:
         window.reset_btn.clicked.connect(update_clayout_on_reset)  # type: ignore
+        change_tab_to_current_notetype(window, clayout)
+
+
+def change_tab_to_current_notetype(window: ConfigWindow, clayout: CardLayout, ) -> None:
+    notetype_name = clayout.model["name"]
+    tab_widget = window.main_tab
+
+    def get_tab_by_name(tab_name):
+        return next(
+            (
+                index
+                for index in range(tab_widget.count())
+                if tab_name == tab_widget.tabText(index)
+            ),
+            None,
+        )
+
+    tab_widget.setCurrentIndex(get_tab_by_name(notetype_name))
 
 
 def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
