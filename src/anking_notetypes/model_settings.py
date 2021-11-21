@@ -117,7 +117,7 @@ setting_configs: Dict[str, Any] = {
     },
     "reveal_next_cloze_mode": {
         "name": "Reveal Next Cloze Mode",
-        "tooltip": 'cloze: clozes are revealed normally\nword: clozes are revealed word by word',
+        "tooltip": "cloze: clozes are revealed normally\nword: clozes are revealed word by word",
         "type": "dropdown",
         "file": "back",
         "regex": 'var +revealNextClozeMode += +"([^"]*?)"',
