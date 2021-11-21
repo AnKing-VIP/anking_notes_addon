@@ -49,6 +49,7 @@ class ConfigWindow(QDialog):
 
         self.reset_btn = QPushButton("Restore Defaults")
         self.reset_btn.clicked.connect(self.on_reset)
+        self.reset_btn.setAutoDefault(False)
         btn_box.addWidget(self.reset_btn)
 
         btn_box.addStretch(1)
