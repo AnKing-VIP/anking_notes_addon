@@ -336,7 +336,6 @@ class ConfigLayout(QBoxLayout):
         button.setFixedWidth(25)
         button.setFixedHeight(25)
         button.setCursor(QCursor(Qt.PointingHandCursor))
-        # button.setStyleSheet("border:5px solid #ff0000;")
 
         if tooltip is not None:
             button.setToolTip(tooltip)
@@ -345,8 +344,11 @@ class ConfigLayout(QBoxLayout):
         color_dialog.setOption(QColorDialog.ShowAlphaChannel)
 
         def set_color(rgb: str) -> None:
-
-            border_style = 'none' if rgb not in ['#00000000', "transparent"] else '1px solid #000000'
+            border_style = (
+                "none"
+                if rgb != "transparent"
+                else "1px solid #000000"
+            )
             button.setStyleSheet(
                 f'QPushButton{{ background-color: "{rgb}"; border: {border_style}; border-radius: 3px}}'
             )
@@ -358,13 +360,16 @@ class ConfigLayout(QBoxLayout):
 
         def update() -> None:
             value = self.conf.get(key)
+
             if value != "inherit":
                 set_color(value)
             else:
                 set_color("transparent")
 
         def save(color: QColor) -> None:
-            rgb = color.name(QColor.HexArgb)
+            rgb = color.name(QColor.HexRgb)
+            if color.name(QColor.HexArgb) == "#00000000":
+                rgb = "transparent"
             self.conf.set(key, rgb)
             set_color(rgb)
 
