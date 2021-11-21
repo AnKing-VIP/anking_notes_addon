@@ -345,11 +345,7 @@ class ConfigLayout(QBoxLayout):
         color_dialog.setOption(QColorDialog.ShowAlphaChannel)
 
         def set_color(rgb: str) -> None:
-            border_style = (
-                "none"
-                if rgb != "transparent"
-                else "1px solid #000000"
-            )
+            border_style = "none" if rgb != "transparent" else "1px solid #000000"
             button.setStyleSheet(
                 f'QPushButton{{ background-color: "{rgb}"; border: {border_style}; border-radius: 3px}}'
             )
@@ -468,8 +464,12 @@ class ConfigLayout(QBoxLayout):
         shortcut_clear_btn = QPushButton("Clear")
         shortcut_clear_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)
-        self.addWidget(shortcut_clear_btn)
 
+        layout = QHBoxLayout()
+        layout.addWidget(edit)
+        layout.addWidget(shortcut_clear_btn)
+
+        self.addLayout(layout)
         return edit, shortcut_clear_btn
 
     # Layout widgets
