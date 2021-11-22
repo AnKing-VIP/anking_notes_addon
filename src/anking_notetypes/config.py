@@ -5,7 +5,7 @@ from typing import Any, Callable, Dict, List
 from anki.models import NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
-from aqt.utils import showInfo
+from aqt.utils import showInfo, tooltip
 from PyQt5.QtCore import *  # type: ignore
 from PyQt5.QtGui import *  # type: ignore
 from PyQt5.QtWidgets import *
@@ -71,8 +71,8 @@ class NoteTypeSetting(ABC):
         template_text = self._relevant_template_text(model)
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
-            raise Exception(
-                f"could not find '{self.config['regex']}' in relevant template"
+            raise NotetypeParseException(
+                f"could not find '{self.config['regex']}' in {self.config['file']} template"
             )
         result = section_match.group(0)
         return result
@@ -139,7 +139,9 @@ class ReCheckboxSetting(NoteTypeSetting):
         checked = all(y in section for _, y in replacement_pairs)
         unchecked = all(x in section for x, _ in replacement_pairs)
         if not ((checked or unchecked) and not (checked and unchecked)):
-            raise Exception(f"error involving {replacement_pairs=} and {section=}")
+            raise NotetypeParseException(
+                f"error involving {replacement_pairs=} and {section=}"
+            )
         return checked
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
@@ -152,6 +154,10 @@ class ReCheckboxSetting(NoteTypeSetting):
                 result = result.replace(y, x)
 
         return result
+
+
+class NotetypeParseException(Exception):
+    pass
 
 
 class CheckboxSetting(NoteTypeSetting):
@@ -339,6 +345,7 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
         model = clayout.model
         notetype_name = model["name"]
         for nts in ntss_for_notetype(notetype_name):
+            # XXX NotetypeParseException could occur
             model = nts.updated_model(model, notetype_name, window.conf)
 
         clayout.model = model
@@ -388,6 +395,20 @@ def general_ntss():
     return result
 
 
+def safe_update_model(ntss: List[NoteTypeSetting], model, conf: ConfigManager):
+    result = model.copy()
+    parse_exception = None  # show only one error if any
+    for nts in ntss:
+        try:
+            result = nts.updated_model(result, result["name"], conf)
+        except NotetypeParseException as e:
+            parse_exception = e
+    if parse_exception:
+        tooltip(f"failed parsing notetype:\n{str(parse_exception)}")
+
+    return model
+
+
 def open_config_window(clayout: CardLayout = None):
     conf = ConfigManager()
 
@@ -397,7 +418,10 @@ def open_config_window(clayout: CardLayout = None):
         if not model:
             continue
         for nts in ntss_for_notetype(notetype_name):
-            conf[nts.key(notetype_name)] = nts.setting_value(model)
+            try:
+                conf[nts.key(notetype_name)] = nts.setting_value(model)
+            except NotetypeParseException as e:
+                tooltip(f"failed parsing notetype:\n{str(e)}")
     conf.save()
 
     # if in live preview mode read in current not confirmed settings
@@ -424,7 +448,7 @@ def open_config_window(clayout: CardLayout = None):
             return
 
         nts = NoteTypeSetting.from_config(setting_configs[setting_name])
-        model = nts.updated_model(model, notetype_name, conf)
+        model = safe_update_model([nts], model, conf)
 
         clayout.model = model
         clayout.change_tracker.mark_basic()
@@ -439,8 +463,8 @@ def open_config_window(clayout: CardLayout = None):
             model = mw.col.models.by_name(notetype_name)
             if not model:
                 continue
-            for nts in ntss_for_notetype(notetype_name):
-                model = nts.updated_model(model, notetype_name, conf)
+            ntss = ntss_for_notetype(notetype_name)
+            model = safe_update_model(ntss, model, conf)
             mw.col.models.update_dict(model)
 
     conf.on_window_open(
