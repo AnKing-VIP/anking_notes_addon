@@ -1,10 +1,10 @@
-from typing import Callable, List, Tuple, TYPE_CHECKING, Optional
 from pathlib import Path
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import aqt.addons
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import tooltip, showText, saveGeom, restoreGeom
+from aqt.utils import restoreGeom, saveGeom, showText, tooltip
 
 from .errors import InvalidConfigValueError
 
@@ -504,6 +504,18 @@ class ConfigLayout(QBoxLayout):
 
         self.addWidget(label_widget)
         return label_widget
+
+    def button(
+        self,
+        text: str,
+        on_click: Optional[Callable] = None,
+    ) -> QPushButton:
+        button = QPushButton()
+        button.setText(text)
+        button.clicked.connect(on_click)
+        button.setAutoDefault(False)
+        self.addWidget(button)
+        return button
 
     def text_button(
         self,

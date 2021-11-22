@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, List
 from anki.models import NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
+from aqt.utils import showInfo
 from PyQt5.QtCore import *  # type: ignore
 from PyQt5.QtGui import *  # type: ignore
 from PyQt5.QtWidgets import *
@@ -284,19 +285,26 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
         tab = window.add_tab(notetype_name)
 
         notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
-        if notetype_name not in notetype_names:
+        if notetype_name in notetype_names:
+            scroll = tab.scroll_layout()
+            for nts in ntss:
+                nts.add_widget_to_config_layout(scroll, notetype_name)
+                scroll.space(7)
+            scroll.stretch()
+        else:
             tab.text("the notetype is not in the collection")
             tab.stretch()
-            return
 
-        scroll = tab.scroll_layout()
-        for nts in ntss:
-            nts.add_widget_to_config_layout(scroll, notetype_name)
-            scroll.space(7)
-
-        scroll.stretch()
+        tab.button(
+            "Import / Reset",
+            on_click=lambda: import_notetype(notetype_name),
+        )
 
     return tab
+
+
+def import_notetype(notetype_name):
+    showInfo("not implemented yet")
 
 
 def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
@@ -308,7 +316,6 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
             nts.add_widget_to_general_config_layout(scroll)
             nts.register_general_setting(tab.conf)
             scroll.space(7)
-
         scroll.stretch()
 
         tab.space(10)
