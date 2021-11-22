@@ -406,7 +406,7 @@ def safe_update_model(ntss: List[NoteTypeSetting], model, conf: ConfigManager):
     if parse_exception:
         tooltip(f"failed parsing notetype:\n{str(parse_exception)}")
 
-    return model
+    return result
 
 
 def open_config_window(clayout: CardLayout = None):
