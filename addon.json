@@ -1,14 +1,14 @@
 {
-    "display_name": "",
-    "module_name": "addon_name",
+    "display_name": "Anking Notetypes",
+    "module_name": "anking_notetypes",
     "repo_name": "",
     "ankiweb_id": "",
-    "author": "",
+    "author": "RisingOrange",
     "conflicts": [],
     "targets": [
         "anki21"
     ],
-    "min_anki_version" : "2.1.45",
-    "max_tested_anki_version" : "2.1.46",
+    "min_anki_version" : "2.1.49",
+    "max_tested_anki_version" : "2.1.49",
     "ankiweb_conflicts_with_local": false
 }
