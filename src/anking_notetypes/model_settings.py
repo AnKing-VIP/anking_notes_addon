@@ -1,7 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 
 def button_shortcut_setting_config(button_name, default):
@@ -365,8 +365,8 @@ setting_configs: Dict[str, Any] = {
 }
 
 
-def settings_by_notetype_dict() -> Dict[str, List[str]]:
-    result = defaultdict(lambda: [])
+def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
+    result = dict()
     for x in (Path(__file__).parent / "note_types").iterdir():
         if not x.is_dir():
             continue
@@ -375,7 +375,15 @@ def settings_by_notetype_dict() -> Dict[str, List[str]]:
         front_template = (x / "Front Template.html").read_text()
         back_template = (x / ("Back Template.html")).read_text()
         styling = (x / ("Styling.css")).read_text()
+        result[notetype_name] = (front_template, back_template, styling)
 
+    return result
+
+
+def settings_by_notetype_dict() -> Dict[str, List[str]]:
+    result = defaultdict(lambda: [])
+    for notetype_name, templates in anking_notetype_templates().items():
+        front_template, back_template, styling = templates
         for setting_name, config in setting_configs.items():
             if config["file"] == "front":
                 relevant_template = front_template
