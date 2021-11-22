@@ -372,9 +372,13 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
             continue
         notetype_name = x.name
 
-        front_template = (x / "Front Template.html").read_text()
-        back_template = (x / ("Back Template.html")).read_text()
-        styling = (x / ("Styling.css")).read_text()
+        front_template = (x / "Front Template.html").read_text(
+            encoding="utf-8", errors="ignore"
+        )
+        back_template = (x / ("Back Template.html")).read_text(
+            encoding="utf-8", errors="ignore"
+        )
+        styling = (x / ("Styling.css")).read_text(encoding="utf-8", errors="ignore")
         result[notetype_name] = (front_template, back_template, styling)
 
     return result
