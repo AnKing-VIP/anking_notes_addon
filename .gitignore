@@ -6,8 +6,6 @@ meta.json
 src/*/gui/forms/anki*
 src/*/gui/resources/anki*
 
-note_types/
-
 __pycache__/
 .cache
 .mypy_cache/
