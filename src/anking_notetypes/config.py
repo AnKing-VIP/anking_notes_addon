@@ -437,6 +437,8 @@ def open_config_window(clayout: CardLayout = None):
     def update_notetypes():
         for notetype_name in settings_by_notetype.keys():
             model = mw.col.models.by_name(notetype_name)
+            if not model:
+                continue
             for nts in ntss_for_notetype(notetype_name):
                 model = nts.updated_model(model, notetype_name, conf)
             mw.col.models.update_dict(model)
