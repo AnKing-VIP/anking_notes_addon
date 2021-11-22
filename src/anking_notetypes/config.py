@@ -282,6 +282,13 @@ class NumberEditSetting(NoteTypeSetting):
 def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab(notetype_name)
+
+        notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
+        if notetype_name not in notetype_names:
+            tab.text("the notetype is not in the collection")
+            tab.stretch()
+            return
+
         scroll = tab.scroll_layout()
         for nts in ntss:
             nts.add_widget_to_config_layout(scroll, notetype_name)
@@ -358,7 +365,7 @@ def change_tab_to_current_notetype(
 
 def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
     result = []
-    for name in settings_by_notetype[notetype_name]:
+    for name in settings_by_notetype.get(notetype_name, []):
         setting_config = setting_configs[name]
         setting_config["setting_name"] = name
         result.append(NoteTypeSetting.from_config(setting_config))
@@ -380,6 +387,8 @@ def open_config_window(clayout: CardLayout = None):
     # read in settings from notetypes and update config and save
     for notetype_name in settings_by_notetype.keys():
         model = mw.col.models.by_name(notetype_name)
+        if not model:
+            continue
         for nts in ntss_for_notetype(notetype_name):
             conf[nts.key(notetype_name)] = nts.setting_value(model)
     conf.save()
