@@ -1,8 +1,7 @@
 import re
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
-
+from typing import Any, Dict, List, OrderedDict, Tuple
 
 setting_configs: Dict[str, Any] = {
     "toggle_all_buttons": {
@@ -348,24 +347,28 @@ def settings_by_notetype_dict() -> Dict[str, List[str]]:
 
 
 def all_btns_setting_configs():
-    btn_name_to_shortcut = dict()
-    for templates in anking_notetype_templates().values():
-        _, back, _ = templates
-
-        button_shortcuts_dict_pattern = "var+ ButtonShortcuts *= *{([^}]*)}"
-        m = re.search(button_shortcuts_dict_pattern, back)
-        if not m:
-            continue
-
-        dict_key_value_pattern = '"([^"]+)" *: *"([^"]+)"'
-        button_shorcut_pairs = re.findall(dict_key_value_pattern, m.group(1))
-        for btn_name, shortcut in button_shorcut_pairs:
-            btn_name_to_shortcut[btn_name] = shortcut
-
     result = dict()
-    for btn_name, shortcut in btn_name_to_shortcut.items():
-        result.update(btn_setting_config(btn_name, shortcut))
+    for notetype_name in anking_notetype_templates().keys():
+        for btn_name, shortcut in btn_name_to_shortcut_for_notetype(
+            notetype_name
+        ).items():
+            result.update(btn_setting_config(btn_name, shortcut))
+    return result
 
+
+def btn_name_to_shortcut_for_notetype(notetype_name):
+    _, back, _ = anking_notetype_templates()[notetype_name]
+
+    button_shortcuts_dict_pattern = "var+ ButtonShortcuts *= *{([^}]*)}"
+    m = re.search(button_shortcuts_dict_pattern, back)
+    if not m:
+        return dict()
+
+    result = OrderedDict()
+    dict_key_value_pattern = '"([^"]+)" *: *"([^"]+)"'
+    button_shorcut_pairs = re.findall(dict_key_value_pattern, m.group(1))
+    for btn_name, shortcut in button_shorcut_pairs:
+        result[btn_name] = shortcut
     return result
 
 
@@ -401,7 +404,7 @@ def auto_reveal_setting_config(button_name, default):
     }
 
 
-setting_configs.update(all_btns_setting_configs())
+setting_configs = {**all_btns_setting_configs(), **setting_configs}
 
 
 settings_by_notetype = settings_by_notetype_dict()
