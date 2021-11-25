@@ -2,17 +2,22 @@ import re
 from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, List
 
-from anki.models import NotetypeDict
+from anki.models import ModelManager, NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
-from aqt.utils import showInfo, tooltip
+from aqt.utils import askUser, showInfo, tooltip
 from PyQt5.QtCore import *  # type: ignore
 from PyQt5.QtGui import *  # type: ignore
 from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .model_settings import general_settings, setting_configs, settings_by_notetype
+from .model_settings import (
+    anking_notetype_templates,
+    general_settings,
+    setting_configs,
+    settings_by_notetype,
+)
 
 
 class NoteTypeSetting(ABC):
@@ -72,7 +77,7 @@ class NoteTypeSetting(ABC):
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
             raise NotetypeParseException(
-                f"could not find '{self.config['regex']}' in {self.config['file']} template"
+                f"could not find '{self.config['name']}' in {self.config['file']} template of notetype '{model['name']}'"
             )
         result = section_match.group(0)
         return result
@@ -302,15 +307,29 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
             tab.stretch()
 
         tab.button(
-            "Import / Reset",
-            on_click=lambda: import_notetype(notetype_name),
+            "Reset",
+            on_click=lambda: reset_notetype_and_reload_ui(notetype_name, window),
         )
 
     return tab
 
 
-def import_notetype(notetype_name):
-    showInfo("not implemented yet")
+def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
+    if askUser(
+        f'Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?', defaultno=True
+    ):
+        mm: ModelManager = mw.col.models
+        model = mm.by_name(notetype_name)
+        front, back, styling = anking_notetype_templates()[notetype_name]
+        model["tmpls"][0]["qfmt"] = front
+        model["tmpls"][0]["afmt"] = back
+        model["css"] = styling
+        mm.update_dict(model)
+
+        read_in_settings_from_notetypes(window.conf)
+        window.update_widgets()
+        
+        tooltip("Notetype was reset", parent=window, period=1200)
 
 
 def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
@@ -338,6 +357,9 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
     window.setWindowTitle("AnKing note types")
     window.setMinimumHeight(500)
     window.setMinimumWidth(500)
+
+    # hide reset button because there is a reset button for each notetype
+    window.reset_btn.hide()
 
     window.execute_on_save(on_save)
 
@@ -409,10 +431,8 @@ def safe_update_model(ntss: List[NoteTypeSetting], model, conf: ConfigManager):
     return result
 
 
-def open_config_window(clayout: CardLayout = None):
-    conf = ConfigManager()
-
-    # read in settings from notetypes and update config and save
+def read_in_settings_from_notetypes(conf: ConfigManager):
+    error_msg = ""
     for notetype_name in settings_by_notetype.keys():
         model = mw.col.models.by_name(notetype_name)
         if not model:
@@ -421,7 +441,17 @@ def open_config_window(clayout: CardLayout = None):
             try:
                 conf[nts.key(notetype_name)] = nts.setting_value(model)
             except NotetypeParseException as e:
-                tooltip(f"failed parsing notetype:\n{str(e)}")
+                error_msg += f"failed parsing notetype:\n{str(e)}\n\n"
+
+    if error_msg:
+        showInfo(error_msg)
+
+
+def open_config_window(clayout: CardLayout = None):
+    conf = ConfigManager()
+
+    # read in settings from notetypes and update config and save
+    read_in_settings_from_notetypes(conf)
     conf.save()
 
     # if in live preview mode read in current not confirmed settings
