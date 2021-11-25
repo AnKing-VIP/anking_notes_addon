@@ -10,7 +10,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +ToggleAllButtonsShortcut += +"([^"]*?)"',
-        "default": "Alt+9",
+        "default": "'",
     },
     "autoscroll_to_button": {
         "name": "scroll to button when toggled",
@@ -26,7 +26,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +revealClozeShortcut += +"([^"]*?)"',
-        "default": "Ctrl+N",
+        "default": "N",
     },
     "reveal_cloze_word_shortcut": {
         "name": "Reveal Cloze Word Shortcut",
@@ -34,7 +34,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +revealClozeWordShortcut += +"([^"]*?)"',
-        "default": "Ctrl+Shift+N",
+        "default": "Shift+N",
     },
     "reveal_next_cloze_mode": {
         "name": "Reveal Next Cloze Mode",
