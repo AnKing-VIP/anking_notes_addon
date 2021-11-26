@@ -316,7 +316,8 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
 
 def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
     if askUser(
-        f'Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?', defaultno=True
+        f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
+        defaultno=True,
     ):
         mm: ModelManager = mw.col.models
         model = mm.by_name(notetype_name)
@@ -328,7 +329,7 @@ def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
 
         read_in_settings_from_notetypes(window.conf)
         window.update_widgets()
-        
+
         tooltip("Notetype was reset", parent=window, period=1200)
 
 
