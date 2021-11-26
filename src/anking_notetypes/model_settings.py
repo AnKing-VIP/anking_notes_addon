@@ -28,6 +28,22 @@ setting_configs: Dict[str, Any] = {
         "regex": 'var +toggleTagsShortcut += +"(.*?)"',
         "default": "C",
     },
+    "io_reveal_next_shortcut": {
+        "name": "Image Occlusion Reveal Next",
+        "tooltip": "",
+        "type": "shortcut",
+        "file": "back",
+        "regex": 'var +RevealIncrementalShortcut += +"(.*?)"',
+        "default": "N",
+    },
+    "io_toggle_all_shortcut": {
+        "name": "Image Occlusion Toggle All",
+        "tooltip": "",
+        "type": "shortcut",
+        "file": "back",
+        "regex": 'var +ToggleAllOcclusionsShortcut += +"(.*?)"',
+        "default": ",",
+    },
     "reveal_cloze_shortcut": {
         "name": "Reveal Cloze Shortcut",
         "tooltip": "",
