@@ -13,9 +13,13 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .model_settings import (anking_notetype_templates,
-                             btn_name_to_shortcut_odict, general_settings,
-                             setting_configs, settings_by_notetype)
+from .model_settings import (
+    anking_notetype_templates,
+    btn_name_to_shortcut_odict,
+    general_settings,
+    setting_configs,
+    settings_by_notetype,
+)
 
 
 class NoteTypeSetting(ABC):
@@ -23,11 +27,11 @@ class NoteTypeSetting(ABC):
         self.config = config
 
     @abstractmethod
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         pass
 
-    def add_widget_to_general_config_layout(self, tab: ConfigLayout):
-        self.add_widget_to_config_layout(tab, "general")
+    def add_widget_to_general_config_layout(self, layout: ConfigLayout):
+        self.add_widget_to_config_layout(layout, "general")
 
     def register_general_setting(self, conf: ConfigManager):
         def update_all(key, value):
@@ -136,8 +140,8 @@ class NotetypeParseException(Exception):
 
 
 class ReCheckboxSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.checkbox(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.checkbox(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -166,8 +170,8 @@ class ReCheckboxSetting(NoteTypeSetting):
 
 
 class CheckboxSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.checkbox(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.checkbox(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -187,8 +191,8 @@ class CheckboxSetting(NoteTypeSetting):
 
 
 class LineEditSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.text_input(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.text_input(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -205,8 +209,8 @@ class LineEditSetting(NoteTypeSetting):
 
 
 class FontFamilySetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.font_family_combobox(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.font_family_combobox(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -223,8 +227,8 @@ class FontFamilySetting(NoteTypeSetting):
 
 
 class DropdownSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.dropdown(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.dropdown(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -242,8 +246,8 @@ class DropdownSetting(NoteTypeSetting):
 
 
 class ColorSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.color_input(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.color_input(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -271,8 +275,8 @@ class ColorSetting(NoteTypeSetting):
 
 
 class ShortcutSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.shortcut_edit(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.shortcut_edit(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -290,8 +294,8 @@ class ShortcutSetting(NoteTypeSetting):
 
 
 class NumberEditSetting(NoteTypeSetting):
-    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
-        tab.number_input(
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.number_input(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],
@@ -330,33 +334,6 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
     return tab
 
 
-def add_nts_widgets_to_layout(layout: ConfigLayout, ntss, notetype_name: str) -> None:
-    nts_to_section = {
-        nts: section_name
-        for nts in ntss
-        if (section_name := nts.config.get("section", None))
-    }
-
-    section_to_ntss = defaultdict(lambda: [])
-    for nts, section in nts_to_section.items():
-        section_to_ntss[section].append(nts)
-
-    for section_name, section_ntss in section_to_ntss.items():
-        section = layout.collapsible_section(section_name)
-        for nts in section_ntss:
-            nts.add_widget_to_config_layout(section, notetype_name)
-            section.space(7)
-        layout.hseparator()
-        layout.space(10)
-
-    other_ntss: List[NoteTypeSetting] = [
-        nts for nts in ntss if nts not in nts_to_section.keys()
-    ]
-    for nts in other_ntss:
-        nts.add_widget_to_config_layout(layout, notetype_name)
-        layout.space(7)
-
-
 def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
     if askUser(
         f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
@@ -381,11 +358,11 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
         tab = window.add_tab("General")
 
         scroll = tab.scroll_layout()
-        for nts in ntss:
-            nts.add_widget_to_general_config_layout(scroll)
-            nts.register_general_setting(tab.conf)
-            scroll.space(7)
+        add_nts_widgets_to_layout(scroll, ntss, None, general=True)
         scroll.stretch()
+
+        for nts in ntss:
+            nts.register_general_setting(tab.conf)
 
         tab.space(10)
         tab.text(
@@ -395,6 +372,45 @@ def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
         )
 
     return tab
+
+
+def add_nts_widgets_to_layout(
+    layout: ConfigLayout, ntss: List[NoteTypeSetting], notetype_name: str, general=False
+) -> None:
+
+    if general:
+        assert notetype_name == None
+
+    nts_to_section = {
+        nts: section_name
+        for nts in ntss
+        if (section_name := nts.config.get("section", None))
+    }
+
+    section_to_ntss: Dict[str, List[NoteTypeSetting]] = defaultdict(lambda: [])
+    for nts, section in nts_to_section.items():
+        section_to_ntss[section].append(nts)
+
+    for section_name, section_ntss in section_to_ntss.items():
+        section = layout.collapsible_section(section_name)
+        for nts in section_ntss:
+            if general:
+                nts.add_widget_to_general_config_layout(section)
+            else:
+                nts.add_widget_to_config_layout(section, notetype_name)
+            section.space(7)
+        layout.hseparator()
+        layout.space(10)
+
+    other_ntss: List[NoteTypeSetting] = [
+        nts for nts in ntss if nts not in nts_to_section.keys()
+    ]
+    for nts in other_ntss:
+        if general:
+            nts.add_widget_to_general_config_layout(layout)
+        else:
+            nts.add_widget_to_config_layout(layout, notetype_name)
+        layout.space(7)
 
 
 def change_window_settings(window: ConfigWindow, on_save, clayout=None):
