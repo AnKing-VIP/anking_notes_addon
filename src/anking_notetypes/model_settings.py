@@ -419,7 +419,8 @@ def button_shortcut_setting_config(button_name, default):
         "type": "shortcut",
         "file": "back",
         "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"([^"]*)"',
-        "hint_button_setting" : button_name,
+        "hint_button_setting": button_name,
+        "section": "Hint Buttons",
         "default": default,
     }
 
@@ -431,7 +432,8 @@ def auto_reveal_setting_config(button_name, default):
         "type": "checkbox",
         "file": "back",
         "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(true|false)',
-        "hint_button_setting" : button_name,
+        "hint_button_setting": button_name,
+        "section": "Hint Buttons",
         "default": default,
     }
 

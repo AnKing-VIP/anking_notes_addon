@@ -6,6 +6,7 @@ from aqt import mw
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, showText, tooltip
 
+from .collapsible_section import CollapsibleSection
 from .errors import InvalidConfigValueError
 
 if TYPE_CHECKING:
@@ -670,3 +671,10 @@ class ConfigLayout(QBoxLayout):
             Qt.ScrollBarAsNeeded,
             Qt.ScrollBarAsNeeded,
         )
+
+    def collapsible_section(self, title: str) -> "ConfigLayout":
+        layout = ConfigLayout(self.config_window, QBoxLayout.TopToBottom)
+        section = CollapsibleSection(title)
+        section.setContentLayout(layout)
+        self.addWidget(section)
+        return layout

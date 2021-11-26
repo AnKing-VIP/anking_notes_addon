@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from typing import Any, Callable, Dict, List
 
 from anki.models import ModelManager, NotetypeDict
@@ -12,13 +13,9 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .model_settings import (
-    anking_notetype_templates,
-    btn_name_to_shortcut_odict,
-    general_settings,
-    setting_configs,
-    settings_by_notetype,
-)
+from .model_settings import (anking_notetype_templates,
+                             btn_name_to_shortcut_odict, general_settings,
+                             setting_configs, settings_by_notetype)
 
 
 class NoteTypeSetting(ABC):
@@ -319,9 +316,7 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
         notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
         if notetype_name in notetype_names:
             scroll = tab.scroll_layout()
-            for nts in ntss:
-                nts.add_widget_to_config_layout(scroll, notetype_name)
-                scroll.space(7)
+            add_nts_widgets_to_layout(scroll, ntss, notetype_name)
             scroll.stretch()
         else:
             tab.text("the notetype is not in the collection")
@@ -333,6 +328,33 @@ def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Ca
         )
 
     return tab
+
+
+def add_nts_widgets_to_layout(layout: ConfigLayout, ntss, notetype_name: str) -> None:
+    nts_to_section = {
+        nts: section_name
+        for nts in ntss
+        if (section_name := nts.config.get("section", None))
+    }
+
+    section_to_ntss = defaultdict(lambda: [])
+    for nts, section in nts_to_section.items():
+        section_to_ntss[section].append(nts)
+
+    for section_name, section_ntss in section_to_ntss.items():
+        section = layout.collapsible_section(section_name)
+        for nts in section_ntss:
+            nts.add_widget_to_config_layout(section, notetype_name)
+            section.space(7)
+        layout.hseparator()
+        layout.space(10)
+
+    other_ntss: List[NoteTypeSetting] = [
+        nts for nts in ntss if nts not in nts_to_section.keys()
+    ]
+    for nts in other_ntss:
+        nts.add_widget_to_config_layout(layout, notetype_name)
+        layout.space(7)
 
 
 def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
