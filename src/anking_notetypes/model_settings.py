@@ -381,14 +381,12 @@ def settings_by_notetype_dict() -> Dict[str, List[str]]:
 def all_btns_setting_configs():
     result = dict()
     for notetype_name in anking_notetype_templates().keys():
-        for btn_name, shortcut in btn_name_to_shortcut_for_notetype(
-            notetype_name
-        ).items():
+        for btn_name, shortcut in btn_name_to_shortcut_odict(notetype_name).items():
             result.update(btn_setting_config(btn_name, shortcut))
     return result
 
 
-def btn_name_to_shortcut_for_notetype(notetype_name):
+def btn_name_to_shortcut_odict(notetype_name):
     _, back, _ = anking_notetype_templates()[notetype_name]
 
     button_shortcuts_dict_pattern = "var+ ButtonShortcuts *= *{([^}]*)}"
@@ -421,6 +419,7 @@ def button_shortcut_setting_config(button_name, default):
         "type": "shortcut",
         "file": "back",
         "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"([^"]*)"',
+        "hint_button_setting" : button_name,
         "default": default,
     }
 
@@ -432,6 +431,7 @@ def auto_reveal_setting_config(button_name, default):
         "type": "checkbox",
         "file": "back",
         "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(true|false)',
+        "hint_button_setting" : button_name,
         "default": default,
     }
 

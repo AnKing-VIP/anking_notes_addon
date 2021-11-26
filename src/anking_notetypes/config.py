@@ -14,6 +14,7 @@ from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
 from .model_settings import (
     anking_notetype_templates,
+    btn_name_to_shortcut_odict,
     general_settings,
     setting_configs,
     settings_by_notetype,
@@ -406,10 +407,31 @@ def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
         setting_config = setting_configs[name]
         setting_config["setting_name"] = name
         result.append(NoteTypeSetting.from_config(setting_config))
+
+    result = adjust_hint_button_nts_order(result, notetype_name)
     return result
 
 
-def general_ntss():
+def adjust_hint_button_nts_order(
+    ntss: List[NoteTypeSetting], notetype_name: str
+) -> List[NoteTypeSetting]:
+    # adjusts the order of the hint button settings to be the same as
+    # on the card of the notetype
+
+    hint_button_ntss = [
+        nts for nts in ntss if nts.config.get("hint_button_setting", False)
+    ]
+    ordered_btn_names = list(btn_name_to_shortcut_odict(notetype_name).keys())
+    ordered_hint_button_ntss = sorted(
+        hint_button_ntss,
+        key=lambda nts: ordered_btn_names.index(nts.config["hint_button_setting"]),
+    )
+
+    other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
+    return ordered_hint_button_ntss + other_ntss
+
+
+def general_ntss() -> List[NoteTypeSetting]:
     result = []
     for name in general_settings:
         setting_config = setting_configs[name]
