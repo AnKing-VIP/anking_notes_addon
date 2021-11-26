@@ -69,7 +69,7 @@ class ConfigWindow(QDialog):
         try:
             for widget_update in self.widget_updates:
                 widget_update()
-        except Exception as e:
+        except InvalidConfigValueError as e:
             advanced = self.advanced_window()
             dial, bbox = showText(
                 "Invalid Config. Please fix the following issue in the advanced config editor. \n\n"
