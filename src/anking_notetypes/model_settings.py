@@ -192,10 +192,10 @@ setting_configs: Dict[str, Any] = {
         "max": 50,
         "default": 28,
     },
-    "font_style": {
-        "name": "Font Style",
+    "font_family": {
+        "name": "Font Family",
         "tooltip": "",
-        "type": "text",
+        "type": "font_family",
         "file": "style",
         "regex": ".card.*\n*kbd *{[^}]*?font-family: (.+);",
         "default": "Arial Greek, Arial",
@@ -466,7 +466,7 @@ general_settings = [
     "tags_toggle_shortcut",
     "font_size",
     "font_size_mobile",
-    "font_style",
+    "font_family",
     "image_height",
     "image_width",
     "text_color",

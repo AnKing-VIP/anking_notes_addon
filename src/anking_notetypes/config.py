@@ -63,6 +63,8 @@ class NoteTypeSetting(ABC):
             return DropdownSetting(config)
         if config["type"] == "color":
             return ColorSetting(config)
+        if config["type"] == "font_family":
+            return FontFamilySetting(config)
         else:
             raise Exception(
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
@@ -132,6 +134,10 @@ class NoteTypeSetting(ABC):
         return result
 
 
+class NotetypeParseException(Exception):
+    pass
+
+
 class ReCheckboxSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.checkbox(
@@ -162,10 +168,6 @@ class ReCheckboxSetting(NoteTypeSetting):
         return result
 
 
-class NotetypeParseException(Exception):
-    pass
-
-
 class CheckboxSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.checkbox(
@@ -190,6 +192,24 @@ class CheckboxSetting(NoteTypeSetting):
 class LineEditSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
         tab.text_input(
+            key=self.key(notetype_name),
+            description=self.config["name"],
+            tooltip=self.config["tooltip"],
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        return re.search(self.config["regex"], section).group(1)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        m = re.search(self.config["regex"], section)
+        start, end = m.span(1)
+        result = section[:start] + setting_value + section[end:]
+        return result
+
+
+class FontFamilySetting(NoteTypeSetting):
+    def add_widget_to_config_layout(self, tab: ConfigLayout, notetype_name: str):
+        tab.font_family_combobox(
             key=self.key(notetype_name),
             description=self.config["name"],
             tooltip=self.config["tooltip"],

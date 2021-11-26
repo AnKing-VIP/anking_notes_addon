@@ -472,6 +472,30 @@ class ConfigLayout(QBoxLayout):
         self.addLayout(layout)
         return edit, shortcut_clear_btn
 
+    def font_family_combobox(
+        self, key, description: Optional[str] = None, tooltip: Optional[str] = None
+    ) -> QFontComboBox:
+        combo = QFontComboBox()
+
+        if description is not None:
+            row = self.hlayout()
+            row.text(description, tooltip=tooltip)
+
+        def update():
+            val = self.conf.get(key)
+            if not isinstance(val, str):
+                raise InvalidConfigValueError(key, "str", val)
+            combo.setCurrentText(val)
+
+        self.widget_updates.append(update)
+
+        combo.currentTextChanged.connect(
+            lambda s: self.conf.set(key, combo.currentText())
+        )
+
+        self.addWidget(combo)
+        return combo
+
     # Layout widgets
 
     def text(
