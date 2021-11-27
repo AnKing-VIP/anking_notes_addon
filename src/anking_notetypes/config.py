@@ -391,7 +391,7 @@ def add_nts_widgets_to_layout(
     for nts, section in nts_to_section.items():
         section_to_ntss[section].append(nts)
 
-    for section_name, section_ntss in section_to_ntss.items():
+    for section_name, section_ntss in sorted(section_to_ntss.items()):
         section = layout.collapsible_section(section_name)
         for nts in section_ntss:
             if general:

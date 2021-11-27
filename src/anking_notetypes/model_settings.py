@@ -10,6 +10,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +ToggleAllButtonsShortcut += +"([^"]*?)"',
+        "section": "Hint Buttons",
         "default": "'",
     },
     "autoscroll_to_button": {
@@ -18,15 +19,8 @@ setting_configs: Dict[str, Any] = {
         "type": "checkbox",
         "file": "back",
         "regex": "var +ScrollToButton += +(false|true)",
+        "section": "Hint Buttons",
         "default": True,
-    },
-    "tags_toggle_shortcut": {
-        "name": "Toggle Tags Shorcut",
-        "tooltip": "",
-        "type": "shortcut",
-        "file": "back",
-        "regex": 'var +toggleTagsShortcut += +"(.*?)"',
-        "default": "C",
     },
     "io_reveal_next_shortcut": {
         "name": "Image Occlusion Reveal Next",
@@ -34,6 +28,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +RevealIncrementalShortcut += +"(.*?)"',
+        "section": "Image Occlusion",
         "default": "N",
     },
     "io_toggle_all_shortcut": {
@@ -42,6 +37,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +ToggleAllOcclusionsShortcut += +"(.*?)"',
+        "section": "Image Occlusion",
         "default": ",",
     },
     "reveal_cloze_shortcut": {
@@ -50,6 +46,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +revealNextShortcut += +"(.*?)"',
+        "section": "Clozes",
         "default": "N",
     },
     "reveal_cloze_word_shortcut": {
@@ -58,6 +55,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +revealNextWordShortcut += +"(.*?)"',
+        "section": "Clozes",
         "default": "Shift+N",
     },
     "toggle_all_clozes_shortcut": {
@@ -66,6 +64,7 @@ setting_configs: Dict[str, Any] = {
         "type": "shortcut",
         "file": "back",
         "regex": 'var +toggleAllShortcut += +"(.*?)"',
+        "section": "Clozes",
         "default": ",",
     },
     "reveal_next_cloze_mode": {
@@ -75,6 +74,7 @@ setting_configs: Dict[str, Any] = {
         "file": "back",
         "regex": 'var +revealNextClozeMode += +"([^"]*?)"',
         "options": ["cloze", "word"],
+        "section": "Clozes",
         "default": "cloze",
     },
     "cloze_hider": {
@@ -83,7 +83,18 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "back",
         "regex": 'var +clozeHider +=[^"]+"([^"]*?)"',
+        "section": "Clozes",
         "default": "👑",
+    },
+    "timer": {
+        "name": "Timer",
+        "tooltip": "",
+        "type": "re_checkbox",
+        "file": "style",
+        "regex": ".timer *{[^}]*?display: (block|none);",
+        "replacement_pairs": [("none", "block")],
+        "section": "Timer",
+        "default": True,
     },
     "timer_secs": {
         "name": "timer duration (seconds)",
@@ -92,6 +103,7 @@ setting_configs: Dict[str, Any] = {
         "file": "front",
         "regex": "var +seconds += +([^ /\n]*)",
         "min": 0,
+        "section": "Timer",
         "default": 9,
     },
     "timer_minutes": {
@@ -101,6 +113,7 @@ setting_configs: Dict[str, Any] = {
         "file": "front",
         "regex": "var +minutes += +([^ /\n]*)",
         "min": 0,
+        "section": "Timer",
         "default": 0,
     },
     "autoflip": {
@@ -118,6 +131,7 @@ setting_configs: Dict[str, Any] = {
         "file": "front",
         "regex": "(<!--|{{)tts.+?(-->|}})",
         "replacement_pairs": [("<!--", "{{"), ("-->", "}}")],
+        "section": "Text to Speech",
         "default": False,
     },
     "back_tts": {
@@ -127,6 +141,7 @@ setting_configs: Dict[str, Any] = {
         "file": "back",
         "regex": "(<!--|{{)tts.+?(-->|}})",
         "replacement_pairs": [("<!--", "{{"), ("-->", "}}")],
+        "section": "Text to Speech",
         "default": False,
     },
     "front_signal_tag": {
@@ -135,6 +150,7 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "front",
         "regex": 'var +tagID += +"([^"]*?)"',
+        "section": "Tags",
         "default": "XXXYYYZZZ",
     },
     "back_signal_tag": {
@@ -143,16 +159,8 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "back",
         "regex": 'var +tagID += +"([^"]*?)"',
+        "section": "Tags",
         "default": "XXXYYYZZZ",
-    },
-    "timer": {
-        "name": "Timer",
-        "tooltip": "",
-        "type": "re_checkbox",
-        "file": "style",
-        "regex": ".timer *{[^}]*?display: (block|none);",
-        "replacement_pairs": [("none", "block")],
-        "default": True,
     },
     "tags_container": {
         "name": "Tags container",
@@ -161,6 +169,7 @@ setting_configs: Dict[str, Any] = {
         "file": "style",
         "regex": ".#tags-container *{[^}]*?display: (block|none);",
         "replacement_pairs": [("none", "block")],
+        "section": "Tags",
         "default": True,
     },
     "tags_container_mobile": {
@@ -170,7 +179,17 @@ setting_configs: Dict[str, Any] = {
         "file": "style",
         "regex": ".mobile +#tags-container *{[^}]*?display: (block|none);",
         "replacement_pairs": [("none", "block")],
+        "section": "Tags",
         "default": False,
+    },
+    "tags_toggle_shortcut": {
+        "name": "Toggle Tags Shorcut",
+        "tooltip": "",
+        "type": "shortcut",
+        "file": "back",
+        "regex": 'var +toggleTagsShortcut += +"(.*?)"',
+        "section": "Tags",
+        "default": "C",
     },
     "font_size": {
         "name": "Font Size",
@@ -180,6 +199,7 @@ setting_configs: Dict[str, Any] = {
         "regex": "html *{[^}]*?font-size: ([\d]+)px;",
         "min": 1,
         "max": 50,
+        "section": "Font",
         "default": 28,
     },
     "font_size_mobile": {
@@ -190,6 +210,7 @@ setting_configs: Dict[str, Any] = {
         "regex": ".mobile *{[^}]*?font-size: ([\d]+)px;",
         "min": 1,
         "max": 50,
+        "section": "Font",
         "default": 28,
     },
     "font_family": {
@@ -198,6 +219,7 @@ setting_configs: Dict[str, Any] = {
         "type": "font_family",
         "file": "style",
         "regex": ".card.*\n*kbd *{[^}]*?font-family: (.+);",
+        "section": "Font",
         "default": "Arial Greek, Arial",
     },
     "image_height": {
@@ -206,6 +228,7 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "style",
         "regex": "img *{[^}]*?max-height: (.+);",
+        "section": "Image Styling",
         "default": "none",
     },
     "image_width": {
@@ -214,6 +237,7 @@ setting_configs: Dict[str, Any] = {
         "type": "text",
         "file": "style",
         "regex": "img *{[^}]*?max-width: (.+);",
+        "section": "Image Styling",
         "default": "85%",
     },
     "text_color": {
@@ -222,6 +246,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".card *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "black",
     },
     "background_color": {
@@ -230,6 +255,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".card *{[^}]*?background-color: (.+?);",
+        "section": "Colors",
         "default": "#D1CFCE",
     },
     "cloze_color": {
@@ -238,6 +264,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".cloze *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "blue",
     },
     "extra_text_color": {
@@ -246,6 +273,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": "#extra *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "navy",
     },
     "hint_text_color": {
@@ -254,6 +282,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".hints *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "#4297F9",
     },
     "missed_text_color": {
@@ -262,6 +291,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": "#missed *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "red",
     },
     "timer_text_color": {
@@ -270,6 +300,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".timer *{[^}]*?color: (.+?);",
+        "section": "Colors",
         "default": "transparent",
     },
     "nm_text_color": {
@@ -278,6 +309,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".night_mode .card *{[^}]*?color: (.+?) +(!important)?;",
+        "section": "Colors",
         "default": "#FFFAFA",
     },
     "nm_background_color": {
@@ -286,6 +318,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".night_mode .card *{[^}]*?background-color: (.+?) +(!important)?;",
+        "section": "Colors",
         "default": "#272828",
     },
     "nm_cloze_color": {
@@ -294,6 +327,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".night_mode .cloze *{[^}]*?color: (.+?) +(!important)?;",
+        "section": "Colors",
         "default": "#4297F9",
     },
     "nm_extra_color": {
@@ -302,6 +336,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".night_mode #extra *{[^}]*?color: (.+?) +(!important)?;",
+        "section": "Colors",
         "default": "magenta",
     },
     "nm_hint_color": {
@@ -310,6 +345,7 @@ setting_configs: Dict[str, Any] = {
         "type": "color",
         "file": "style",
         "regex": ".night_mode .hints *{[^}]*?color: (.+?) *(!important)?;",
+        "section": "Colors",
         "default": "cyan",
     },
     "bold_text_color": {
@@ -319,6 +355,7 @@ setting_configs: Dict[str, Any] = {
         "file": "style",
         "regex": "b *{[^}]*?color: (.+?) *(!important)?;",
         "with_inherit_option": True,
+        "section": "Colors",
         "default": "inherit",
     },
     "underlined_text_color": {
@@ -328,6 +365,7 @@ setting_configs: Dict[str, Any] = {
         "file": "style",
         "regex": "u *{[^}]*?color: (.+?) *(!important)?;",
         "with_inherit_option": True,
+        "section": "Colors",
         "default": "inherit",
     },
     "italic_text_color": {
@@ -337,6 +375,7 @@ setting_configs: Dict[str, Any] = {
         "file": "style",
         "regex": "i *{[^}]*?color: (.+?) *(!important)?;",
         "with_inherit_option": True,
+        "section": "Colors",
         "default": "inherit",
     },
 }
@@ -455,6 +494,7 @@ general_settings = [
     "toggle_all_clozes_shortcut",
     "reveal_next_cloze_mode",
     "cloze_hider",
+    "timer",
     "timer_secs",
     "timer_minutes",
     "autoflip",
@@ -462,10 +502,8 @@ general_settings = [
     "back_tts",
     "front_signal_tag",
     "back_signal_tag",
-    "timer",
     "tags_container",
     "tags_container_mobile",
-    "tags_toggle_shortcut",
     "font_size",
     "font_size_mobile",
     "font_family",
