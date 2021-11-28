@@ -17,6 +17,7 @@ from .model_settings import (
     anking_notetype_templates,
     btn_name_to_shortcut_odict,
     general_settings,
+    general_settings_defaults,
     setting_configs,
     settings_by_notetype,
 )
@@ -418,8 +419,13 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
     window.setMinimumHeight(500)
     window.setMinimumWidth(500)
 
-    # hide reset button because there is a reset button for each notetype
+    # hide reset and advanced buttons
     window.reset_btn.hide()
+    window.advanced_btn.hide()
+
+    # overwrite on_save function
+    window.save_btn.clicked.disconnect()  # type: ignore
+    window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
     window.execute_on_save(on_save)
 
@@ -528,12 +534,38 @@ def read_in_settings_from_notetypes(conf: ConfigManager):
         showInfo(error_msg)
 
 
+def read_in_general_settings(conf: ConfigManager):
+    for key, value in general_settings_defaults().items():
+        conf[f"general.{key}"] = value
+
+
+def update_notetypes(conf: ConfigManager):
+    for notetype_name in settings_by_notetype.keys():
+        model = mw.col.models.by_name(notetype_name)
+        if not model:
+            continue
+        ntss = ntss_for_notetype(notetype_name)
+        model = safe_update_model(ntss, model, conf)
+        mw.col.models.update_dict(model)
+
+
+def on_save(window: ConfigWindow):
+    update_notetypes(window.conf)
+    window.close()
+
+
 def open_config_window(clayout: CardLayout = None):
+
+    # ankiaddonconfig's ConfigManager is used here in a way that is not intended
+    # the save functionality gets overwritten and nothing gets saved to the Anki
+    # addon config
+    # the config is populated at the start with the current setting values parsed
+    # from the notetype and then used to update the settings
     conf = ConfigManager()
 
-    # read in settings from notetypes and update config and save
+    # read in settings from notetypes and general ones into config
     read_in_settings_from_notetypes(conf)
-    conf.save()
+    read_in_general_settings(conf)
 
     # if in live preview mode read in current not confirmed settings
     if clayout:
@@ -568,20 +600,9 @@ def open_config_window(clayout: CardLayout = None):
     if clayout:
         conf.on_change(update_clayout_model)
 
-    # setup update of notetypes on save
-    def update_notetypes():
-        for notetype_name in settings_by_notetype.keys():
-            model = mw.col.models.by_name(notetype_name)
-            if not model:
-                continue
-            ntss = ntss_for_notetype(notetype_name)
-            model = safe_update_model(ntss, model, conf)
-            mw.col.models.update_dict(model)
-
+    # change window settings, overwrite on_save, setup notetype updates
     conf.on_window_open(
-        lambda window: change_window_settings(
-            window, on_save=update_notetypes, clayout=clayout
-        )
+        lambda window: change_window_settings(window, on_save=on_save, clayout=clayout)
     )
 
     # open the config window

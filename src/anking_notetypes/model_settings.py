@@ -482,6 +482,7 @@ setting_configs = {**all_btns_setting_configs(), **setting_configs}
 
 settings_by_notetype = settings_by_notetype_dict()
 
+
 # settings that apply to multiple note types
 # (the ones that have this setting listed in
 # settings_by_notetype)
@@ -525,6 +526,14 @@ general_settings = [
     "underlined_text_color",
     "italic_text_color",
 ]
+
+
+def general_settings_defaults():
+    result = dict()
+    for setting_name in general_settings:
+        result[setting_name] = setting_configs[setting_name]["default"]
+    return result
+
 
 if __name__ == "__main__":
     from pprint import pprint
