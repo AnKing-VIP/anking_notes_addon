@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from anki.models import ModelManager, NotetypeDict
 from aqt import mw
@@ -323,27 +323,33 @@ class NumberEditSetting(NoteTypeSetting):
         return result
 
 
-def notetype_settings_tab(model: "NotetypeDict") -> Callable:
-    ntss = ntss_for_model(model)
-    notetype_name = model["name"]
-    ordered_ntss = adjust_hint_button_nts_order(ntss, notetype_name)
-
+def notetype_settings_tab(
+    notetype_name: str,
+    model: Optional["NotetypeDict"],
+) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab(notetype_name)
 
         notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
         if notetype_name in notetype_names:
+            ntss = ntss_for_model(model)
+            ordered_ntss = adjust_hint_button_nts_order(ntss, notetype_name)
             scroll = tab.scroll_layout()
             add_nts_widgets_to_layout(scroll, ordered_ntss, notetype_name)
             scroll.stretch()
+            tab.button(
+                "Reset",
+                on_click=lambda: reset_notetype_and_reload_ui(notetype_name, window),
+            )
         else:
-            tab.text("the notetype is not in the collection")
+            tab.text("The notetype is not in the collection.")
             tab.stretch()
 
-        tab.button(
-            "Reset",
-            on_click=lambda: reset_notetype_and_reload_ui(notetype_name, window),
-        )
+            # TODO implement importing of notetypes
+            tab.button(
+                "Import",
+                on_click=lambda: showInfo("Not implemented yet"),
+            )
 
     return tab
 
@@ -587,7 +593,7 @@ def open_config_window(clayout: CardLayout = None):
             model = clayout.model
         else:
             model = mw.col.models.by_name(notetype_name)
-        conf.add_config_tab(notetype_settings_tab(model))
+        conf.add_config_tab(notetype_settings_tab(notetype_name, model))
 
     # setup live update of clayout model on changes
     def update_clayout_model(key: str, _: Any):
