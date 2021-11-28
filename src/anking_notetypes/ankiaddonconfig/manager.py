@@ -77,10 +77,7 @@ class ConfigManager:
         if isinstance(conf_obj, list):
             level = int(level)
             
-        if level not in conf_obj:
-            raise Exception(f"no entry for key '{key}' in config")
-
-        old_value = conf_obj[level]
+        old_value = conf_obj.get(level, None)
         conf_obj[level] = value
 
         if value != old_value and trigger_change_hook:
