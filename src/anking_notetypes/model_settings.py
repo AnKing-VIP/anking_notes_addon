@@ -1,11 +1,10 @@
 import re
-from collections import defaultdict
 from pathlib import Path
-from typing import Any, Dict, List, OrderedDict, Tuple
+from typing import Any, Dict, OrderedDict, Tuple
 
 setting_configs: Dict[str, Any] = {
     "toggle_all_buttons": {
-        "name": "Toggle all buttons shortcut",
+        "text": "Toggle all buttons shortcut",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -14,7 +13,7 @@ setting_configs: Dict[str, Any] = {
         "default": "'",
     },
     "autoscroll_to_button": {
-        "name": "scroll to button when toggled",
+        "text": "scroll to button when toggled",
         "tooltip": "",
         "type": "checkbox",
         "file": "back",
@@ -23,7 +22,7 @@ setting_configs: Dict[str, Any] = {
         "default": True,
     },
     "io_reveal_next_shortcut": {
-        "name": "Image Occlusion Reveal Next",
+        "text": "Image Occlusion Reveal Next",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -32,7 +31,7 @@ setting_configs: Dict[str, Any] = {
         "default": "N",
     },
     "io_toggle_all_shortcut": {
-        "name": "Image Occlusion Toggle All",
+        "text": "Image Occlusion Toggle All",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -41,7 +40,7 @@ setting_configs: Dict[str, Any] = {
         "default": ",",
     },
     "reveal_cloze_shortcut": {
-        "name": "Reveal Cloze Shortcut",
+        "text": "Reveal Cloze Shortcut",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -50,7 +49,7 @@ setting_configs: Dict[str, Any] = {
         "default": "N",
     },
     "reveal_cloze_word_shortcut": {
-        "name": "Reveal Cloze Word Shortcut",
+        "text": "Reveal Cloze Word Shortcut",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -59,7 +58,7 @@ setting_configs: Dict[str, Any] = {
         "default": "Shift+N",
     },
     "toggle_all_clozes_shortcut": {
-        "name": "Toggle all clozes shortcut",
+        "text": "Toggle all clozes shortcut",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -68,7 +67,7 @@ setting_configs: Dict[str, Any] = {
         "default": ",",
     },
     "reveal_next_cloze_mode": {
-        "name": "Reveal Next Cloze Mode",
+        "text": "Reveal Next Cloze Mode",
         "tooltip": "cloze: clozes are revealed normally\nword: clozes are revealed word by word",
         "type": "dropdown",
         "file": "back",
@@ -78,7 +77,7 @@ setting_configs: Dict[str, Any] = {
         "default": "cloze",
     },
     "cloze_hider": {
-        "name": "Cloze Hider",
+        "text": "Cloze Hider",
         "tooltip": "Text that will displayed instead of the clozed text",
         "type": "text",
         "file": "back",
@@ -87,7 +86,7 @@ setting_configs: Dict[str, Any] = {
         "default": "👑",
     },
     "timer": {
-        "name": "Timer",
+        "text": "Timer",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "style",
@@ -97,7 +96,7 @@ setting_configs: Dict[str, Any] = {
         "default": True,
     },
     "timer_secs": {
-        "name": "timer duration (seconds)",
+        "text": "timer duration (seconds)",
         "tooltip": "",
         "type": "number",
         "file": "front",
@@ -107,7 +106,7 @@ setting_configs: Dict[str, Any] = {
         "default": 9,
     },
     "timer_minutes": {
-        "name": "timer duration (minutes)",
+        "text": "timer duration (minutes)",
         "tooltip": "",
         "type": "number",
         "file": "front",
@@ -117,7 +116,7 @@ setting_configs: Dict[str, Any] = {
         "default": 0,
     },
     "autoflip": {
-        "name": "flip to back of card automatically\n(doesn't work on AnkiMobile)",
+        "text": "flip to back of card automatically\n(doesn't work on AnkiMobile)",
         "tooltip": "",
         "type": "checkbox",
         "file": "front",
@@ -125,7 +124,7 @@ setting_configs: Dict[str, Any] = {
         "default": True,
     },
     "front_tts": {
-        "name": "Front TTS",
+        "text": "Front TTS",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "front",
@@ -135,7 +134,7 @@ setting_configs: Dict[str, Any] = {
         "default": False,
     },
     "back_tts": {
-        "name": "Back TTS",
+        "text": "Back TTS",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "back",
@@ -145,7 +144,7 @@ setting_configs: Dict[str, Any] = {
         "default": False,
     },
     "front_signal_tag": {
-        "name": "tag that will trigger red background for the front",
+        "text": "tag that will trigger red background for the front",
         "tooltip": "",
         "type": "text",
         "file": "front",
@@ -154,7 +153,7 @@ setting_configs: Dict[str, Any] = {
         "default": "XXXYYYZZZ",
     },
     "back_signal_tag": {
-        "name": "tag that will trigger red background for the back",
+        "text": "tag that will trigger red background for the back",
         "tooltip": "",
         "type": "text",
         "file": "back",
@@ -163,7 +162,7 @@ setting_configs: Dict[str, Any] = {
         "default": "XXXYYYZZZ",
     },
     "tags_container": {
-        "name": "Tags container",
+        "text": "Tags container",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "style",
@@ -173,7 +172,7 @@ setting_configs: Dict[str, Any] = {
         "default": True,
     },
     "tags_container_mobile": {
-        "name": "Tags container (mobile)",
+        "text": "Tags container (mobile)",
         "tooltip": "",
         "type": "re_checkbox",
         "file": "style",
@@ -183,7 +182,7 @@ setting_configs: Dict[str, Any] = {
         "default": False,
     },
     "tags_toggle_shortcut": {
-        "name": "Toggle Tags Shorcut",
+        "text": "Toggle Tags Shorcut",
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
@@ -192,7 +191,7 @@ setting_configs: Dict[str, Any] = {
         "default": "C",
     },
     "font_size": {
-        "name": "Font Size",
+        "text": "Font Size",
         "tooltip": "",
         "type": "number",
         "file": "style",
@@ -203,7 +202,7 @@ setting_configs: Dict[str, Any] = {
         "default": 28,
     },
     "font_size_mobile": {
-        "name": "Font Size (mobile)",
+        "text": "Font Size (mobile)",
         "tooltip": "",
         "type": "number",
         "file": "style",
@@ -214,7 +213,7 @@ setting_configs: Dict[str, Any] = {
         "default": 28,
     },
     "font_family": {
-        "name": "Font Family",
+        "text": "Font Family",
         "tooltip": "",
         "type": "font_family",
         "file": "style",
@@ -223,7 +222,7 @@ setting_configs: Dict[str, Any] = {
         "default": "Arial Greek, Arial",
     },
     "image_height": {
-        "name": "Max Image Height",
+        "text": "Max Image Height",
         "tooltip": "a css value is needed for this field",
         "type": "text",
         "file": "style",
@@ -232,7 +231,7 @@ setting_configs: Dict[str, Any] = {
         "default": "none",
     },
     "image_width": {
-        "name": "Max Image Width",
+        "text": "Max Image Width",
         "tooltip": "a css value is needed for this field",
         "type": "text",
         "file": "style",
@@ -241,7 +240,7 @@ setting_configs: Dict[str, Any] = {
         "default": "85%",
     },
     "text_color": {
-        "name": "Default Text color",
+        "text": "Default Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -250,7 +249,7 @@ setting_configs: Dict[str, Any] = {
         "default": "black",
     },
     "background_color": {
-        "name": "Background color",
+        "text": "Background color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -259,7 +258,7 @@ setting_configs: Dict[str, Any] = {
         "default": "#D1CFCE",
     },
     "cloze_color": {
-        "name": "Cloze Text color",
+        "text": "Cloze Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -268,7 +267,7 @@ setting_configs: Dict[str, Any] = {
         "default": "blue",
     },
     "extra_text_color": {
-        "name": "Extra Text color",
+        "text": "Extra Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -277,7 +276,7 @@ setting_configs: Dict[str, Any] = {
         "default": "navy",
     },
     "hint_text_color": {
-        "name": "Hint Text color",
+        "text": "Hint Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -286,7 +285,7 @@ setting_configs: Dict[str, Any] = {
         "default": "#4297F9",
     },
     "missed_text_color": {
-        "name": "Missed Text color",
+        "text": "Missed Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -295,7 +294,7 @@ setting_configs: Dict[str, Any] = {
         "default": "red",
     },
     "timer_text_color": {
-        "name": "Timer Text color",
+        "text": "Timer Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -304,7 +303,7 @@ setting_configs: Dict[str, Any] = {
         "default": "transparent",
     },
     "nm_text_color": {
-        "name": "Night Mode Text color",
+        "text": "Night Mode Text color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -313,7 +312,7 @@ setting_configs: Dict[str, Any] = {
         "default": "#FFFAFA",
     },
     "nm_background_color": {
-        "name": "Night Mode Background color",
+        "text": "Night Mode Background color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -322,7 +321,7 @@ setting_configs: Dict[str, Any] = {
         "default": "#272828",
     },
     "nm_cloze_color": {
-        "name": "Night Mode Cloze color",
+        "text": "Night Mode Cloze color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -331,7 +330,7 @@ setting_configs: Dict[str, Any] = {
         "default": "#4297F9",
     },
     "nm_extra_color": {
-        "name": "Night Mode Extra color",
+        "text": "Night Mode Extra color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -340,7 +339,7 @@ setting_configs: Dict[str, Any] = {
         "default": "magenta",
     },
     "nm_hint_color": {
-        "name": "Night Mode Hint Reveal color",
+        "text": "Night Mode Hint Reveal color",
         "tooltip": "",
         "type": "color",
         "file": "style",
@@ -349,7 +348,7 @@ setting_configs: Dict[str, Any] = {
         "default": "cyan",
     },
     "bold_text_color": {
-        "name": "Bold Text color",
+        "text": "Bold Text color",
         "tooltip": "set to transparent for normal color",
         "type": "color",
         "file": "style",
@@ -359,7 +358,7 @@ setting_configs: Dict[str, Any] = {
         "default": "inherit",
     },
     "underlined_text_color": {
-        "name": "Underlined Text color",
+        "text": "Underlined Text color",
         "tooltip": "set to transparent for normal color",
         "type": "color",
         "file": "style",
@@ -369,7 +368,7 @@ setting_configs: Dict[str, Any] = {
         "default": "inherit",
     },
     "italic_text_color": {
-        "name": "Italic Text color",
+        "text": "Italic Text color",
         "tooltip": "set to transparent for normal color",
         "type": "color",
         "file": "style",
@@ -379,6 +378,10 @@ setting_configs: Dict[str, Any] = {
         "default": "inherit",
     },
 }
+
+
+def anking_notetype_names():
+    return [name for name, _ in anking_notetype_templates().items()]
 
 
 def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
@@ -397,23 +400,6 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
         styling = (x / ("Styling.css")).read_text(encoding="utf-8", errors="ignore")
         result[notetype_name] = (front_template, back_template, styling)
 
-    return result
-
-
-def settings_by_notetype_dict() -> Dict[str, List[str]]:
-    result = defaultdict(lambda: [])
-    for notetype_name, templates in anking_notetype_templates().items():
-        front_template, back_template, styling = templates
-        for setting_name, config in setting_configs.items():
-            if config["file"] == "front":
-                relevant_template = front_template
-            elif config["file"] == "back":
-                relevant_template = back_template
-            else:
-                relevant_template = styling
-
-            if re.search(config["regex"], relevant_template):
-                result[notetype_name].append(setting_name)
     return result
 
 
@@ -453,8 +439,7 @@ def btn_setting_config(name, default_shortcut):
 
 def button_shortcut_setting_config(button_name, default):
     return {
-        "name": f"{button_name} Shortcut",
-        "tooltip": "",
+        "text": f"{button_name} Shortcut",
         "type": "shortcut",
         "file": "back",
         "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"([^"]*)"',
@@ -466,8 +451,7 @@ def button_shortcut_setting_config(button_name, default):
 
 def auto_reveal_setting_config(button_name, default):
     return {
-        "name": f"Auto Reveal {button_name}",
-        "tooltip": "",
+        "text": f"Auto Reveal {button_name}",
         "type": "checkbox",
         "file": "back",
         "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(true|false)',
@@ -479,9 +463,8 @@ def auto_reveal_setting_config(button_name, default):
 
 setting_configs = {**all_btns_setting_configs(), **setting_configs}
 
-
-settings_by_notetype = settings_by_notetype_dict()
-
+for setting_name, setting_config in setting_configs.items():
+    setting_config["name"] = setting_name
 
 # settings that apply to multiple note types
 # (the ones that have this setting listed in
@@ -528,14 +511,8 @@ general_settings = [
 ]
 
 
-def general_settings_defaults():
+def general_settings_defaults_dict():
     result = dict()
     for setting_name in general_settings:
         result[setting_name] = setting_configs[setting_name]["default"]
     return result
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    pprint(settings_by_notetype)

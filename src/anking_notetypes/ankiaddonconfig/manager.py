@@ -61,7 +61,7 @@ class ConfigManager:
     def get_default(self, key: str) -> Any:
         return self.get_from_dict(self._default, key)
 
-    def set(self, key: str, value: Any, trigger_change_hook=True) -> None:
+    def set(self, key: str, value: Any) -> None:
         levels = key.split(".")
         conf_obj = self._config
         for i in range(len(levels) - 1):
@@ -80,7 +80,7 @@ class ConfigManager:
         old_value = conf_obj.get(level, None)
         conf_obj[level] = value
 
-        if value != old_value and trigger_change_hook:
+        if value != old_value:
             for hook in self.change_hooks:
                 hook(key, value)
 

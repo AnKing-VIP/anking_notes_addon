@@ -14,40 +14,18 @@ from PyQt5.QtWidgets import *
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
 from .model_settings import (
+    anking_notetype_names,
     anking_notetype_templates,
     btn_name_to_shortcut_odict,
     general_settings,
-    general_settings_defaults,
+    general_settings_defaults_dict,
     setting_configs,
-    settings_by_notetype,
 )
 
 
 class NoteTypeSetting(ABC):
     def __init__(self, config: Dict):
         self.config = config
-
-    @abstractmethod
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
-        pass
-
-    def add_widget_to_general_config_layout(self, layout: ConfigLayout):
-        self.add_widget_to_config_layout(layout, "general")
-
-    def register_general_setting(self, conf: ConfigManager):
-        def update_all(key, value):
-            if self.key("general") != key:
-                return
-            for notetype_name in settings_by_notetype.keys():
-                if (
-                    not self.config["setting_name"]
-                    in settings_by_notetype[notetype_name]
-                ):
-                    continue
-                conf.set(self.key(notetype_name), value, trigger_change_hook=False)
-            conf.config_window.update_widgets()
-
-        conf.on_change(update_all)
 
     @staticmethod
     def from_config(config: Dict) -> "NoteTypeSetting":
@@ -72,28 +50,39 @@ class NoteTypeSetting(ABC):
                 f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
             )
 
-    def setting_value(self, model: NotetypeDict) -> Any:
+    @abstractmethod
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        pass
+
+    def add_widget_to_general_config_layout(self, layout: ConfigLayout):
+        self.add_widget_to_config_layout(layout, "general")
+
+    def register_general_setting(self, conf: ConfigManager):
+        def update_all(key, value):
+            if self.key("general") != key:
+                return
+            for notetype_name in anking_notetype_names():
+                model = mw.col.models.by_name(notetype_name)
+                if not self.name() in [nts.name() for nts in ntss_for_model(model)]:
+                    continue
+                conf.set(self.key(notetype_name), value)
+            conf.config_window.update_widgets()
+
+        conf.on_change(update_all)
+
+    def is_present(self, model: "NotetypeDict") -> bool:
+        # returns True if the section related to the setting is present on the model
+        relevant_template_text = self._relevant_template_text(model)
+        return bool(re.search(self.config["regex"], relevant_template_text))
+
+    def setting_value(self, model: "NotetypeDict") -> Any:
         section = self._relevant_template_section(model)
         result = self._extract_setting_value(section)
         return result
 
-    def _relevant_template_section(self, model: NotetypeDict):
-        template_text = self._relevant_template_text(model)
-        section_match = re.search(self.config["regex"], template_text)
-        if not section_match:
-            raise NotetypeParseException(
-                f"could not find '{self.config['name']}' in {self.config['file']} template of notetype '{model['name']}'"
-            )
-        result = section_match.group(0)
-        return result
-
-    @abstractmethod
-    def _extract_setting_value(self, section: str) -> Any:
-        pass
-
     def updated_model(
-        self, model: NotetypeDict, notetype_name: str, conf: ConfigManager
-    ) -> NotetypeDict:
+        self, model: "NotetypeDict", notetype_name: str, conf: ConfigManager
+    ) -> "NotetypeDict":
         result = model.copy()
         section = self._relevant_template_section(result)
         setting_value = conf[self.key(notetype_name)]
@@ -115,15 +104,35 @@ class NoteTypeSetting(ABC):
 
         return result
 
+    def name(self):
+        return self.config["name"]
+
+    def key(self, notetype_name: str) -> str:
+        # returns the config key of this setting for the notetype in the config
+        return f"{notetype_name}.{self.name()}"
+
+    def _relevant_template_section(self, model: "NotetypeDict"):
+        template_text = self._relevant_template_text(model)
+        section_match = re.search(self.config["regex"], template_text)
+        if not section_match:
+            raise NotetypeParseException(
+                f"could not find '{self.config['name']}' in {self.config['file']} template of notetype '{model['name']}'"
+            )
+        result = section_match.group(0)
+        return result
+
+    @abstractmethod
+    def _extract_setting_value(self, section: str) -> Any:
+        pass
+
     @abstractmethod
     def _set_setting_value(self, section: str, setting_value: Any):
         pass
 
-    def key(self, notetype_name: str) -> str:
-        return f'{notetype_name}.{self.config["setting_name"]}'
-
-    def _relevant_template_text(self, model: NotetypeDict) -> str:
+    def _relevant_template_text(self, model: "NotetypeDict") -> str:
         templates = model["tmpls"]
+
+        # all the AnKing notetypes have one template each
         assert len(templates) == 1
         template = templates[0]
 
@@ -144,8 +153,8 @@ class ReCheckboxSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.checkbox(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -174,8 +183,8 @@ class CheckboxSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.checkbox(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -195,8 +204,8 @@ class LineEditSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.text_input(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -213,8 +222,8 @@ class FontFamilySetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.font_family_combobox(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -231,8 +240,8 @@ class DropdownSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.dropdown(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
             labels=self.config["options"],
             values=self.config["options"],
         )
@@ -250,8 +259,8 @@ class ColorSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.color_input(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -279,8 +288,8 @@ class ShortcutSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.shortcut_edit(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
@@ -298,8 +307,8 @@ class NumberEditSetting(NoteTypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.number_input(
             key=self.key(notetype_name),
-            description=self.config["name"],
-            tooltip=self.config["tooltip"],
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
             minimum=self.config.get("min", None),
             maximum=self.config.get("max", 99999),
         )
@@ -314,14 +323,18 @@ class NumberEditSetting(NoteTypeSetting):
         return result
 
 
-def notetype_settings_tab(notetype_name: str, ntss: List[NoteTypeSetting]) -> Callable:
+def notetype_settings_tab(model: "NotetypeDict") -> Callable:
+    ntss = ntss_for_model(model)
+    notetype_name = model["name"]
+    ordered_ntss = adjust_hint_button_nts_order(ntss, notetype_name)
+
     def tab(window: ConfigWindow):
         tab = window.add_tab(notetype_name)
 
         notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
         if notetype_name in notetype_names:
             scroll = tab.scroll_layout()
-            add_nts_widgets_to_layout(scroll, ntss, notetype_name)
+            add_nts_widgets_to_layout(scroll, ordered_ntss, notetype_name)
             scroll.stretch()
         else:
             tab.text("the notetype is not in the collection")
@@ -354,7 +367,10 @@ def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
         tooltip("Notetype was reset", parent=window, period=1200)
 
 
-def general_tab(ntss: List[NoteTypeSetting]) -> Callable:
+def general_tab() -> Callable:
+
+    ntss = general_ntss()
+
     def tab(window: ConfigWindow):
         tab = window.add_tab("General")
 
@@ -423,25 +439,16 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
     window.reset_btn.hide()
     window.advanced_btn.hide()
 
-    # overwrite on_save function
-    window.save_btn.clicked.disconnect()  # type: ignore
-    window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
-
-    window.execute_on_save(on_save)
-
-    def update_clayout_on_reset():
-        model = clayout.model
-        notetype_name = model["name"]
-        for nts in ntss_for_notetype(notetype_name):
-            # XXX NotetypeParseException could occur
-            model = nts.updated_model(model, notetype_name, window.conf)
-
-        clayout.model = model
-        clayout.change_tracker.mark_basic()
-        clayout.update_current_ordinal_and_redraw(clayout.ord)
+    if clayout:
+        # hide save button in live preview (notetype manager) mode
+        # because changes are saved using the save button of the notetype manager window
+        window.save_btn.hide()
+    else:
+        # overwrite on_save function
+        window.save_btn.clicked.disconnect()  # type: ignore
+        window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
     if clayout:
-        window.reset_btn.clicked.connect(update_clayout_on_reset)  # type: ignore
         change_tab_to_current_notetype(window, clayout)
 
 
@@ -465,14 +472,14 @@ def change_tab_to_current_notetype(
     tab_widget.setCurrentIndex(get_tab_by_name(notetype_name))
 
 
-def ntss_for_notetype(notetype_name) -> List[NoteTypeSetting]:
+def ntss_for_model(model: "NotetypeDict") -> List[NoteTypeSetting]:
+    # returns all nts that are present on the notetype
     result = []
-    for name in settings_by_notetype.get(notetype_name, []):
-        setting_config = setting_configs[name]
-        setting_config["setting_name"] = name
-        result.append(NoteTypeSetting.from_config(setting_config))
+    for setting_config in setting_configs.values():
+        nts = NoteTypeSetting.from_config(setting_config)
+        if nts.is_present(model):
+            result.append(nts)
 
-    result = adjust_hint_button_nts_order(result, notetype_name)
     return result
 
 
@@ -480,7 +487,7 @@ def adjust_hint_button_nts_order(
     ntss: List[NoteTypeSetting], notetype_name: str
 ) -> List[NoteTypeSetting]:
     # adjusts the order of the hint button settings to be the same as
-    # on the card of the notetype
+    # on the original anking card
 
     hint_button_ntss = [
         nts for nts in ntss if nts.config.get("hint_button_setting", False)
@@ -497,10 +504,8 @@ def adjust_hint_button_nts_order(
 
 def general_ntss() -> List[NoteTypeSetting]:
     result = []
-    for name in general_settings:
-        setting_config = setting_configs[name]
-        setting_config["setting_name"] = name
-        result.append(NoteTypeSetting.from_config(setting_config))
+    for setting_name in general_settings:
+        result.append(NoteTypeSetting.from_config(setting_configs[setting_name]))
     return result
 
 
@@ -520,11 +525,11 @@ def safe_update_model(ntss: List[NoteTypeSetting], model, conf: ConfigManager):
 
 def read_in_settings_from_notetypes(conf: ConfigManager):
     error_msg = ""
-    for notetype_name in settings_by_notetype.keys():
+    for notetype_name in anking_notetype_names():
         model = mw.col.models.by_name(notetype_name)
         if not model:
             continue
-        for nts in ntss_for_notetype(notetype_name):
+        for nts in ntss_for_model(model):
             try:
                 conf[nts.key(notetype_name)] = nts.setting_value(model)
             except NotetypeParseException as e:
@@ -535,16 +540,16 @@ def read_in_settings_from_notetypes(conf: ConfigManager):
 
 
 def read_in_general_settings(conf: ConfigManager):
-    for key, value in general_settings_defaults().items():
+    for key, value in general_settings_defaults_dict().items():
         conf[f"general.{key}"] = value
 
 
 def update_notetypes(conf: ConfigManager):
-    for notetype_name in settings_by_notetype.keys():
+    for notetype_name in anking_notetype_names():
         model = mw.col.models.by_name(notetype_name)
         if not model:
             continue
-        ntss = ntss_for_notetype(notetype_name)
+        ntss = ntss_for_model(model)
         model = safe_update_model(ntss, model, conf)
         mw.col.models.update_dict(model)
 
@@ -569,19 +574,20 @@ def open_config_window(clayout: CardLayout = None):
 
     # if in live preview mode read in current not confirmed settings
     if clayout:
-        model = clayout.model
         notetype_name = clayout.model["name"]
-        for nts in ntss_for_notetype(notetype_name):
-            conf[nts.key(notetype_name)] = nts.setting_value(model)
+        for nts in ntss_for_model(clayout.model):
+            conf[nts.key(notetype_name)] = nts.setting_value(clayout.model)
 
     # add general tab
-    conf.add_config_tab(general_tab(general_ntss()))
+    conf.add_config_tab(general_tab())
 
     # setup tabs for all notetypes
-    for notetype_name in sorted(settings_by_notetype.keys()):
-        conf.add_config_tab(
-            notetype_settings_tab(notetype_name, ntss_for_notetype(notetype_name))
-        )
+    for notetype_name in sorted(anking_notetype_names()):
+        if clayout and clayout.model["name"] == notetype_name:
+            model = clayout.model
+        else:
+            model = mw.col.models.by_name(notetype_name)
+        conf.add_config_tab(notetype_settings_tab(model))
 
     # setup live update of clayout model on changes
     def update_clayout_model(key: str, _: Any):
