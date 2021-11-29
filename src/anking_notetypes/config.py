@@ -276,6 +276,13 @@ def open_config_window(clayout: CardLayout = None):
     # read in settings from notetypes and general ones into config
     read_in_settings_from_notetypes(conf)
     read_in_general_settings(conf)
+    
+    # XXX set clayout to None if the currently edited notetype
+    # is not one of the anking notetypes
+    # the other assumes that if bool(clayout) is true, clayout.model contains
+    # an anking notetype model
+    if clayout and clayout.model["name"] not in anking_notetype_names():
+        clayout = None
 
     # if in live preview mode read in current not confirmed settings
     if clayout:
