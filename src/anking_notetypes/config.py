@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
+from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout
 from .notetype_setting import NotetypeParseException, NotetypeSetting
 from .notetype_setting_definitions import (
     anking_notetype_names,
@@ -169,6 +170,15 @@ def change_window_settings(window: ConfigWindow, clayout=None):
 
     if clayout:
         change_tab_to_current_notetype(window, clayout)
+
+    # add anking links layouts
+    widget = QWidget()
+    window.main_layout.insertWidget(0, widget)
+    AnkingIconsLayout(widget)
+
+    widget = QWidget()
+    window.main_layout.addWidget(widget)
+    AnkiPalaceLayout(widget)
 
 
 def change_tab_to_current_notetype(
