@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Any, Callable, Dict, List, Optional
 
-from anki.models import ModelManager, NotetypeDict
+from anki.models import NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
 from aqt.utils import askUser, showInfo, tooltip

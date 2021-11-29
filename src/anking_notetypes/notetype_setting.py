@@ -251,18 +251,13 @@ class ColorSetting(NotetypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         color_str = re.search(self.config["regex"], section).group(1)
-        if (
-            self.config.get("with_inherit_option", False)
-            and str(color_str) != "transparent"
-        ):
-            return "inherit"
         return color_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
         if (
-            self.config.get("with_inherit_option", False)
-            and setting_value != "transparent"
+            self.config.get("with_inherit_option", False) and
+            setting_value == "transparent"
         ):
             result = section.replace(current_value, "inherit", 1)
         else:
