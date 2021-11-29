@@ -28,12 +28,12 @@ window: Optional[ConfigWindow] = None
 def notetype_settings_tab(
     notetype_name: str,
     model: Optional["NotetypeDict"],
+    clayout: CardLayout,
 ) -> Callable:
     def tab(window: ConfigWindow):
         tab = window.add_tab(notetype_name)
 
-        notetype_names = [nt.name for nt in mw.col.models.all_names_and_ids()]
-        if notetype_name in notetype_names:
+        if model:
             ntss = ntss_for_model(model)
             ordered_ntss = adjust_hint_button_nts_order(ntss, notetype_name)
             scroll = tab.scroll_layout()
@@ -41,7 +41,7 @@ def notetype_settings_tab(
             scroll.stretch()
             tab.button(
                 "Reset",
-                on_click=lambda: reset_notetype_and_reload_ui(notetype_name, window),
+                on_click=lambda: reset_notetype_and_reload_ui(model, window, clayout),
             )
         else:
             tab.text("The notetype is not in the collection.")
@@ -56,20 +56,27 @@ def notetype_settings_tab(
     return tab
 
 
-def reset_notetype_and_reload_ui(notetype_name, window: ConfigWindow):
+def reset_notetype_and_reload_ui(
+    model: NotetypeDict, window: ConfigWindow, clayout: CardLayout
+):
+    notetype_name = model["name"]
     if askUser(
         f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
         defaultno=True,
     ):
-        mm: ModelManager = mw.col.models
-        model = mm.by_name(notetype_name)
         front, back, styling = anking_notetype_templates()[notetype_name]
         model["tmpls"][0]["qfmt"] = front
         model["tmpls"][0]["afmt"] = back
         model["css"] = styling
-        mm.update_dict(model)
+
+        if not clayout:
+            mw.col.models.update_dict(model)
 
         read_in_settings_from_notetypes(window.conf)
+
+        if clayout:
+            read_in_settings_from_clayout_model(window.conf, clayout)
+
         window.update_widgets()
 
         tooltip("Notetype was reset", parent=window, period=1200)
@@ -219,7 +226,7 @@ def general_ntss() -> List[NotetypeSetting]:
 
 def safe_update_model(ntss: List[NotetypeSetting], model, conf: ConfigManager):
     result = model.copy()
-    parse_exception = None  # show only one error if any
+    parse_exception = None
     for nts in ntss:
         try:
             result = nts.updated_model(result, result["name"], conf)
@@ -250,6 +257,12 @@ def read_in_settings_from_notetypes(conf: ConfigManager):
 def read_in_general_settings(conf: ConfigManager):
     for key, value in general_settings_defaults_dict().items():
         conf[f"general.{key}"] = value
+
+
+def read_in_settings_from_clayout_model(conf: ConfigManager, clayout: CardLayout):
+    notetype_name = clayout.model["name"]
+    for nts in ntss_for_model(clayout.model):
+        conf[nts.key(notetype_name)] = nts.setting_value(clayout.model)
 
 
 def update_notetypes(conf: ConfigManager):
@@ -304,9 +317,7 @@ def open_config_window(clayout: CardLayout = None):
 
     # if in live preview mode read in current not confirmed settings
     if clayout:
-        notetype_name = clayout.model["name"]
-        for nts in ntss_for_model(clayout.model):
-            conf[nts.key(notetype_name)] = nts.setting_value(clayout.model)
+        read_in_settings_from_clayout_model(conf, clayout)
 
     # add general tab
     conf.add_config_tab(general_tab())
@@ -317,7 +328,7 @@ def open_config_window(clayout: CardLayout = None):
             model = clayout.model
         else:
             model = mw.col.models.by_name(notetype_name)
-        conf.add_config_tab(notetype_settings_tab(notetype_name, model))
+        conf.add_config_tab(notetype_settings_tab(notetype_name, model, clayout))
 
     # setup live update of clayout model on changes
     def update_clayout_model(key: str, _: Any):
