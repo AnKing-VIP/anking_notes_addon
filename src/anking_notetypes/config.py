@@ -207,6 +207,8 @@ def adjust_hint_button_nts_order(
 ) -> List[NotetypeSetting]:
     # adjusts the order of the hint button settings to be the same as
     # on the original anking card
+    # it would probably be better to check the order of the buttons on the current
+    # version of the card, not the original one
 
     hint_button_ntss = [
         nts for nts in ntss if nts.config.get("hint_button_setting", False)
@@ -214,7 +216,11 @@ def adjust_hint_button_nts_order(
     ordered_btn_names = list(btn_name_to_shortcut_odict(notetype_name).keys())
     ordered_hint_button_ntss = sorted(
         hint_button_ntss,
-        key=lambda nts: ordered_btn_names.index(nts.config["hint_button_setting"]),
+        key=lambda nts: (
+            ordered_btn_names.index(name)
+            if (name := nts.config["hint_button_setting"]) in ordered_btn_names
+            else -1  # can happen because of different quotes in template versions
+        ),
     )
 
     other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
