@@ -145,7 +145,7 @@ def add_nts_widgets_to_layout(
         layout.space(7)
 
 
-def change_window_settings(window: ConfigWindow, on_save, clayout=None):
+def change_window_settings(window: ConfigWindow, clayout=None):
     window.setWindowTitle("AnKing note types")
     window.setMinimumHeight(500)
     window.setMinimumWidth(500)
@@ -160,6 +160,10 @@ def change_window_settings(window: ConfigWindow, on_save, clayout=None):
         window.save_btn.hide()
     else:
         # overwrite on_save function
+        def on_save(window: ConfigWindow):
+            update_notetypes(window.conf)
+            window.close()
+
         window.save_btn.clicked.disconnect()  # type: ignore
         window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
@@ -275,12 +279,7 @@ def update_notetypes(conf: ConfigManager):
         mw.col.models.update_dict(model)
 
 
-def on_save(window: ConfigWindow):
-    update_notetypes(window.conf)
-    window.close()
-
-
-def open_config_window(clayout: CardLayout = None):
+def open_config_window(clayout_: CardLayout = None):
     global window
 
     # dont open another window if one is already open
@@ -308,12 +307,11 @@ def open_config_window(clayout: CardLayout = None):
     read_in_settings_from_notetypes(conf)
     read_in_general_settings(conf)
 
-    # XXX set clayout to None if the currently edited notetype
-    # is not one of the anking notetypes
-    # the other assumes that if bool(clayout) is true, clayout.model contains
+    # code after this assumes that if bool(clayout) is true, clayout.model contains
     # an anking notetype model
-    if clayout and clayout.model["name"] not in anking_notetype_names():
-        clayout = None
+    clayout = None
+    if clayout_ and clayout_.model["name"] in anking_notetype_names():
+        clayout = clayout_
 
     # if in live preview mode read in current not confirmed settings
     if clayout:
@@ -348,9 +346,7 @@ def open_config_window(clayout: CardLayout = None):
         conf.on_change(update_clayout_model)
 
     # change window settings, overwrite on_save, setup notetype updates
-    conf.on_window_open(
-        lambda window: change_window_settings(window, on_save=on_save, clayout=clayout)
-    )
+    conf.on_window_open(lambda window: change_window_settings(window, clayout=clayout))
 
     # open the config window
     if clayout:
