@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 class ConfigWindow(QDialog):
-    def __init__(self, conf: "ConfigManager") -> None:
-        QDialog.__init__(self, mw, Qt.Window)  # type: ignore
+    def __init__(self, conf: "ConfigManager", parent=None) -> None:
+        QDialog.__init__(self, parent, Qt.Window)  # type: ignore
         self.conf = conf
         self.mgr = mw.addonManager
         self.widget_updates: List[Callable[[], None]] = []

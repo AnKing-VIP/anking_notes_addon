@@ -1,5 +1,5 @@
-import json
 import copy
+import json
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 from aqt import mw
@@ -76,7 +76,7 @@ class ConfigManager:
         level = levels[-1]
         if isinstance(conf_obj, list):
             level = int(level)
-            
+
         old_value = conf_obj.get(level, None)
         conf_obj[level] = value
 
@@ -122,14 +122,20 @@ class ConfigManager:
 
     # Config Window
 
-    def open_config(self) -> bool:
-        config_window = ConfigWindow(self)
+    def open_config(self, parent: QDialog = mw) -> ConfigWindow:
+        config_window = ConfigWindow(self, parent)
         self.config_window = config_window
         for fn in self.window_open_hooks:
             fn(config_window)
         config_window.on_open()
-        config_window.exec_()
-        return True
+
+        if parent == mw:
+            config_window.exec_()
+        else:
+            config_window.setWindowModality(Qt.WindowModality.NonModal)
+            config_window.show()
+
+        return config_window
 
     def use_custom_window(self) -> None:
         mw.addonManager.setConfigAction(self.addon_dir, self.open_config)

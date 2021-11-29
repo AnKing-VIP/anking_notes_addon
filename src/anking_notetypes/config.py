@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
+from .notetype_setting import NotetypeParseException, NotetypeSetting
 from .notetype_setting_definitions import (
     anking_notetype_names,
     anking_notetype_templates,
@@ -19,7 +20,9 @@ from .notetype_setting_definitions import (
     general_settings_defaults_dict,
     setting_configs,
 )
-from .notetype_setting import NotetypeParseException, NotetypeSetting
+
+# contains the last opened config window
+window: Optional[ConfigWindow] = None
 
 
 def notetype_settings_tab(
@@ -265,6 +268,21 @@ def on_save(window: ConfigWindow):
 
 
 def open_config_window(clayout: CardLayout = None):
+    global window
+
+    # dont open another window if one is already open
+    if window:
+        is_open = True
+        # when the window is closed c++ deletes the qdialog and calling methods
+        # of the window fails with a RuntimeError
+        try:
+            window.isVisible()
+        except RuntimeError:
+            is_open = False
+
+        if is_open:
+            window.setWindowState(Qt.WindowState.WindowActive)
+            return
 
     # ankiaddonconfig's ConfigManager is used here in a way that is not intended
     # the save functionality gets overwritten and nothing gets saved to the Anki
@@ -276,7 +294,7 @@ def open_config_window(clayout: CardLayout = None):
     # read in settings from notetypes and general ones into config
     read_in_settings_from_notetypes(conf)
     read_in_general_settings(conf)
-    
+
     # XXX set clayout to None if the currently edited notetype
     # is not one of the anking notetypes
     # the other assumes that if bool(clayout) is true, clayout.model contains
@@ -324,4 +342,7 @@ def open_config_window(clayout: CardLayout = None):
     )
 
     # open the config window
-    conf.open_config()
+    if clayout:
+        window = conf.open_config(clayout)
+    else:
+        window = conf.open_config()
