@@ -147,7 +147,7 @@ def add_nts_widgets_to_layout(
 
 
 def change_window_settings(window: ConfigWindow, clayout=None):
-    window.setWindowTitle("AnKing note types")
+    window.setWindowTitle("AnKing Note Types")
     window.setMinimumHeight(500)
     window.setMinimumWidth(500)
 
