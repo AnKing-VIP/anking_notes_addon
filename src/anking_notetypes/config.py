@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from anki.models import NotetypeDict
 from aqt import mw
@@ -293,7 +293,7 @@ class NotetypesConfigWindow:
             self._read_in_settings_from_notetypes()
 
             if self.clayout:
-                self._read_in_settings_from_clayout_model()
+                self._read_in_settings()
 
             self.window.update_widgets()
 
@@ -337,14 +337,16 @@ class NotetypesConfigWindow:
         self._read_in_settings_from_notetypes()
         self._read_in_general_settings()
 
-        # if in live preview mode read in current not confirmed settings
-        if self.clayout:
-            self._read_in_settings_from_clayout_model()
-
     def _read_in_settings_from_notetypes(self):
         error_msg = ""
         for notetype_name in anking_notetype_names():
-            model = mw.col.models.by_name(notetype_name)
+
+            if self.clayout and notetype_name == self.clayout.model["name"]:
+                # if in live preview mode read in current not confirmed settings
+                model = self.clayout.model
+            else:
+                model = mw.col.models.by_name(notetype_name)
+
             if not model:
                 continue
             for nts in self._ntss_for_model(model):
@@ -359,11 +361,6 @@ class NotetypesConfigWindow:
     def _read_in_general_settings(self):
         for key, value in general_settings_defaults_dict().items():
             self.conf[f"general.{key}"] = value
-
-    def _read_in_settings_from_clayout_model(self):
-        notetype_name = self.clayout.model["name"]
-        for nts in self._ntss_for_model(self.clayout.model):
-            self.conf[nts.key(notetype_name)] = nts.setting_value(self.clayout.model)
 
     def _update_notetypes(self):
         for notetype_name in anking_notetype_names():
