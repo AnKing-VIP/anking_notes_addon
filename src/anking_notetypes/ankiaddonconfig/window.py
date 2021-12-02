@@ -446,9 +446,9 @@ class ConfigLayout(QBoxLayout):
 
         def update():
             val = self.conf.get(key)
-            val = val.replace(" ", "")
             if not isinstance(val, str):
                 raise InvalidConfigValueError(key, "str", val)
+            val = val.replace(" ", "")
             edit.setKeySequence(val)
 
         self.widget_updates.append(update)
