@@ -1,6 +1,12 @@
+import json
 import re
 from pathlib import Path
 from typing import Any, Dict, OrderedDict, Tuple
+
+from anki.models import NotetypeDict
+
+ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
+
 
 setting_configs: Dict[str, Any] = {
     "toggle_all_buttons": {
@@ -386,7 +392,7 @@ def anking_notetype_names():
 
 def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
     result = dict()
-    for x in (Path(__file__).parent / "note_types").iterdir():
+    for x in ANKING_NOTETYPES_PATH.iterdir():
         if not x.is_dir():
             continue
         notetype_name = x.name
@@ -401,6 +407,12 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
         result[notetype_name] = (front_template, back_template, styling)
 
     return result
+
+
+def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
+    return json.loads(
+        (ANKING_NOTETYPES_PATH / notetype_name / f"{notetype_name}.json").read_text()
+    )
 
 
 def all_btns_setting_configs():
