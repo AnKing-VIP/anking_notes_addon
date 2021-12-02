@@ -61,24 +61,18 @@ class NotetypesConfigWindow:
         # from the notetype and then used to update the settings
         self.conf = ConfigManager()
 
-        # read in settings from notetypes and general ones into config
-        self._read_in_settings_from_notetypes()
-        self._read_in_general_settings()
-
-        # if in live preview mode read in current not confirmed settings
-        if self.clayout:
-            self._read_in_settings_from_clayout_model()
+        self._read_in_settings()
 
         # add general tab
-        self.conf.add_config_tab(self._general_tab())
+        self.conf.add_config_tab(lambda window: self._general_tab(window))
 
         # setup tabs for all notetypes
         for notetype_name in sorted(anking_notetype_names()):
-            if self.clayout and self.clayout.model["name"] == notetype_name:
-                model = self.clayout.model
-            else:
-                model = mw.col.models.by_name(notetype_name)
-            self.conf.add_config_tab(self._notetype_settings_tab(notetype_name, model))
+            self.conf.add_config_tab(
+                lambda window, notetype_name=notetype_name: self._notetype_settings_tab(
+                    notetype_name, window
+                )
+            )
 
         # setup live update of clayout model on changes
         def update_clayout_model(key: str, _: Any):
@@ -130,7 +124,7 @@ class NotetypesConfigWindow:
             window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
         if self.clayout:
-            self._change_tab_to_notetype(self.clayout.model["name"])
+            self._set_active_tab(self.clayout.model["name"])
 
         # add anking links layouts
         widget = QWidget()
@@ -145,54 +139,52 @@ class NotetypesConfigWindow:
     def _notetype_settings_tab(
         self,
         notetype_name: str,
-        model: Optional["NotetypeDict"],
-    ) -> Callable:
-        def tab(window: ConfigWindow):
-            tab = window.add_tab(notetype_name)
+        window: ConfigWindow,
+    ):
+        if self.clayout and self.clayout.model["name"] == notetype_name:
+            model = self.clayout.model
+        else:
+            model = mw.col.models.by_name(notetype_name)
 
-            if model:
-                ntss = self._ntss_for_model(model)
-                ordered_ntss = self._adjust_hint_button_nts_order(ntss, notetype_name)
-                scroll = tab.scroll_layout()
-                self._add_nts_widgets_to_layout(scroll, ordered_ntss, notetype_name)
-                scroll.stretch()
-                tab.button(
-                    "Reset",
-                    on_click=lambda: self._reset_notetype_and_reload_ui(model),
-                )
-            else:
-                tab.text("The notetype is not in the collection.")
-                tab.stretch()
+        tab = window.add_tab(notetype_name)
 
-                tab.button(
-                    "Import",
-                    on_click=lambda: self._import_notetype(notetype_name),
-                )
+        if model:
+            ntss = self._ntss_for_model(model)
+            ordered_ntss = self._adjust_hint_button_nts_order(ntss, notetype_name)
+            scroll = tab.scroll_layout()
+            self._add_nts_widgets_to_layout(scroll, ordered_ntss, notetype_name)
+            scroll.stretch()
+            tab.button(
+                "Reset",
+                on_click=lambda: self._reset_notetype_and_reload_ui(model),
+            )
+        else:
+            tab.text("The notetype is not in the collection.")
+            tab.stretch()
 
-        return tab
+            tab.button(
+                "Import",
+                on_click=lambda: self._import_notetype_and_reload_tab(notetype_name),
+            )
 
-    def _general_tab(self) -> Callable:
+    def _general_tab(self, window: ConfigWindow):
+        tab = window.add_tab("General")
 
         ntss = self._general_ntss()
 
-        def tab(window: ConfigWindow):
-            tab = window.add_tab("General")
+        scroll = tab.scroll_layout()
+        self._add_nts_widgets_to_layout(scroll, ntss, None, general=True)
+        scroll.stretch()
 
-            scroll = tab.scroll_layout()
-            self._add_nts_widgets_to_layout(scroll, ntss, None, general=True)
-            scroll.stretch()
+        for nts in ntss:
+            nts.register_general_setting(tab.conf)
 
-            for nts in ntss:
-                nts.register_general_setting(tab.conf)
-
-            tab.space(10)
-            tab.text(
-                "Changes made here will be applied to all notetypes that have this setting",
-                bold=True,
-                multiline=True,
-            )
-
-        return tab
+        tab.space(10)
+        tab.text(
+            "Changes made here will be applied to all notetypes that have this setting",
+            bold=True,
+            multiline=True,
+        )
 
     def _add_nts_widgets_to_layout(
         self,
@@ -278,21 +270,9 @@ class NotetypesConfigWindow:
         return ordered_hint_button_ntss + other_ntss
 
     # miscellanous
-    def _change_tab_to_notetype(self, notetype_name: str) -> None:
-
+    def _set_active_tab(self, tab_name: str) -> None:
         tab_widget = self.window.main_tab
-
-        def get_tab_by_name(tab_name):
-            return next(
-                (
-                    index
-                    for index in range(tab_widget.count())
-                    if tab_name == tab_widget.tabText(index)
-                ),
-                None,
-            )
-
-        tab_widget.setCurrentIndex(get_tab_by_name(notetype_name))
+        tab_widget.setCurrentIndex(self.get_tab_idx_by_name(tab_name))
 
     def _reset_notetype_and_reload_ui(self, model: NotetypeDict):
         notetype_name = model["name"]
@@ -319,7 +299,48 @@ class NotetypesConfigWindow:
 
             tooltip("Notetype was reset", parent=self.window, period=1200)
 
+    def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
+        self._import_notetype(notetype_name)
+        self._reload_tab(notetype_name)
+
+    def _reload_tab(self, notetype_name: str) -> None:
+        tab_widget = self.window.main_tab
+        index = self.get_tab_idx_by_name(notetype_name)
+        tab_widget.removeTab(index)
+        tab_widget.addTab(
+            self._notetype_settings_tab(notetype_name, self.window),
+            notetype_name,
+        )
+        # inserting the tab at its index or moving it to it after adding doesn't work for
+        # some reason
+        # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
+
+        self._read_in_settings()
+        self.window.update_widgets()
+        self._set_active_tab(notetype_name)
+
+    def get_tab_idx_by_name(self, tab_name: str) -> int:
+        tab_widget = self.window.main_tab
+        return next(
+            (
+                index
+                for index in range(tab_widget.count())
+                if tab_name == tab_widget.tabText(index)
+            ),
+            None,
+        )
+
     # read / write / create notetypes
+    def _read_in_settings(self):
+
+        # read in settings from notetypes and general ones into config
+        self._read_in_settings_from_notetypes()
+        self._read_in_general_settings()
+
+        # if in live preview mode read in current not confirmed settings
+        if self.clayout:
+            self._read_in_settings_from_clayout_model()
+
     def _read_in_settings_from_notetypes(self):
         error_msg = ""
         for notetype_name in anking_notetype_names():
