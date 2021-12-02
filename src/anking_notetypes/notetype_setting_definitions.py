@@ -446,6 +446,7 @@ def btn_setting_config(name, default_shortcut):
             name, default_shortcut
         ),
         f"autoreveal_{name_in_snake_case}": auto_reveal_setting_config(name, False),
+        f"disable_{name_in_snake_case}": disable_field_setting_config(name, False),
     }
 
 
@@ -469,6 +470,22 @@ def auto_reveal_setting_config(button_name, default):
         "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(true|false)',
         "hint_button_setting": button_name,
         "section": "Hint Buttons",
+        "default": default,
+    }
+
+
+def disable_field_setting_config(button_name, default):
+    return {
+        "text": f"Disable {button_name} Field",
+        "tooltip": "",
+        "type": "re_checkbox",
+        "file": "back",
+        "regex": f"(<!--)?{{{{ ?#{button_name}}}}}[\w\W]+?{{{{ ?/{button_name}}}}}(-->)?",
+        "replacement_pairs": [
+            (f"{{{{#{button_name}}}}}", f"<!--{{{{ #{button_name}}}}}"),
+            (f"{{{{/{button_name}}}}}", f"{{{{ /{button_name}}}}}-->"),
+        ],
+        "section": "Fields",
         "default": default,
     }
 
