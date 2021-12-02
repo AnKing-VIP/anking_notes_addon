@@ -18,6 +18,8 @@ class NotetypeSetting(ABC):
             return CheckboxSetting(config)
         if config["type"] == "re_checkbox":
             return ReCheckboxSetting(config)
+        if config["type"] == "wrap_checkbox":
+            return WrapCheckboxSetting(config)
         if config["type"] == "text":
             return LineEditSetting(config)
         if config["type"] == "number":
@@ -165,6 +167,31 @@ class ReCheckboxSetting(NotetypeSetting):
         return result
 
 
+class WrapCheckboxSetting(NotetypeSetting):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+        layout.checkbox(
+            key=self.key(notetype_name),
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        start_str, end_str = self.config["wrap_into"]
+        return section.startswith(start_str) and section.endswith(end_str)
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        result = section
+        start_str, end_str = self.config["wrap_into"]
+        cur_setting = section.startswith(start_str) and section.endswith(end_str)
+        if setting_value:
+            if not cur_setting:
+                result = start_str + result + end_str
+        else:
+            if cur_setting:
+                result = result[len(start_str) : -len(end_str)]
+        return result
+
+
 class CheckboxSetting(NotetypeSetting):
     def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
         layout.checkbox(
@@ -256,8 +283,8 @@ class ColorSetting(NotetypeSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         current_value = self._extract_setting_value(section)
         if (
-            self.config.get("with_inherit_option", False) and
-            setting_value == "transparent"
+            self.config.get("with_inherit_option", False)
+            and setting_value == "transparent"
         ):
             result = section.replace(current_value, "inherit", 1)
         else:

@@ -478,13 +478,10 @@ def disable_field_setting_config(button_name, default):
     return {
         "text": f"Disable {button_name} Field",
         "tooltip": "",
-        "type": "re_checkbox",
+        "type": "wrap_checkbox",
         "file": "back",
-        "regex": f"(<!--)?{{{{ ?#{button_name}}}}}[\w\W]+?{{{{ ?/{button_name}}}}}(-->)?",
-        "replacement_pairs": [
-            (f"{{{{#{button_name}}}}}", f"<!--{{{{ #{button_name}}}}}"),
-            (f"{{{{/{button_name}}}}}", f"{{{{ /{button_name}}}}}-->"),
-        ],
+        "regex": f"(<!--)?{{{{#{button_name}}}}}[\w\W]+?{{{{/{button_name}}}}}(-->)?",
+        "wrap_into": ("<!--", "-->"),
         "section": "Fields",
         "default": default,
     }
