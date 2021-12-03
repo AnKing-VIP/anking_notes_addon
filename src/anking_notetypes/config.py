@@ -1,4 +1,5 @@
 from collections import defaultdict
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from anki.models import NotetypeDict
@@ -22,6 +23,8 @@ from .notetype_setting_definitions import (
     general_settings_defaults_dict,
     setting_configs,
 )
+
+RESOURCES_PATH = Path(__file__).parent / "resources"
 
 
 class NotetypesConfigWindow:
@@ -379,6 +382,10 @@ class NotetypesConfigWindow:
         model["tmpls"][0]["afmt"] = back
         model["id"] = 0
         mw.col.models.add_dict(model)
+
+        # add recources of all notetypes to collection media folder
+        for file in Path(RESOURCES_PATH).iterdir():
+            mw.col.media.add_file(str(file.absolute()))
 
     def _safe_update_model(self, ntss: List[NotetypeSetting], model):
         result = model.copy()
