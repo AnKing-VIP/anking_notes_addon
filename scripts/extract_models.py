@@ -13,4 +13,5 @@ for notetype_name in anking_notetype_templates().keys():
         model["css"] = ""
         model["tmpls"][0]["qfmt"] = ""
         model["tmpls"][0]["afmt"] = ""
+        model["id"] = 0
         f.write(json.dumps(model))

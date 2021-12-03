@@ -377,7 +377,8 @@ class NotetypesConfigWindow:
         model["css"] = css
         model["tmpls"][0]["qfmt"] = front
         model["tmpls"][0]["afmt"] = back
-        mw.col.models.update(model)
+        model["id"] = 0
+        mw.col.models.add_dict(model)
 
     def _safe_update_model(self, ntss: List[NotetypeSetting], model):
         result = model.copy()
