@@ -5,6 +5,9 @@ gitdir https://github.com/RisingOrange/AnKing-Note-Types/tree/master/Note%20Type
 
 # gitdir gets confused by %20 (urlencoded whitespace)
 rm -r Note%20Types
-
 rm -r src/anking_notetypes/note_types
 mv "Note Types" src/anking_notetypes/note_types
+
+rm -r src/anking_notetypes/resources
+gitdir https://github.com/AnKingMed/AnKing-Note-Types/tree/master/resources -d tmp_notetype_resources
+mv tmp_notetype_resources src/anking_notetypes/note_types
