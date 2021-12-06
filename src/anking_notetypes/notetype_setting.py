@@ -235,7 +235,8 @@ class LineEditSetting(NotetypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        return self._replace_first_capture_group(section, setting_value)
+        new_value_str = setting_value.replace("\"", "\\\"")
+        return self._replace_first_capture_group(section, new_value_str)
 
 
 class FontFamilySetting(NotetypeSetting):
@@ -314,7 +315,8 @@ class ShortcutSetting(NotetypeSetting):
         return shortcut_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        return self._replace_first_capture_group(section, setting_value)
+        new_value_str = setting_value.replace("\"", "\\\"")
+        return self._replace_first_capture_group(section, new_value_str)
 
 
 class NumberEditSetting(NotetypeSetting):

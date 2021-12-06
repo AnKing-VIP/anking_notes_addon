@@ -7,6 +7,10 @@ from anki.models import NotetypeDict
 
 ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 
+# for matching text between double quotes which can contain
+# escaped quotes
+QUOT_STR_RE = r'(?:\\.|[^"\\])'
+
 
 setting_configs: Dict[str, Any] = {
     "toggle_all_buttons": {
@@ -14,7 +18,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +ToggleAllButtonsShortcut += +"([^"]*?)"',
+        "regex": f'var +ToggleAllButtonsShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Hint Buttons",
         "default": "'",
     },
@@ -32,7 +36,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +RevealIncrementalShortcut += +"(.*?)"',
+        "regex": f'var +RevealIncrementalShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Image Occlusion",
         "default": "N",
     },
@@ -41,7 +45,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +ToggleAllOcclusionsShortcut += +"(.*?)"',
+        "regex": f'var +ToggleAllOcclusionsShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Image Occlusion",
         "default": ",",
     },
@@ -50,7 +54,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +revealNextShortcut += +"(.*?)"',
+        "regex": f'var +revealNextShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Clozes",
         "default": "N",
     },
@@ -59,7 +63,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +revealNextWordShortcut += +"(.*?)"',
+        "regex": f'var +revealNextWordShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Clozes",
         "default": "Shift+N",
     },
@@ -68,7 +72,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +toggleAllShortcut += +"(.*?)"',
+        "regex": f'var +toggleAllShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Clozes",
         "default": ",",
     },
@@ -87,7 +91,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "Text that will displayed instead of the clozed text",
         "type": "text",
         "file": "back",
-        "regex": 'var +clozeHider +=[^"]+"([^"]*?)"',
+        "regex": f'var +clozeHider +=[^"]+"({QUOT_STR_RE}*?)"',
         "section": "Clozes",
         "default": "👑",
     },
@@ -154,7 +158,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "text",
         "file": "front",
-        "regex": 'var +tagID += +"([^"]*?)"',
+        "regex": f'var +tagID += +"({QUOT_STR_RE}*?)"',
         "section": "Tags",
         "default": "XXXYYYZZZ",
     },
@@ -163,7 +167,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "text",
         "file": "back",
-        "regex": 'var +tagID += +"([^"]*?)"',
+        "regex": f'var +tagID += +"({QUOT_STR_RE}*?)"',
         "section": "Tags",
         "default": "XXXYYYZZZ",
     },
@@ -192,7 +196,7 @@ setting_configs: Dict[str, Any] = {
         "tooltip": "",
         "type": "shortcut",
         "file": "back",
-        "regex": 'var +toggleTagsShortcut += +"(.*?)"',
+        "regex": f'var +toggleTagsShortcut += +"({QUOT_STR_RE}*?)"',
         "section": "Tags",
         "default": "C",
     },
@@ -455,7 +459,7 @@ def button_shortcut_setting_config(button_name, default):
         "text": f"{button_name} Shortcut",
         "type": "shortcut",
         "file": "back",
-        "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"([^"]*)"',
+        "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"({QUOT_STR_RE}*?)"',
         "hint_button_setting": button_name,
         "section": "Hint Buttons",
         "default": default,
