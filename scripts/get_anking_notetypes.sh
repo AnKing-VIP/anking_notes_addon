@@ -9,5 +9,5 @@ rm -r src/anking_notetypes/note_types
 mv "Note Types" src/anking_notetypes/note_types
 
 rm -r src/anking_notetypes/resources
-gitdir https://github.com/AnKingMed/AnKing-Note-Types/tree/master/resources -d tmp_notetype_resources
-mv tmp_notetype_resources src/anking_notetypes/note_types
+gitdir https://github.com/AnKingMed/AnKing-Note-Types/tree/master/resources
+cp -r resources src/anking_notetypes/resources
