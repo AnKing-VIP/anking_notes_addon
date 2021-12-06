@@ -243,7 +243,10 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        line_edit.textChanged.connect(lambda text: self.conf.set(key, text))
+        def on_editing_finished():
+            self.conf.set(key, line_edit.text())
+
+        line_edit.editingFinished.connect(on_editing_finished)
 
         if description is not None:
             row = self.hlayout()
