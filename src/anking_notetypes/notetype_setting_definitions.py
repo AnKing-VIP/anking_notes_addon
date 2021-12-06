@@ -467,7 +467,7 @@ def auto_reveal_setting_config(button_name, default):
         "text": f"Auto Reveal {button_name}",
         "type": "checkbox",
         "file": "back",
-        "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(true|false)',
+        "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(.+),\n',
         "hint_button_setting": button_name,
         "section": "Hint Buttons",
         "default": default,

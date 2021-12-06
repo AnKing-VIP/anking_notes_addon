@@ -132,6 +132,12 @@ class NotetypeSetting(ABC):
             result = model["css"]
         return result
 
+    def _replace_first_capture_group(self, section: str, new_value_str: Any) -> str:
+        m = re.search(self.config["regex"], section)
+        start, end = m.span(1)
+        result = section[:start] + new_value_str + section[end:]
+        return result
+
 
 class NotetypeParseException(Exception):
     pass
@@ -202,15 +208,15 @@ class CheckboxSetting(NotetypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         value = re.search(self.config["regex"], section).group(1)
-        assert value in ["true", "false"]
+        if not value in ["true", "false"]:
+            raise NotetypeParseException(
+                f"{self.config['text']}: expected 'true' or 'false' but got '{value}'"
+            )
         return value == "true"
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
-        current_value_str = "true" if current_value else "false"
         new_value_str = "true" if setting_value else "false"
-        result = section.replace(current_value_str, new_value_str, 1)
-        return result
+        return self._replace_first_capture_group(section, new_value_str)
 
 
 class LineEditSetting(NotetypeSetting):
@@ -225,10 +231,7 @@ class LineEditSetting(NotetypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        m = re.search(self.config["regex"], section)
-        start, end = m.span(1)
-        result = section[:start] + setting_value + section[end:]
-        return result
+        return self._replace_first_capture_group(section, setting_value)
 
 
 class FontFamilySetting(NotetypeSetting):
@@ -243,10 +246,7 @@ class FontFamilySetting(NotetypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        m = re.search(self.config["regex"], section)
-        start, end = m.span(1)
-        result = section[:start] + setting_value + section[end:]
-        return result
+        return self._replace_first_capture_group(section, setting_value)
 
 
 class DropdownSetting(NotetypeSetting):
@@ -263,9 +263,7 @@ class DropdownSetting(NotetypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
-        result = section.replace(current_value, setting_value, 1)
-        return result
+        return self._replace_first_capture_group(section, setting_value)
 
 
 class ColorSetting(NotetypeSetting):
@@ -281,15 +279,14 @@ class ColorSetting(NotetypeSetting):
         return color_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
         if (
             self.config.get("with_inherit_option", False)
             and setting_value == "transparent"
         ):
-            result = section.replace(current_value, "inherit", 1)
+            setting_value_str = "inherit"
         else:
-            result = section.replace(current_value, setting_value, 1)
-        return result
+            setting_value_str = setting_value
+        return self._replace_first_capture_group(section, setting_value_str)
 
 
 class ShortcutSetting(NotetypeSetting):
@@ -305,10 +302,7 @@ class ShortcutSetting(NotetypeSetting):
         return shortcut_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        m = re.search(self.config["regex"], section)
-        start, end = m.span(1)
-        result = section[:start] + setting_value + section[end:]
-        return result
+        return self._replace_first_capture_group(section, setting_value)
 
 
 class NumberEditSetting(NotetypeSetting):
@@ -323,9 +317,14 @@ class NumberEditSetting(NotetypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         value_str = re.search(self.config["regex"], section).group(1)
-        return int(value_str)
+        try:
+            result = int(value_str)
+            return result
+        except:
+            raise NotetypeParseException(
+                f"{self.config['text']}: expected number but found {value_str}"
+            )
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        current_value = self._extract_setting_value(section)
-        result = section.replace(str(current_value), str(setting_value), 1)
-        return result
+        new_value_str = str(setting_value)
+        return self._replace_first_capture_group(section, new_value_str)
