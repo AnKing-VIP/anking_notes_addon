@@ -54,7 +54,8 @@ class NotetypesConfigWindow:
                 is_open = False
 
             if is_open:
-                self.window.setWindowState(Qt.WindowState.WindowActive)
+                self.window.activateWindow()
+                self.window.raise_()
                 return
 
         # ankiaddonconfig's ConfigManager is used here in a way that is not intended
@@ -105,6 +106,8 @@ class NotetypesConfigWindow:
             self.window = self.conf.open_config(self.clayout)
         else:
             self.window = self.conf.open_config()
+        self.window.activateWindow()
+        self.window.raise_()
 
     def _setup_window_settings(self, window: ConfigWindow):
         self.window = window
