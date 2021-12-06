@@ -87,9 +87,12 @@ class NotetypesConfigWindow:
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
             model = self._safe_update_model([nts], model)
 
+            scroll_bar = self.clayout.tform.edit_area.verticalScrollBar()
+            scroll_pos = scroll_bar.value()
             self.clayout.model = model
             self.clayout.change_tracker.mark_basic()
             self.clayout.update_current_ordinal_and_redraw(self.clayout.ord)
+            scroll_bar.setValue(min(scroll_pos, scroll_bar.maximum()))
 
         if self.clayout:
             self.conf.on_change(update_clayout_model)
