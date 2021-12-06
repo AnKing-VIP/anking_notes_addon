@@ -34,7 +34,7 @@ class NotetypeSetting(ABC):
             return FontFamilySetting(config)
         else:
             raise Exception(
-                f"unkown NoteTypeSetting type: {config.get('type', 'None')}"
+                f"unkown NotetypeSetting type: {config.get('type', 'None')}"
             )
 
     @abstractmethod
@@ -99,20 +99,24 @@ class NotetypeSetting(ABC):
         # returns the config key of this setting for the notetype in the config
         return f"{notetype_name}.{self.name()}"
 
+    # can raise NotetypeParseException
     def _relevant_template_section(self, model: "NotetypeDict"):
         template_text = self._relevant_template_text(model)
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
             raise NotetypeParseException(
-                f"could not find '{self.config['name']}' in {self.config['file']} template of notetype '{model['name']}'"
+                f"could not find '{self.config['text']}' in {self.config['file']} template of notetype '{model['name']}'"
             )
         result = section_match.group(0)
         return result
 
+    # raises NotetypeParseException if the current setting value is
+    # not of the expected form and has to be changed for the notetype to work
     @abstractmethod
     def _extract_setting_value(self, section: str) -> Any:
         pass
 
+    # is not allowed to raise NotetypeParseExceptions
     @abstractmethod
     def _set_setting_value(self, section: str, setting_value: Any):
         pass
@@ -157,7 +161,7 @@ class ReCheckboxSetting(NotetypeSetting):
         unchecked = all(x in section for x, _ in replacement_pairs)
         if not ((checked or unchecked) and not (checked and unchecked)):
             raise NotetypeParseException(
-                f"error involving {replacement_pairs=} and {section=}"
+                f"{self.config['text']}: error involving {replacement_pairs=} and {section=}"
             )
         return checked
 
@@ -243,6 +247,7 @@ class FontFamilySetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
+        # XXX dont need to verify, because used in css and will be ignored if not valid
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
@@ -260,7 +265,12 @@ class DropdownSetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        return re.search(self.config["regex"], section).group(1)
+        result = re.search(self.config["regex"], section).group(1)
+        if result not in self.config["options"]:
+            raise NotetypeParseException(
+                f"{self.config['text']}: expected one of {self.config['options']} but got {result}"
+            )
+        return result
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         return self._replace_first_capture_group(section, setting_value)
@@ -275,6 +285,7 @@ class ColorSetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
+        # XXX dont need to verify, because used in css and will be ignored if not valid
         color_str = re.search(self.config["regex"], section).group(1)
         return color_str
 
@@ -298,6 +309,7 @@ class ShortcutSetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
+        # XXX dont need to verify, because notetype js will ignore the shortcut if its invalid
         shortcut_str = re.search(self.config["regex"], section).group(1)
         return shortcut_str
 

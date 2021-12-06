@@ -278,7 +278,7 @@ class NotetypesConfigWindow:
     # miscellanous
     def _set_active_tab(self, tab_name: str) -> None:
         tab_widget = self.window.main_tab
-        tab_widget.setCurrentIndex(self.get_tab_idx_by_name(tab_name))
+        tab_widget.setCurrentIndex(self._get_tab_idx_by_name(tab_name))
 
     def _reset_notetype_and_reload_ui(self, model: NotetypeDict):
         notetype_name = model["name"]
@@ -311,7 +311,7 @@ class NotetypesConfigWindow:
 
     def _reload_tab(self, notetype_name: str) -> None:
         tab_widget = self.window.main_tab
-        index = self.get_tab_idx_by_name(notetype_name)
+        index = self._get_tab_idx_by_name(notetype_name)
         tab_widget.removeTab(index)
         tab_widget.addTab(
             self._notetype_settings_tab(notetype_name, self.window),
@@ -325,7 +325,7 @@ class NotetypesConfigWindow:
         self.window.update_widgets()
         self._set_active_tab(notetype_name)
 
-    def get_tab_idx_by_name(self, tab_name: str) -> int:
+    def _get_tab_idx_by_name(self, tab_name: str) -> int:
         tab_widget = self.window.main_tab
         return next(
             (
@@ -359,7 +359,7 @@ class NotetypesConfigWindow:
                 try:
                     self.conf[nts.key(notetype_name)] = nts.setting_value(model)
                 except NotetypeParseException as e:
-                    error_msg += f"failed parsing notetype:\n{str(e)}\n\n"
+                    error_msg += f"failed parsing {notetype_name}:\n{str(e)}\n\n"
 
         if error_msg:
             showInfo(error_msg)

@@ -66,33 +66,11 @@ class ConfigWindow(QDialog):
         btn_box.addWidget(self.save_btn)
 
     def update_widgets(self) -> None:
-        try:
-            for widget_update in self.widget_updates:
+        for widget_update in self.widget_updates:
+            try:
                 widget_update()
-        except InvalidConfigValueError as e:
-            advanced = self.advanced_window()
-            dial, bbox = showText(
-                "Invalid Config. Please fix the following issue in the advanced config editor. \n\n"
-                + str(e),
-                title="Invalid Config",
-                parent=advanced,
-                run=False,
-            )
-            button = QPushButton("Quit Config")
-            bbox.addButton(button, QDialogButtonBox.DestructiveRole)
-            bbox.button(QDialogButtonBox.Close).setDefault(True)
-
-            def quit() -> None:
-                dial.close()
-                advanced.close()
-                self.widget_updates = []
-                self.close()
-
-            button.clicked.connect(quit)
-            dial.show()
-            advanced.exec_()
-            self.conf.load()
-            self.update_widgets()
+            except InvalidConfigValueError:
+                pass
 
     def on_open(self) -> None:
         self.update_widgets()
