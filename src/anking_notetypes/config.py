@@ -365,8 +365,23 @@ class NotetypesConfigWindow:
             showInfo(error_msg)
 
     def _read_in_general_settings(self):
-        for key, value in general_settings_defaults_dict().items():
-            self.conf[f"general.{key}"] = value
+
+        # read in default values
+        for setting_name, value in general_settings_defaults_dict().items():
+            self.conf[f"general.{setting_name}"] = value
+
+        # if all notetypes that have a nts have the same value set the value to it
+        models_by_nts: Dict[NotetypeSetting, NotetypeDict] = defaultdict(lambda: [])
+        for notetype_name in anking_notetype_names():
+            model = mw.col.models.by_name(notetype_name)
+            ntss = self._ntss_for_model(model)
+            for nts in ntss:
+                models_by_nts[nts].append(model)
+
+        for nts, models in models_by_nts.items():
+            setting_value = nts.setting_value(models[0]) if models else None
+            if all(setting_value == nts.setting_value(model) for model in models):
+                self.conf[f"general.{nts.name()}"] = setting_value
 
     def _update_notetypes(self):
         for notetype_name in anking_notetype_names():
