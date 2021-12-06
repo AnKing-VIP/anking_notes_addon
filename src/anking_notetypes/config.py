@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout
+from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
 from .notetype_setting import NotetypeParseException, NotetypeSetting
 from .notetype_setting_definitions import (
     anking_notetype_model,
@@ -140,6 +140,14 @@ class NotetypesConfigWindow:
         widget = QWidget()
         window.main_layout.addWidget(widget)
         AnkiPalaceLayout(widget)
+
+        window.main_layout.addSpacing(10)
+        widget = QWidget()
+        window.main_layout.addWidget(widget)
+        GithubLinkLayout(
+            widget,
+            href="https://github.com/AnKingMed/anking_notes_addon/issues",
+        )
 
     # tabs and NotetypeSettings (ntss)
     def _notetype_settings_tab(

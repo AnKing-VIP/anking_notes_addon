@@ -69,3 +69,26 @@ class AnkiPalaceLayout(QHBoxLayout):
         )
         text_layout.addWidget(label1)
         text_layout.addWidget(label2)
+
+
+class GithubLinkLayout(QHBoxLayout):
+    def __init__(self, parent: QWidget, href: str) -> None:
+        self.href = href
+
+        QHBoxLayout.__init__(self, parent)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setup()
+        parent.setLayout(self)
+
+    def setup(self) -> None:
+        self.addStretch()
+        text_layout = QVBoxLayout()
+        self.addLayout(text_layout)
+        self.addStretch()
+
+        label = QLabel()
+        label.setText(
+            f'You can report bugs and request features <a href="{self.href}">here</a>.'
+        )
+        label.setOpenExternalLinks(True)
+        text_layout.addWidget(label)
