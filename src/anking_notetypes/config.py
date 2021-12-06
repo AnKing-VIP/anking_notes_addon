@@ -304,12 +304,7 @@ class NotetypesConfigWindow:
             if not self.clayout:
                 mw.col.models.update_dict(model)
 
-            self._read_in_settings_from_notetypes()
-
-            if self.clayout:
-                self._read_in_settings()
-
-            self.window.update_widgets()
+            self._reload_tab(notetype_name)
 
             tooltip("Notetype was reset", parent=self.window, period=1200)
 
