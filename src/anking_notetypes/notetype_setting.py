@@ -325,8 +325,8 @@ class NumberEditSetting(NotetypeSetting):
             key=self.key(notetype_name),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
-            minimum=self.config.get("min", None),
-            maximum=self.config.get("max", 99999),
+            minimum=self.config.get("min", 0),
+            maximum=self.config.get("max", 1000),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
