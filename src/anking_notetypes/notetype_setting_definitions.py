@@ -389,6 +389,42 @@ setting_configs: Dict[str, Any] = {
         "section": "Colors",
         "default": "inherit",
     },
+    "image_occlusion_rect_color": {
+        "text": "Rect Color",
+        "tooltip": "",
+        "type": "color",
+        "file": "style",
+        "regex": "--rect-bg: +([^ ]*?);",
+        "section": "Image Occlusion",
+        "default": "moccasin",
+    },
+    "image_occlusion_border_color": {
+        "text": "Rect Border Color",
+        "tooltip": "",
+        "type": "color",
+        "file": "style",
+        "regex": "--rect-border: +([^ ]*?);",
+        "section": "Image Occlusion",
+        "default": "olive",
+    },
+    "image_occlusion_active_rect_color": {
+        "text": "Active Rect Color",
+        "tooltip": "",
+        "type": "color",
+        "file": "style",
+        "regex": "--active-rect-bg: +([^ ]*?);",
+        "section": "Image Occlusion",
+        "default": "salmon",
+    },
+    "image_occlusion_active_border_color": {
+        "text": "Active Rect Border Color",
+        "tooltip": "",
+        "type": "color",
+        "file": "style",
+        "regex": "--active-rect-border: +([^ ]*?);",
+        "section": "Image Occlusion",
+        "default": "yellow",
+    },
 }
 
 
@@ -540,6 +576,10 @@ general_settings = [
     "bold_text_color",
     "underlined_text_color",
     "italic_text_color",
+    "image_occlusion_rect_color",
+    "image_occlusion_border_color",
+    "image_occlusion_active_rect_color",
+    "image_occlusion_active_border_color",
 ]
 
 
