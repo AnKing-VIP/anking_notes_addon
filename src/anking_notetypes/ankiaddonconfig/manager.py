@@ -134,6 +134,8 @@ class ConfigManager:
         else:
             config_window.setWindowModality(Qt.WindowModality.NonModal)
             config_window.show()
+            config_window.activateWindow()
+            config_window.raise_()
 
         return config_window
 

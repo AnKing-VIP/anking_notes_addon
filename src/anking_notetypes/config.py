@@ -106,8 +106,6 @@ class NotetypesConfigWindow:
             self.window = self.conf.open_config(self.clayout)
         else:
             self.window = self.conf.open_config()
-        self.window.activateWindow()
-        self.window.raise_()
 
     def _setup_window_settings(self, window: ConfigWindow):
         self.window = window
