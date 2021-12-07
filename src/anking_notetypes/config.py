@@ -378,6 +378,9 @@ class NotetypesConfigWindow:
         models_by_nts: Dict[NotetypeSetting, NotetypeDict] = defaultdict(lambda: [])
         for notetype_name in anking_notetype_names():
             model = mw.col.models.by_name(notetype_name)
+            if not model:
+                continue
+
             ntss = self._ntss_for_model(model)
             for nts in ntss:
                 models_by_nts[nts].append(model)
