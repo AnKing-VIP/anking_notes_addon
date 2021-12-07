@@ -130,6 +130,9 @@ class ConfigManager:
             fn(config_window)
         config_window.on_open()
 
+        # the second method of opening the window doesn't work on MacOs
+        # (the window is in the back, can't be brought to the front and 
+        # is not interactive)
         if parent == mw or platform == "darwin":
             config_window.exec_()
         else:
