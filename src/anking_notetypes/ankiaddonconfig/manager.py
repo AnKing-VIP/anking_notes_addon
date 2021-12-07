@@ -1,5 +1,6 @@
 import copy
 import json
+from sys import platform
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 from aqt import mw
@@ -129,7 +130,7 @@ class ConfigManager:
             fn(config_window)
         config_window.on_open()
 
-        if parent == mw:
+        if parent == mw or platform == "darwin":
             config_window.exec_()
         else:
             config_window.setWindowModality(Qt.WindowModality.NonModal)
