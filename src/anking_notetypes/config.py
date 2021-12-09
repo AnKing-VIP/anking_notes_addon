@@ -146,8 +146,7 @@ class NotetypesConfigWindow:
         widget = QWidget()
         window.main_layout.addWidget(widget)
         GithubLinkLayout(
-            widget,
-            href="https://github.com/AnKingMed/anking_notes_addon/issues",
+            widget, href="https://github.com/AnKingMed/AnKing-Note-Types/issues"
         )
 
     # tabs and NotetypeSettings (ntss)
