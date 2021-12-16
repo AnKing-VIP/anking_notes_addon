@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 import aqt.addons
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import restoreGeom, saveGeom, showText, tooltip
+from aqt.utils import restoreGeom, saveGeom, tooltip
+from PyQt5.QtWidgets import QAbstractItemView
+
 
 from .collapsible_section import CollapsibleSection
 from .errors import InvalidConfigValueError
@@ -225,6 +227,58 @@ class ConfigLayout(QBoxLayout):
             self.addWidget(combobox)
 
         return combobox
+
+    def order_widget(
+        self,
+        key: str,
+        items: List[str],
+        description: Optional[str] = None,
+        tooltip: Optional[str] = None,
+    ) -> QTableWidget:
+
+        def on_edit():
+            val = []
+            for rIdx in range(table.rowCount()):
+                val.append(table.item(rIdx, 0).data(0))
+            self.conf.set(key, val)
+
+        table = OrderTable(on_edit)
+        table.setDragEnabled(True)
+        table.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.horizontalHeader().hide()
+
+        if tooltip is not None:
+            table.setToolTip(tooltip)
+
+        def update() -> None:
+            val = self.conf.get(key)
+            if not isinstance(val, list):
+                raise InvalidConfigValueError(key, "List[str]", val)
+            load_table(val)
+
+        def load_table(data):
+            table.setColumnCount(1)
+            table.setRowCount(len(data))
+            for rIdx, x in enumerate(data):
+                item = QTableWidgetItem(x)
+                table.setItem(rIdx, 0, item)
+            table.resizeColumnsToContents()
+            table.resizeRowsToContents()
+            table.setFixedSize(
+                table.columnWidth(0) + table.verticalHeader().width() + 17,
+                table.rowHeight(0) * table.rowCount() + table.rowCount(),
+            )
+
+        load_table(items)
+
+        self.widget_updates.append(update)
+
+        if description is not None:
+            self.text(description, tooltip=tooltip)
+            self.space(7)
+        self.addWidget(table)
+        return table
 
     def text_input(
         self, key: str, description: Optional[str] = None, tooltip: Optional[str] = None
@@ -659,3 +713,18 @@ class ConfigLayout(QBoxLayout):
         section.setContentLayout(layout)
         self.addWidget(section)
         return layout
+
+
+class OrderTable(QTableWidget):
+    
+    def __init__(self, on_edit):
+        super().__init__()
+        self._on_edit = on_edit
+
+    def dropEvent(self, dropEvent):
+        item_src = self.selectedItems()[0]
+        item_dest = self.itemAt(dropEvent.pos())
+        src_value = item_src.text()
+        item_src.setText(item_dest.text())
+        item_dest.setText(src_value)
+        self._on_edit()

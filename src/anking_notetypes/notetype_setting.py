@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, OrderedDict
 
 from anki.models import NotetypeDict
 
@@ -32,17 +32,22 @@ class NotetypeSetting(ABC):
             return ColorSetting(config)
         if config["type"] == "font_family":
             return FontFamilySetting(config)
+        if config["type"] == "order":
+            return ElementOrderSetting(config)
         else:
             raise Exception(
                 f"unkown NotetypeSetting type: {config.get('type', 'None')}"
             )
 
     @abstractmethod
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         pass
 
     def add_widget_to_general_config_layout(self, layout: ConfigLayout):
-        self.add_widget_to_config_layout(layout, "general")
+
+        # XXX dummy model
+        model = {"name": "general"}
+        self.add_widget_to_config_layout(layout, model)
 
     def register_general_setting(self, conf: ConfigManager):
         def update_all(key, value):
@@ -148,9 +153,9 @@ class NotetypeParseException(Exception):
 
 
 class ReCheckboxSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.checkbox(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -178,9 +183,9 @@ class ReCheckboxSetting(NotetypeSetting):
 
 
 class WrapCheckboxSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.checkbox(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -203,9 +208,9 @@ class WrapCheckboxSetting(NotetypeSetting):
 
 
 class CheckboxSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.checkbox(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -224,9 +229,9 @@ class CheckboxSetting(NotetypeSetting):
 
 
 class LineEditSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.text_input(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -240,9 +245,9 @@ class LineEditSetting(NotetypeSetting):
 
 
 class FontFamilySetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.font_family_combobox(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -256,9 +261,9 @@ class FontFamilySetting(NotetypeSetting):
 
 
 class DropdownSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.dropdown(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
             labels=self.config["options"],
@@ -278,9 +283,9 @@ class DropdownSetting(NotetypeSetting):
 
 
 class ColorSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.color_input(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -302,9 +307,9 @@ class ColorSetting(NotetypeSetting):
 
 
 class ShortcutSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.shortcut_edit(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
         )
@@ -320,9 +325,9 @@ class ShortcutSetting(NotetypeSetting):
 
 
 class NumberEditSetting(NotetypeSetting):
-    def add_widget_to_config_layout(self, layout: ConfigLayout, notetype_name: str):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
         layout.number_input(
-            key=self.key(notetype_name),
+            key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
             minimum=self.config.get("min", 0),
@@ -334,7 +339,10 @@ class NumberEditSetting(NotetypeSetting):
     def _extract_setting_value(self, section: str) -> Any:
         value_str = re.search(self.config["regex"], section).group(1)
         try:
-            result = float(value_str)
+            if self.config.get("decimal", False):
+                result = float(value_str)
+            else:
+                result = int(value_str)
             return result
         except:
             raise NotetypeParseException(
@@ -344,3 +352,44 @@ class NumberEditSetting(NotetypeSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         new_value_str = str(setting_value)
         return self._replace_first_capture_group(section, new_value_str)
+
+
+class ElementOrderSetting(NotetypeSetting):
+    def add_widget_to_config_layout(self, layout: ConfigLayout, model: NotetypeDict):
+        layout.order_widget(
+            key=self.key(model["name"]),
+            items=list(
+                self._name_to_match_odict(self._relevant_template_section(model)).keys()
+            ),
+            description=self.config["text"],
+            tooltip=self.config.get("tooltip", None),
+        )
+
+    def _extract_setting_value(self, section: str) -> Any:
+        return list(self._name_to_match_odict(section).keys())
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        result = section[:]
+        offset = 0
+        elements = self._name_to_match_odict(section)
+        for i, name in enumerate(setting_value):
+            old: re.Match = elements[list(elements.keys())[i]]
+            new: re.Match = elements[name]
+            start, end = old.span()
+            result = result[: start + offset] + new.group(0) + result[end + offset :]
+            offset += len(new.group(0)) - len(old.group(0))
+        return result
+
+    def _name_to_match_odict(self, section_text: str) -> OrderedDict[str, re.Match]:
+        matches = [
+            m
+            for m in re.finditer(self.config["elem_re"], str(section_text))
+            if re.search(self.config["has_to_contain"], m.group(0))
+        ]
+        result = OrderedDict(
+            [
+                (re.search(self.config["name_re"], m.group(0)).group(1), m)
+                for m in matches
+            ]
+        )
+        return result

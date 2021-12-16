@@ -451,6 +451,19 @@ setting_configs: Dict[str, Any] = {
         "section": "Colors",
         "default": "yellow",
     },
+    "button_order": {
+        "text": "Button Order",
+        "tooltip": "drag and drop the button names to adjust their order",
+        "tooltip": "",
+        "type": "order",
+        "file": "back",
+        "regex": "[\w\W]*",
+        # the surrounding "<!--" are needed because of the disable field setting
+        "elem_re": "(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?",
+        "name_re" : "\{\{#(.+?)\}\}",
+        "has_to_contain": 'class="hint"',
+        "section": "Hint Buttons",
+    },
 }
 
 

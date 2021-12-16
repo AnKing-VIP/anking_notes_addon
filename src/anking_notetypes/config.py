@@ -166,7 +166,7 @@ class NotetypesConfigWindow:
             ntss = self._ntss_for_model(model)
             ordered_ntss = self._adjust_hint_button_nts_order(ntss, notetype_name)
             scroll = tab.scroll_layout()
-            self._add_nts_widgets_to_layout(scroll, ordered_ntss, notetype_name)
+            self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
             tab.button(
                 "Reset",
@@ -204,12 +204,12 @@ class NotetypesConfigWindow:
         self,
         layout: ConfigLayout,
         ntss: List[NotetypeSetting],
-        notetype_name: str,
+        model: NotetypeDict,
         general=False,
     ) -> None:
 
         if general:
-            assert notetype_name == None
+            assert model is None
 
         nts_to_section = {
             nts: section_name
@@ -227,7 +227,7 @@ class NotetypesConfigWindow:
                 if general:
                     nts.add_widget_to_general_config_layout(section)
                 else:
-                    nts.add_widget_to_config_layout(section, notetype_name)
+                    nts.add_widget_to_config_layout(section, model)
                 section.space(7)
             layout.hseparator()
             layout.space(10)
@@ -239,7 +239,7 @@ class NotetypesConfigWindow:
             if general:
                 nts.add_widget_to_general_config_layout(layout)
             else:
-                nts.add_widget_to_config_layout(layout, notetype_name)
+                nts.add_widget_to_config_layout(layout, model)
             layout.space(7)
 
     def _ntss_for_model(self, model: "NotetypeDict") -> List[NotetypeSetting]:
