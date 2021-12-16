@@ -235,7 +235,6 @@ class ConfigLayout(QBoxLayout):
         description: Optional[str] = None,
         tooltip: Optional[str] = None,
     ) -> QTableWidget:
-
         def on_edit():
             val = []
             for rIdx in range(table.rowCount()):
@@ -247,9 +246,6 @@ class ConfigLayout(QBoxLayout):
         table.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         table.horizontalHeader().hide()
-
-        if tooltip is not None:
-            table.setToolTip(tooltip)
 
         def update() -> None:
             val = self.conf.get(key)
@@ -716,7 +712,6 @@ class ConfigLayout(QBoxLayout):
 
 
 class OrderTable(QTableWidget):
-    
     def __init__(self, on_edit):
         super().__init__()
         self._on_edit = on_edit
