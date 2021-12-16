@@ -235,7 +235,7 @@ class LineEditSetting(NotetypeSetting):
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        new_value_str = setting_value.replace("\"", "\\\"")
+        new_value_str = setting_value.replace('"', '\\"')
         return self._replace_first_capture_group(section, new_value_str)
 
 
@@ -315,7 +315,7 @@ class ShortcutSetting(NotetypeSetting):
         return shortcut_str
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
-        new_value_str = setting_value.replace("\"", "\\\"")
+        new_value_str = setting_value.replace('"', '\\"')
         return self._replace_first_capture_group(section, new_value_str)
 
 
@@ -327,12 +327,14 @@ class NumberEditSetting(NotetypeSetting):
             tooltip=self.config.get("tooltip", None),
             minimum=self.config.get("min", 0),
             maximum=self.config.get("max", 1000),
+            decimal=self.config.get("decimal", False),
+            step=self.config.get("step", 1),
         )
 
     def _extract_setting_value(self, section: str) -> Any:
         value_str = re.search(self.config["regex"], section).group(1)
         try:
-            result = int(value_str)
+            result = float(value_str)
             return result
         except:
             raise NotetypeParseException(
