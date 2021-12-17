@@ -168,10 +168,17 @@ class NotetypesConfigWindow:
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
-            tab.button(
+            
+            layout = tab.hlayout()
+            layout.button(
+                "Update",
+                on_click=lambda: self._update_notetype_and_reload_ui(model),
+            )
+            layout.button(
                 "Reset",
                 on_click=lambda: self._reset_notetype_and_reload_ui(model),
             )
+            layout.stretch()
         else:
             tab.text("The notetype is not in the collection.")
             tab.stretch()
@@ -299,14 +306,32 @@ class NotetypesConfigWindow:
             model["tmpls"][0]["afmt"] = back
             model["css"] = styling
 
-            # XXX probably usn or mod has to be set as well
-
             if not self.clayout:
                 mw.col.models.update_dict(model)
 
             self._reload_tab(notetype_name)
 
             tooltip("Notetype was reset", parent=self.window, period=1200)
+
+    def _update_notetype_and_reload_ui(self, model: NotetypeDict):
+        notetype_name = model["name"]
+        if askUser(
+            f"Do you really want to update the <b>{notetype_name}</b> notetype? Settings will be kept.",
+            defaultno=True,
+        ):
+            front, back, styling = anking_notetype_templates()[notetype_name]
+            model["tmpls"][0]["qfmt"] = front
+            model["tmpls"][0]["afmt"] = back
+            model["css"] = styling
+
+            if not self.clayout:
+                mw.col.models.update_dict(model)
+
+            self._safe_update_model(self._ntss_for_model(model), model)
+
+            self._reload_tab(notetype_name)
+
+            tooltip("Notetype was updated", parent=self.window, period=1200)
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
