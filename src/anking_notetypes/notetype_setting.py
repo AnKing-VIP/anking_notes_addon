@@ -74,11 +74,11 @@ class NotetypeSetting(ABC):
         return result
 
     def updated_model(
-        self, model: "NotetypeDict", notetype_name: str, conf: ConfigManager
+        self, model: "NotetypeDict", conf: ConfigManager
     ) -> "NotetypeDict":
         result = model.copy()
         section = self._relevant_template_section(result)
-        setting_value = conf[self.key(notetype_name)]
+        setting_value = conf[self.key(model["name"])]
         processed_section = self._set_setting_value(section, setting_value)
         updated_text = self._relevant_template_text(result).replace(
             section, processed_section, 1
