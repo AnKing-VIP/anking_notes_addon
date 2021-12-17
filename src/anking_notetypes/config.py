@@ -441,7 +441,7 @@ class NotetypesConfigWindow:
         parse_exception = None
         for nts in ntss:
             try:
-                result = nts.updated_model(result, result["name"], self.conf)
+                result = nts.updated_model(result, self.conf)
             except NotetypeParseException as e:
                 parse_exception = e
         if parse_exception:
