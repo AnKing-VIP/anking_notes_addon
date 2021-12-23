@@ -281,7 +281,7 @@ class NotetypesConfigWindow:
         )
 
         other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
-        return ordered_hint_button_ntss + other_ntss
+        return other_ntss + ordered_hint_button_ntss 
 
     # miscellanous
     def _set_active_tab(self, tab_name: str) -> None:
