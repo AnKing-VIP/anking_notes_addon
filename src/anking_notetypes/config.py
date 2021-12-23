@@ -168,16 +168,20 @@ class NotetypesConfigWindow:
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
-            
+
             layout = tab.hlayout()
-            layout.button(
-                "Update",
-                on_click=lambda: self._update_notetype_and_reload_ui(model),
-            )
             layout.button(
                 "Reset",
                 on_click=lambda: self._reset_notetype_and_reload_ui(model),
             )
+            layout.button(
+                "Update",
+                on_click=lambda: self._update_notetype_and_reload_ui(model),
+            )
+
+            if self._new_notetype_version_available(model):
+                layout.text("A new version of the notetype is available!")
+
             layout.stretch()
         else:
             tab.text("The notetype is not in the collection.")
@@ -332,6 +336,9 @@ class NotetypesConfigWindow:
             self._reload_tab(notetype_name)
 
             tooltip("Notetype was updated", parent=self.window, period=1200)
+
+    def _new_notetype_version_available(self, model: NotetypeDict):
+        return True
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
