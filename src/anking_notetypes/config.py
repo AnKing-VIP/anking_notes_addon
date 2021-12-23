@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -281,7 +282,7 @@ class NotetypesConfigWindow:
         )
 
         other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
-        return other_ntss + ordered_hint_button_ntss 
+        return other_ntss + ordered_hint_button_ntss
 
     # miscellanous
     def _set_active_tab(self, tab_name: str) -> None:
@@ -295,18 +296,47 @@ class NotetypesConfigWindow:
             defaultno=True,
         ):
             front, back, styling = anking_notetype_templates()[notetype_name]
-            model["tmpls"][0]["qfmt"] = front
-            model["tmpls"][0]["afmt"] = back
-            model["css"] = styling
+            new_model = anking_notetype_model(notetype_name)
 
-            # XXX probably usn or mod has to be set as well
+            new_model["id"] = model["id"]
+            new_model["mod"] = int(time.time())  # not sure if this is needed
+            new_model = self._adjust_field_ords(model, new_model)
+
+            new_model["tmpls"][0]["qfmt"] = front
+            new_model["tmpls"][0]["afmt"] = back
+            new_model["css"] = styling
 
             if not self.clayout:
-                mw.col.models.update_dict(model)
+                mw.col.models.update_dict(new_model)
+            else:
+                model.update(new_model)
 
             self._reload_tab(notetype_name)
 
             tooltip("Notetype was reset", parent=self.window, period=1200)
+
+    def _adjust_field_ords(
+        self, cur_model: NotetypeDict, new_model: NotetypeDict
+    ) -> NotetypeDict:
+        # this makes sure that when fields get added, removed or are moved
+        # field contents end up in the field with the same name as before
+        for fld in new_model["flds"]:
+            if (
+                cur_ord := next(
+                    (
+                        _fld["ord"]
+                        for _fld in cur_model["flds"]
+                        if _fld["name"] == fld["name"]
+                    ),
+                    None,
+                )
+            ) is not None:
+                fld["ord"] = cur_ord
+            else:
+                # it's okay to assign this to multiple fields because the
+                # backend assigns new ords equal to the fields index
+                fld["ord"] = len(new_model["flds"]) - 1
+        return new_model
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
@@ -371,7 +401,7 @@ class NotetypesConfigWindow:
 
         # read in default values
         for setting_name, value in general_settings_defaults_dict().items():
-            self.conf[f"general.{setting_name}"] = value
+            self.conf.set(f"general.{setting_name}", value, on_change_trigger=False)
 
         # if all notetypes that have a nts have the same value set the value to it
         models_by_nts: Dict[NotetypeSetting, NotetypeDict] = defaultdict(lambda: [])
@@ -387,7 +417,7 @@ class NotetypesConfigWindow:
         for nts, models in models_by_nts.items():
             setting_value = nts.setting_value(models[0]) if models else None
             if all(setting_value == nts.setting_value(model) for model in models):
-                self.conf[f"general.{nts.name()}"] = setting_value
+                self.conf.set(f"general.{nts.name()}", setting_value, on_change_trigger=False)
 
     def _update_notetypes(self):
         for notetype_name in anking_notetype_names():

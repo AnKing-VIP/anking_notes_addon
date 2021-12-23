@@ -62,7 +62,7 @@ class ConfigManager:
     def get_default(self, key: str) -> Any:
         return self.get_from_dict(self._default, key)
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, on_change_trigger: bool = True) -> None:
         levels = key.split(".")
         conf_obj = self._config
         for i in range(len(levels) - 1):
@@ -81,7 +81,7 @@ class ConfigManager:
         old_value = conf_obj.get(level, None)
         conf_obj[level] = value
 
-        if value != old_value:
+        if on_change_trigger and value != old_value:
             for hook in self.change_hooks:
                 hook(key, value)
 
@@ -131,7 +131,7 @@ class ConfigManager:
         config_window.on_open()
 
         # the second method of opening the window doesn't work on MacOs
-        # (the window is in the back, can't be brought to the front and 
+        # (the window is in the back, can't be brought to the front and
         # is not interactive)
         if parent == mw or platform == "darwin":
             config_window.exec_()
