@@ -1,11 +1,9 @@
 from aqt import mw
 from aqt.gui_hooks import card_layout_will_show
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
+from aqt.qt import *
 
 from .config import NotetypesConfigWindow
 from .gui.menu import setup_menu
-
 
 if mw is not None:
     window = NotetypesConfigWindow()

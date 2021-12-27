@@ -5,7 +5,6 @@ import aqt.addons
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom, tooltip
-from PyQt5.QtWidgets import QAbstractItemView
 
 
 from .collapsible_section import CollapsibleSection
@@ -183,7 +182,9 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        checkbox.stateChanged.connect(lambda s: self.conf.set(key, s == Qt.CheckState.Checked))
+        checkbox.stateChanged.connect(
+            lambda s: self.conf.set(key, s == Qt.CheckState.Checked)
+        )
         self.addWidget(checkbox)
         return checkbox
 
@@ -494,7 +495,9 @@ class ConfigLayout(QBoxLayout):
             edit.clear()
 
         shortcut_clear_btn = QPushButton("Clear")
-        shortcut_clear_btn.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        shortcut_clear_btn.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
         shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)
 
         layout = QHBoxLayout()
@@ -540,7 +543,9 @@ class ConfigLayout(QBoxLayout):
         tooltip: Optional[str] = None,
     ) -> QLabel:
         label_widget = QLabel(text)
-        label_widget.setTextInteractionFlags(Qt.TextInteractionFlag.TextBrowserInteraction)
+        label_widget.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextBrowserInteraction
+        )
         if html:
             label_widget.setTextFormat(Qt.RichText)
             label_widget.setOpenExternalLinks(True)

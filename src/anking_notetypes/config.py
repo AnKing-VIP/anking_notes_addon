@@ -6,10 +6,8 @@ from typing import Any, Dict, List, Optional
 from anki.models import NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
+from aqt.qt import *
 from aqt.utils import askUser, showInfo, tooltip
-from PyQt5.QtCore import *  # type: ignore
-from PyQt5.QtGui import *  # type: ignore
-from PyQt5.QtWidgets import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
@@ -417,7 +415,9 @@ class NotetypesConfigWindow:
         for nts, models in models_by_nts.items():
             setting_value = nts.setting_value(models[0]) if models else None
             if all(setting_value == nts.setting_value(model) for model in models):
-                self.conf.set(f"general.{nts.name()}", setting_value, on_change_trigger=False)
+                self.conf.set(
+                    f"general.{nts.name()}", setting_value, on_change_trigger=False
+                )
 
     def _update_notetypes(self):
         for notetype_name in anking_notetype_names():
