@@ -134,7 +134,7 @@ class ConfigManager:
         # (the window is in the back, can't be brought to the front and
         # is not interactive)
         if parent == mw or platform == "darwin":
-            config_window.exec_()
+            config_window.exec()
         else:
             config_window.setWindowModality(Qt.WindowModality.NonModal)
             config_window.show()
