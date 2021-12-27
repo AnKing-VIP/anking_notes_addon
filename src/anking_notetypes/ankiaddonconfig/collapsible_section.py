@@ -1,55 +1,55 @@
-from PyQt5 import QtCore, QtWidgets
+from aqt.qt import *
 
 
 # https://stackoverflow.com/a/52617714
-class CollapsibleSection(QtWidgets.QWidget):
+class CollapsibleSection(QWidget):
     def __init__(self, title="", parent=None):
         super(CollapsibleSection, self).__init__(parent)
 
-        self.toggle_button = QtWidgets.QToolButton(
+        self.toggle_button = QToolButton(
             text=title, checkable=True, checked=False
         )
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
-        self.toggle_button.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        self.toggle_button.setArrowType(QtCore.Qt.RightArrow)
+        self.toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.toggle_button.setArrowType(Qt.ArrowType.RightArrow)
         self.toggle_button.pressed.connect(self.on_pressed)
 
-        self.toggle_animation = QtCore.QParallelAnimationGroup(self)
+        self.toggle_animation = QParallelAnimationGroup(self)
 
-        self.content_area = QtWidgets.QScrollArea(maximumHeight=0, minimumHeight=0)
+        self.content_area = QScrollArea(maximumHeight=0, minimumHeight=0)
         self.content_area.setSizePolicy(
-            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
-        self.content_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+        self.content_area.setFrameShape(QFrame.Shape.NoFrame)
 
-        lay = QtWidgets.QVBoxLayout(self)
+        lay = QVBoxLayout(self)
         lay.setSpacing(0)
         lay.setContentsMargins(0, 0, 0, 0)
         lay.addWidget(self.toggle_button)
         lay.addWidget(self.content_area)
 
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"minimumHeight")
+            QPropertyAnimation(self, b"minimumHeight")
         )
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self, b"maximumHeight")
+            QPropertyAnimation(self, b"maximumHeight")
         )
         self.toggle_animation.addAnimation(
-            QtCore.QPropertyAnimation(self.content_area, b"maximumHeight")
+            QPropertyAnimation(self.content_area, b"maximumHeight")
         )
 
-    @QtCore.pyqtSlot()
+    @pyqtSlot()
     def on_pressed(self):
         self.setContentLayout(self.content_area.layout())
 
         checked = self.toggle_button.isChecked()
         self.toggle_button.setArrowType(
-            QtCore.Qt.DownArrow if not checked else QtCore.Qt.RightArrow
+            Qt.ArrowType.DownArrow if not checked else Qt.ArrowType.RightArrow
         )
         self.toggle_animation.setDirection(
-            QtCore.QAbstractAnimation.Forward
+            QAbstractAnimation.Direction.Forward
             if not checked
-            else QtCore.QAbstractAnimation.Backward
+            else QAbstractAnimation.Direction.Backward
         )
         self.toggle_animation.start()
 
