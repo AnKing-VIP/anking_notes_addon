@@ -6,12 +6,12 @@ class CollapsibleSection(QWidget):
     def __init__(self, title="", parent=None):
         super(CollapsibleSection, self).__init__(parent)
 
-        self.toggle_button = QToolButton(
-            text=title, checkable=True, checked=False
+        self.toggle_button = QToolButton(text=title, checkable=True, checked=False)
+        self.toggle_button.setToolButtonStyle(
+            Qt.ToolButtonStyle.ToolButtonTextBesideIcon
         )
+
         self.toggle_button.setStyleSheet("QToolButton { border: none; }")
-        self.toggle_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-        self.toggle_button.setArrowType(Qt.ArrowType.RightArrow)
         self.toggle_button.pressed.connect(self.on_pressed)
 
         self.toggle_animation = QParallelAnimationGroup(self)
@@ -28,12 +28,8 @@ class CollapsibleSection(QWidget):
         lay.addWidget(self.toggle_button)
         lay.addWidget(self.content_area)
 
-        self.toggle_animation.addAnimation(
-            QPropertyAnimation(self, b"minimumHeight")
-        )
-        self.toggle_animation.addAnimation(
-            QPropertyAnimation(self, b"maximumHeight")
-        )
+        self.toggle_animation.addAnimation(QPropertyAnimation(self, b"minimumHeight"))
+        self.toggle_animation.addAnimation(QPropertyAnimation(self, b"maximumHeight"))
         self.toggle_animation.addAnimation(
             QPropertyAnimation(self.content_area, b"maximumHeight")
         )
@@ -43,9 +39,6 @@ class CollapsibleSection(QWidget):
         self.setContentLayout(self.content_area.layout())
 
         checked = self.toggle_button.isChecked()
-        self.toggle_button.setArrowType(
-            Qt.ArrowType.DownArrow if not checked else Qt.ArrowType.RightArrow
-        )
         self.toggle_animation.setDirection(
             QAbstractAnimation.Direction.Forward
             if not checked
