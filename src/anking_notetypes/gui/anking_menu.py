@@ -23,7 +23,7 @@ def create_get_help_submenu(parent: QMenu) -> QMenu:
     submenu = QMenu(GET_HELP_MENU_NAME, parent)
     for name, url in GET_HELP_MENU_OPTIONS:
         act = QAction(name, mw)
-        act.triggered.connect(lambda _, u=url: openLink(u))
+        act.triggered.connect(lambda _, u=url: openLink(u))  # type: ignore
         submenu.addAction(act)
     return submenu
 

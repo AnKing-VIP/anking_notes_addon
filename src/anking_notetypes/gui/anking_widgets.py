@@ -17,7 +17,7 @@ def icon_button(icon_data: Tuple[str, Tuple[int, int], str]) -> QToolButton:
     button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
     button.setAutoRaise(True)
     button.setToolTip(url)
-    button.clicked.connect(lambda _, url=url: openLink(url))
+    button.clicked.connect(lambda _, url=url: openLink(url))  # type: ignore
     return button
 
 
