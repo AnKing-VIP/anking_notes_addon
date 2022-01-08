@@ -2,6 +2,7 @@ from aqt import mw
 from aqt.gui_hooks import card_layout_will_show
 from aqt.qt import *
 
+from .compat import add_compat_aliases
 from .config import NotetypesConfigWindow
 from .gui.menu import setup_menu
 
@@ -20,3 +21,5 @@ def add_button_to_clayout(clayout):
 
 
 card_layout_will_show.append(add_button_to_clayout)
+
+add_compat_aliases()

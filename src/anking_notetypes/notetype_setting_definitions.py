@@ -3,7 +3,10 @@ import re
 from pathlib import Path
 from typing import Any, Dict, OrderedDict, Tuple
 
-from anki.models import NotetypeDict
+try:
+    from anki.models import NotetypeDict  # type: ignore
+except:
+    pass
 
 ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 

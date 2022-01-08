@@ -3,7 +3,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from anki.models import NotetypeDict
 from aqt import mw
 from aqt.clayout import CardLayout
 from aqt.qt import *
@@ -22,6 +21,11 @@ from .notetype_setting_definitions import (
     general_settings_defaults_dict,
     setting_configs,
 )
+
+try:
+    from anki.models import NotetypeDict  # type: ignore
+except:
+    pass
 
 RESOURCES_PATH = Path(__file__).parent / "resources"
 
@@ -157,7 +161,7 @@ class NotetypesConfigWindow:
         if self.clayout and self.clayout.model["name"] == notetype_name:
             model = self.clayout.model
         else:
-            model = mw.col.models.by_name(notetype_name)
+            model = mw.col.models.by_name(notetype_name)  # type: ignore
 
         tab = window.add_tab(notetype_name)
 
@@ -203,7 +207,7 @@ class NotetypesConfigWindow:
         self,
         layout: ConfigLayout,
         ntss: List[NotetypeSetting],
-        model: NotetypeDict,
+        model: "NotetypeDict",
         general=False,
     ) -> None:
 
@@ -287,7 +291,7 @@ class NotetypesConfigWindow:
         tab_widget = self.window.main_tab
         tab_widget.setCurrentIndex(self._get_tab_idx_by_name(tab_name))
 
-    def _reset_notetype_and_reload_ui(self, model: NotetypeDict):
+    def _reset_notetype_and_reload_ui(self, model: "NotetypeDict"):
         notetype_name = model["name"]
         if askUser(
             f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
@@ -305,7 +309,7 @@ class NotetypesConfigWindow:
             new_model["css"] = styling
 
             if not self.clayout:
-                mw.col.models.update_dict(new_model)
+                mw.col.models.update_dict(new_model)  # type: ignore
             else:
                 model.update(new_model)
 
@@ -314,8 +318,8 @@ class NotetypesConfigWindow:
             tooltip("Notetype was reset", parent=self.window, period=1200)
 
     def _adjust_field_ords(
-        self, cur_model: NotetypeDict, new_model: NotetypeDict
-    ) -> NotetypeDict:
+        self, cur_model: "NotetypeDict", new_model: "NotetypeDict"
+    ) -> "NotetypeDict":
         # this makes sure that when fields get added, removed or are moved
         # field contents end up in the field with the same name as before
         for fld in new_model["flds"]:
@@ -402,7 +406,7 @@ class NotetypesConfigWindow:
             self.conf.set(f"general.{setting_name}", value, on_change_trigger=False)
 
         # if all notetypes that have a nts have the same value set the value to it
-        models_by_nts: Dict[NotetypeSetting, NotetypeDict] = defaultdict(lambda: [])
+        models_by_nts: Dict[NotetypeSetting, "NotetypeDict"] = defaultdict(lambda: [])
         for notetype_name in anking_notetype_names():
             model = mw.col.models.by_name(notetype_name)
             if not model:
@@ -435,7 +439,7 @@ class NotetypesConfigWindow:
         model["tmpls"][0]["qfmt"] = front
         model["tmpls"][0]["afmt"] = back
         model["id"] = 0
-        mw.col.models.add_dict(model)
+        mw.col.models.add_dict(model)  # type: ignore
 
         # add recources of all notetypes to collection media folder
         for file in Path(RESOURCES_PATH).iterdir():
