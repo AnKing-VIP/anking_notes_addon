@@ -402,8 +402,8 @@ class ConfigLayout(QBoxLayout):
                 set_color("transparent")
 
         def save(color: QColor) -> None:
-            rgb = color.name(QColor.HexRgb)
-            if color.name(QColor.HexArgb) == "#00000000":
+            rgb = color.name()
+            if color.name(QColor.NameFormat.HexArgb) == "#00000000":
                 rgb = "transparent"
             self.conf.set(key, rgb)
             set_color(rgb)
