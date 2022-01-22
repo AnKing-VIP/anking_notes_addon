@@ -1,6 +1,8 @@
+import re
 import time
 from collections import defaultdict
 from pathlib import Path
+from turtle import update
 from typing import Any, Dict, List, Optional
 
 from aqt import mw
@@ -10,17 +12,16 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
+from .gui.anking_widgets import (AnkingIconsLayout, AnkiPalaceLayout,
+                                 GithubLinkLayout)
 from .notetype_setting import NotetypeParseException, NotetypeSetting
-from .notetype_setting_definitions import (
-    anking_notetype_model,
-    anking_notetype_names,
-    anking_notetype_templates,
-    btn_name_to_shortcut_odict,
-    general_settings,
-    general_settings_defaults_dict,
-    setting_configs,
-)
+from .notetype_setting_definitions import (anking_notetype_model,
+                                           anking_notetype_names,
+                                           anking_notetype_templates,
+                                           btn_name_to_shortcut_odict,
+                                           general_settings,
+                                           general_settings_defaults_dict,
+                                           setting_configs)
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -108,7 +109,7 @@ class NotetypesConfigWindow:
                 return
 
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
-            model = self._safe_update_model([nts], model)
+            self._safe_update_model_settings(model, [nts])
 
             scroll_bar = self.clayout.tform.edit_area.verticalScrollBar()
             scroll_pos = scroll_bar.value()
@@ -196,13 +197,15 @@ class NotetypesConfigWindow:
                 "Reset",
                 on_click=lambda: self._reset_notetype_and_reload_ui(model),
             )
-            layout.button(
+            update_btn = layout.button(
                 "Update",
                 on_click=lambda: self._update_notetype_and_reload_ui(model),
             )
 
             if self._new_notetype_version_available(model):
                 layout.text("A new version of the notetype is available!")
+            else:
+                update_btn.setDisabled(True)
 
             layout.stretch()
         else:
@@ -305,24 +308,57 @@ class NotetypesConfigWindow:
         tab_widget.setCurrentIndex(self._get_tab_idx_by_name(tab_name))
 
     def _reset_notetype_and_reload_ui(self, model: "NotetypeDict"):
-        notetype_name = model["name"]
-        if askUser(
-            f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
+        if not askUser(
+            f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?",
             defaultno=True,
         ):
-            new_model = anking_notetype_model(notetype_name)
-            new_model["id"] = model["id"]
-            new_model["mod"] = int(time.time())  # not sure if this is needed
-            new_model = self._adjust_field_ords(model, new_model)
+            return
 
-            if not self.clayout:
-                mw.col.models.update_dict(new_model)  # type: ignore
-            else:
-                model.update(new_model)
+        self._update_notetype_to_newest_version(model)
 
-            self._reload_tab(notetype_name)
+        mw.col.models.update_dict(model)  # type: ignore
 
-            tooltip("Notetype was reset", parent=self.window, period=1200)
+        self._reload_tab(model["name"])
+
+        tooltip("Notetype was reset", parent=self.window, period=1200)
+
+    def _update_notetype_and_reload_ui(self, model: NotetypeDict):
+        if not askUser(
+            f"Do you really want to update the <b>{model['name']}</b> notetype? Settings will be kept.",
+            defaultno=True,
+        ):
+            return
+
+        self._update_notetype_to_newest_version(model)
+
+        # restore the values from before the update for the settings that exist in both versions
+        if not self._safe_update_model_settings(model, ntss_for_model(model)):
+            return
+
+        mw.col.models.update_dict(model)  # type: ignore
+
+        self._reload_tab(model["name"])
+
+        tooltip("Notetype was updated", parent=self.window, period=1200)
+
+    def _update_notetype_to_newest_version(self, model: NotetypeDict):
+        new_model = anking_notetype_model(model["name"])
+        new_model["id"] = model["id"]
+        new_model["mod"] = int(time.time())  # not sure if this is needed
+        new_model = self._adjust_field_ords(model, new_model)
+        model.update(new_model)
+
+    def _new_notetype_version_available(self, model: NotetypeDict):
+        def model_version(model):
+            front = model["tmpls"][0]["qfmt"]
+            m = re.match("<!-- version ([\w\d]+) -->\n", front)
+            if not m:
+                return None
+            return m.group(1)
+
+        current_version = model_version(model)
+        newest_version = model_version(anking_notetype_model(model["name"]))
+        return current_version != newest_version
 
     def _adjust_field_ords(
         self, cur_model: "NotetypeDict", new_model: "NotetypeDict"
@@ -346,29 +382,6 @@ class NotetypesConfigWindow:
                 # backend assigns new ords equal to the fields index
                 fld["ord"] = len(new_model["flds"]) - 1
         return new_model
-
-    def _update_notetype_and_reload_ui(self, model: NotetypeDict):
-        notetype_name = model["name"]
-        if askUser(
-            f"Do you really want to update the <b>{notetype_name}</b> notetype? Settings will be kept.",
-            defaultno=True,
-        ):
-            front, back, styling = anking_notetype_templates()[notetype_name]
-            model["tmpls"][0]["qfmt"] = front
-            model["tmpls"][0]["afmt"] = back
-            model["css"] = styling
-
-            if not self.clayout:
-                mw.col.models.update_dict(model)
-
-            self._safe_update_model(ntss_for_model(model), model)
-
-            self._reload_tab(notetype_name)
-
-            tooltip("Notetype was updated", parent=self.window, period=1200)
-
-    def _new_notetype_version_available(self, model: NotetypeDict):
-        return True
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
@@ -459,7 +472,7 @@ class NotetypesConfigWindow:
             if not model:
                 continue
             ntss = ntss_for_model(model)
-            model = self._safe_update_model(ntss, model)
+            self._safe_update_model_settings(model, ntss)
             mw.col.models.update_dict(model)
 
     def _import_notetype(self, notetype_name: str) -> None:
@@ -471,15 +484,21 @@ class NotetypesConfigWindow:
         for file in Path(RESOURCES_PATH).iterdir():
             mw.col.media.add_file(str(file.absolute()))
 
-    def _safe_update_model(self, ntss: List[NotetypeSetting], model):
-        result = model.copy()
+    def _safe_update_model_settings(self, model, ntss: List[NotetypeSetting]) -> bool:
+        # Takes a model and a list of note type setting objects (ntss) and updates the model so that
+        # the passed settings in the model are set to the values of these settings in self.conf
+        # If this function is successful it will return True,
+        # if there is an exception while parsing the notetype it will return False (and show a tooltip)
+        new_model = model.copy()
         parse_exception = None
         for nts in ntss:
             try:
-                result = nts.updated_model(result, self.conf)
+                new_model = nts.updated_model(new_model, self.conf)
             except NotetypeParseException as e:
                 parse_exception = e
         if parse_exception:
             tooltip(f"failed parsing notetype:\n{str(parse_exception)}")
+            return False
 
-        return result
+        model.update(new_model)
+        return True
