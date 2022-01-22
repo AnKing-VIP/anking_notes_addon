@@ -15,7 +15,6 @@ from .notetype_setting import NotetypeParseException, NotetypeSetting
 from .notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
-    anking_notetype_templates,
     btn_name_to_shortcut_odict,
     general_settings,
     general_settings_defaults_dict,
@@ -28,6 +27,25 @@ except:
     pass
 
 RESOURCES_PATH = Path(__file__).parent / "resources"
+
+
+def ntss_for_model(model: "NotetypeDict") -> List[NotetypeSetting]:
+
+    # returns all nts that are present on the notetype
+    result = []
+    for setting_config in setting_configs.values():
+        nts = NotetypeSetting.from_config(setting_config)
+        if nts.is_present(model):
+            result.append(nts)
+
+    return result
+
+
+def general_ntss() -> List[NotetypeSetting]:
+    result = []
+    for setting_name in general_settings:
+        result.append(NotetypeSetting.from_config(setting_configs[setting_name]))
+    return result
 
 
 class NotetypesConfigWindow:
@@ -166,7 +184,7 @@ class NotetypesConfigWindow:
         tab = window.add_tab(notetype_name)
 
         if model:
-            ntss = self._ntss_for_model(model)
+            ntss = ntss_for_model(model)
             ordered_ntss = self._adjust_hint_button_nts_order(ntss, notetype_name)
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
@@ -187,7 +205,7 @@ class NotetypesConfigWindow:
     def _general_tab(self, window: ConfigWindow):
         tab = window.add_tab("General")
 
-        ntss = self._general_ntss()
+        ntss = general_ntss()
 
         scroll = tab.scroll_layout()
         self._add_nts_widgets_to_layout(scroll, ntss, None, general=True)
@@ -245,23 +263,6 @@ class NotetypesConfigWindow:
                 nts.add_widget_to_config_layout(layout, model)
             layout.space(7)
 
-    def _ntss_for_model(self, model: "NotetypeDict") -> List[NotetypeSetting]:
-
-        # returns all nts that are present on the notetype
-        result = []
-        for setting_config in setting_configs.values():
-            nts = NotetypeSetting.from_config(setting_config)
-            if nts.is_present(model):
-                result.append(nts)
-
-        return result
-
-    def _general_ntss(self) -> List[NotetypeSetting]:
-        result = []
-        for setting_name in general_settings:
-            result.append(NotetypeSetting.from_config(setting_configs[setting_name]))
-        return result
-
     def _adjust_hint_button_nts_order(
         self, ntss: List[NotetypeSetting], notetype_name: str
     ) -> List[NotetypeSetting]:
@@ -297,16 +298,11 @@ class NotetypesConfigWindow:
             f"Do you really want to reset the <b>{notetype_name}</b> notetype to its default form?",
             defaultno=True,
         ):
-            front, back, styling = anking_notetype_templates()[notetype_name]
             new_model = anking_notetype_model(notetype_name)
 
             new_model["id"] = model["id"]
             new_model["mod"] = int(time.time())  # not sure if this is needed
             new_model = self._adjust_field_ords(model, new_model)
-
-            new_model["tmpls"][0]["qfmt"] = front
-            new_model["tmpls"][0]["afmt"] = back
-            new_model["css"] = styling
 
             if not self.clayout:
                 mw.col.models.update_dict(new_model)  # type: ignore
@@ -390,7 +386,7 @@ class NotetypesConfigWindow:
 
             if not model:
                 continue
-            for nts in self._ntss_for_model(model):
+            for nts in ntss_for_model(model):
                 try:
                     self.conf[nts.key(notetype_name)] = nts.setting_value(model)
                 except NotetypeParseException as e:
@@ -412,7 +408,7 @@ class NotetypesConfigWindow:
             if not model:
                 continue
 
-            ntss = self._ntss_for_model(model)
+            ntss = ntss_for_model(model)
             for nts in ntss:
                 models_by_nts[nts].append(model)
 
@@ -428,16 +424,12 @@ class NotetypesConfigWindow:
             model = mw.col.models.by_name(notetype_name)
             if not model:
                 continue
-            ntss = self._ntss_for_model(model)
+            ntss = ntss_for_model(model)
             model = self._safe_update_model(ntss, model)
             mw.col.models.update_dict(model)
 
     def _import_notetype(self, notetype_name: str) -> None:
         model = anking_notetype_model(notetype_name)
-        front, back, css = anking_notetype_templates()[notetype_name]
-        model["css"] = css
-        model["tmpls"][0]["qfmt"] = front
-        model["tmpls"][0]["afmt"] = back
         model["id"] = 0
         mw.col.models.add_dict(model)  # type: ignore
 

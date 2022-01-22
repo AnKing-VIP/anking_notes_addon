@@ -512,9 +512,14 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
 
 
 def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
-    return json.loads(
+    result = json.loads(
         (ANKING_NOTETYPES_PATH / notetype_name / f"{notetype_name}.json").read_text()
     )
+    front, back, styling = anking_notetype_templates()[notetype_name]
+    result["tmpls"][0]["qfmt"] = front
+    result["tmpls"][0]["afmt"] = back
+    result["css"] = styling
+    return result
 
 
 def all_btns_setting_configs():
