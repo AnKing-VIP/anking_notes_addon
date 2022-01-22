@@ -15,6 +15,7 @@ from .notetype_setting import NotetypeParseException, NotetypeSetting
 from .notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
+    anking_notetype_templates,
     btn_name_to_shortcut_odict,
     general_settings,
     general_settings_defaults_dict,
@@ -189,10 +190,21 @@ class NotetypesConfigWindow:
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
-            tab.button(
+
+            layout = tab.hlayout()
+            layout.button(
                 "Reset",
                 on_click=lambda: self._reset_notetype_and_reload_ui(model),
             )
+            layout.button(
+                "Update",
+                on_click=lambda: self._update_notetype_and_reload_ui(model),
+            )
+
+            if self._new_notetype_version_available(model):
+                layout.text("A new version of the notetype is available!")
+
+            layout.stretch()
         else:
             tab.text("The notetype is not in the collection.")
             tab.stretch()
@@ -299,7 +311,6 @@ class NotetypesConfigWindow:
             defaultno=True,
         ):
             new_model = anking_notetype_model(notetype_name)
-
             new_model["id"] = model["id"]
             new_model["mod"] = int(time.time())  # not sure if this is needed
             new_model = self._adjust_field_ords(model, new_model)
@@ -335,6 +346,29 @@ class NotetypesConfigWindow:
                 # backend assigns new ords equal to the fields index
                 fld["ord"] = len(new_model["flds"]) - 1
         return new_model
+
+    def _update_notetype_and_reload_ui(self, model: NotetypeDict):
+        notetype_name = model["name"]
+        if askUser(
+            f"Do you really want to update the <b>{notetype_name}</b> notetype? Settings will be kept.",
+            defaultno=True,
+        ):
+            front, back, styling = anking_notetype_templates()[notetype_name]
+            model["tmpls"][0]["qfmt"] = front
+            model["tmpls"][0]["afmt"] = back
+            model["css"] = styling
+
+            if not self.clayout:
+                mw.col.models.update_dict(model)
+
+            self._safe_update_model(ntss_for_model(model), model)
+
+            self._reload_tab(notetype_name)
+
+            tooltip("Notetype was updated", parent=self.window, period=1200)
+
+    def _new_notetype_version_available(self, model: NotetypeDict):
+        return True
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
