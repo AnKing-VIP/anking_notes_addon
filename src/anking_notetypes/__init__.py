@@ -3,7 +3,7 @@ from aqt.gui_hooks import card_layout_will_show
 from aqt.qt import *
 
 from .compat import add_compat_aliases
-from .config import NotetypesConfigWindow
+from .config_window import NotetypesConfigWindow
 from .gui.menu import setup_menu
 
 if mw is not None:
