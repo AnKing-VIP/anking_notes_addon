@@ -2,7 +2,6 @@ import re
 import time
 from collections import defaultdict
 from pathlib import Path
-from turtle import update
 from typing import Any, Dict, List, Optional
 
 from aqt import mw
@@ -12,16 +11,16 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
-from .gui.anking_widgets import (AnkingIconsLayout, AnkiPalaceLayout,
-                                 GithubLinkLayout)
+from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
 from .notetype_setting import NotetypeParseException, NotetypeSetting
-from .notetype_setting_definitions import (anking_notetype_model,
-                                           anking_notetype_names,
-                                           anking_notetype_templates,
-                                           btn_name_to_shortcut_odict,
-                                           general_settings,
-                                           general_settings_defaults_dict,
-                                           setting_configs)
+from .notetype_setting_definitions import (
+    anking_notetype_model,
+    anking_notetype_names,
+    btn_name_to_shortcut_odict,
+    general_settings,
+    general_settings_defaults_dict,
+    setting_configs,
+)
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -147,7 +146,7 @@ class NotetypesConfigWindow:
         else:
             # overwrite on_save function
             def on_save(window: ConfigWindow):
-                self._update_notetypes()
+                self._apply_setting_changes_for_all_notetypes()
                 window.close()
 
             window.save_btn.clicked.disconnect()  # type: ignore
@@ -302,11 +301,41 @@ class NotetypesConfigWindow:
         other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
         return other_ntss + ordered_hint_button_ntss
 
-    # miscellanous
+    # tab actions
     def _set_active_tab(self, tab_name: str) -> None:
         tab_widget = self.window.main_tab
         tab_widget.setCurrentIndex(self._get_tab_idx_by_name(tab_name))
 
+    def _reload_tab(self, notetype_name: str) -> None:
+        tab_widget = self.window.main_tab
+        index = self._get_tab_idx_by_name(notetype_name)
+        tab_widget.removeTab(index)
+        tab_widget.addTab(
+            self._notetype_settings_tab(notetype_name, self.window),
+            notetype_name,
+        )
+        # inserting the tab at its index or moving it to it after adding doesn't work for
+        # some reason
+        # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
+
+        self._read_in_settings()
+        self.window.update_widgets()
+        self._set_active_tab(notetype_name)
+
+    def _get_tab_idx_by_name(self, tab_name: str) -> int:
+        tab_widget = self.window.main_tab
+        return next(
+            (
+                index
+                for index in range(tab_widget.count())
+                if tab_name == tab_widget.tabText(index)
+            ),
+            None,
+        )
+
+    # reset / update / import notetypes
+    # note: these actions can be called by clicking their buttons and will modify mw.col.models regardless
+    # of whether the Save button is pressed after that
     def _reset_notetype_and_reload_ui(self, model: "NotetypeDict"):
         if not askUser(
             f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?",
@@ -387,34 +416,20 @@ class NotetypesConfigWindow:
         self._import_notetype(notetype_name)
         self._reload_tab(notetype_name)
 
-    def _reload_tab(self, notetype_name: str) -> None:
-        tab_widget = self.window.main_tab
-        index = self._get_tab_idx_by_name(notetype_name)
-        tab_widget.removeTab(index)
-        tab_widget.addTab(
-            self._notetype_settings_tab(notetype_name, self.window),
-            notetype_name,
-        )
-        # inserting the tab at its index or moving it to it after adding doesn't work for
-        # some reason
-        # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
+    def _import_notetype(self, notetype_name: str) -> None:
+        model = anking_notetype_model(notetype_name)
+        model["id"] = 0
+        mw.col.models.add_dict(model)  # type: ignore
 
-        self._read_in_settings()
-        self.window.update_widgets()
-        self._set_active_tab(notetype_name)
+        # add recources of all notetypes to collection media folder
+        for file in Path(RESOURCES_PATH).iterdir():
+            mw.col.media.add_file(str(file.absolute()))
 
-    def _get_tab_idx_by_name(self, tab_name: str) -> int:
-        tab_widget = self.window.main_tab
-        return next(
-            (
-                index
-                for index in range(tab_widget.count())
-                if tab_name == tab_widget.tabText(index)
-            ),
-            None,
-        )
+    # read / write notetype settings
+    # changes to settings will be written to mw.col.models when the Save button is pressed
+    # (on the add-ons' dialog or in Anki's note type manager window)
+    # this is done by _apply_setting_changes_for_all_notetypes
 
-    # read / write / create notetypes
     def _read_in_settings(self):
 
         # read in settings from notetypes and general ones into config
@@ -466,24 +481,6 @@ class NotetypesConfigWindow:
                     f"general.{nts.name()}", setting_value, on_change_trigger=False
                 )
 
-    def _update_notetypes(self):
-        for notetype_name in anking_notetype_names():
-            model = mw.col.models.by_name(notetype_name)
-            if not model:
-                continue
-            ntss = ntss_for_model(model)
-            self._safe_update_model_settings(model, ntss)
-            mw.col.models.update_dict(model)
-
-    def _import_notetype(self, notetype_name: str) -> None:
-        model = anking_notetype_model(notetype_name)
-        model["id"] = 0
-        mw.col.models.add_dict(model)  # type: ignore
-
-        # add recources of all notetypes to collection media folder
-        for file in Path(RESOURCES_PATH).iterdir():
-            mw.col.media.add_file(str(file.absolute()))
-
     def _safe_update_model_settings(self, model, ntss: List[NotetypeSetting]) -> bool:
         # Takes a model and a list of note type setting objects (ntss) and updates the model so that
         # the passed settings in the model are set to the values of these settings in self.conf
@@ -502,3 +499,12 @@ class NotetypesConfigWindow:
 
         model.update(new_model)
         return True
+
+    def _apply_setting_changes_for_all_notetypes(self):
+        for notetype_name in anking_notetype_names():
+            model = mw.col.models.by_name(notetype_name)
+            if not model:
+                continue
+            ntss = ntss_for_model(model)
+            self._safe_update_model_settings(model, ntss)
+            mw.col.models.update_dict(model)
