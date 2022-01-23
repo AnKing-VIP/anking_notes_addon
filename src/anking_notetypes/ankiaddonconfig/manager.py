@@ -21,7 +21,6 @@ class ConfigManager:
             self.addon_name = mw.addonManager.addon_meta(addon_dir).human_name()
         except:
             self.addon_name = mw.addonManager.addonName(addon_dir)
-        self._default = mw.addonManager.addonConfigDefaults(addon_dir)
         self.load()
 
     def load(self) -> None:
@@ -31,10 +30,6 @@ class ConfigManager:
     def save(self) -> None:
         "Writes its config data to disk."
         mw.addonManager.writeConfig(self.addon_dir, self._config)
-
-    def load_defaults(self) -> None:
-        "call .save() afterwards to restore defaults."
-        self._config = copy.deepcopy(self._default)
 
     def to_json(self) -> str:
         return json.dumps(self._config)
@@ -53,14 +48,11 @@ class ConfigManager:
         return copy.deepcopy(self._config)
 
     def get(self, key: str, default: Any = None) -> Any:
-        "Returns default or None if config dones't exist"
+        "Returns default or None if config doesn't exist"
         try:
             return self.get_from_dict(self._config, key)
         except KeyError:
             return default
-
-    def get_default(self, key: str) -> Any:
-        return self.get_from_dict(self._default, key)
 
     def set(self, key: str, value: Any, on_change_trigger: bool = True) -> None:
         levels = key.split(".")
@@ -153,3 +145,6 @@ class ConfigManager:
 
     def on_change(self, fn: Callable[[str, Any], None]) -> None:
         self.change_hooks.append(fn)
+
+    def remove_on_change_hook(self, fn: Callable[[str, Any], None]) -> None:
+        self.change_hooks.remove(fn)

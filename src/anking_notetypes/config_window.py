@@ -1,6 +1,7 @@
 import re
 import time
 from collections import defaultdict
+from concurrent.futures import Future
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -62,6 +63,7 @@ class NotetypesConfigWindow:
             self.clayout = clayout_
 
         self.conf = None
+        self.last_general_ntss: Union[List[NotetypeSetting], None] = None
 
     def open(self):
 
@@ -90,18 +92,18 @@ class NotetypesConfigWindow:
         self._read_in_settings()
 
         # add general tab
-        self.conf.add_config_tab(lambda window: self._general_tab(window))
+        self.conf.add_config_tab(lambda window: self._add_general_tab(window))
 
         # setup tabs for all notetypes
         for notetype_name in sorted(anking_notetype_names()):
             self.conf.add_config_tab(
-                lambda window, notetype_name=notetype_name: self._notetype_settings_tab(
+                lambda window, notetype_name=notetype_name: self._add_notetype_settings_tab(
                     notetype_name, window
                 )
             )
 
         # setup live update of clayout model on changes
-        def update_clayout_model(key: str, _: Any):
+        def live_update_clayout_model(key: str, _: Any):
             model = self.clayout.model
             notetype_name, setting_name = key.split(".")
             if notetype_name != self.clayout.model["name"]:
@@ -110,15 +112,10 @@ class NotetypesConfigWindow:
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
             self._safe_update_model_settings(model, [nts])
 
-            scroll_bar = self.clayout.tform.edit_area.verticalScrollBar()
-            scroll_pos = scroll_bar.value()
-            self.clayout.model = model
-            self.clayout.change_tracker.mark_basic()
-            self.clayout.update_current_ordinal_and_redraw(self.clayout.ord)
-            scroll_bar.setValue(min(scroll_pos, scroll_bar.maximum()))
+            self._update_clayout_model(model)
 
         if self.clayout:
-            self.conf.on_change(update_clayout_model)
+            self.conf.on_change(live_update_clayout_model)
 
         # change window settings, overwrite on_save, setup notetype updates
         self.conf.on_window_open(self._setup_window_settings)
@@ -172,7 +169,7 @@ class NotetypesConfigWindow:
         )
 
     # tabs and NotetypeSettings (ntss)
-    def _notetype_settings_tab(
+    def _add_notetype_settings_tab(
         self,
         notetype_name: str,
         window: ConfigWindow,
@@ -196,16 +193,6 @@ class NotetypesConfigWindow:
                 "Reset",
                 on_click=lambda: self._reset_notetype_and_reload_ui(model),
             )
-            update_btn = layout.button(
-                "Update",
-                on_click=lambda: self._update_notetype_and_reload_ui(model),
-            )
-
-            if self._new_notetype_version_available(model):
-                layout.text("A new version of the notetype is available!")
-            else:
-                update_btn.setDisabled(True)
-
             layout.stretch()
         else:
             tab.text("The notetype is not in the collection.")
@@ -216,24 +203,40 @@ class NotetypesConfigWindow:
                 on_click=lambda: self._import_notetype_and_reload_tab(notetype_name),
             )
 
-    def _general_tab(self, window: ConfigWindow):
+    def _add_general_tab(self, window: ConfigWindow):
         tab = window.add_tab("General")
 
-        ntss = general_ntss()
+        prev_ntss = self.last_general_ntss
+        self.last_general_ntss = ntss = general_ntss()
 
         scroll = tab.scroll_layout()
         self._add_nts_widgets_to_layout(scroll, ntss, None, general=True)
         scroll.stretch()
+
+        if prev_ntss:
+            for nts in prev_ntss:
+                nts.unregister_general_setting(tab.conf)
 
         for nts in ntss:
             nts.register_general_setting(tab.conf)
 
         tab.space(10)
         tab.text(
-            "Changes made here will be applied to all notetypes that have this setting",
+            "Changes made here will be applied to all note types that have this setting",
             bold=True,
             multiline=True,
         )
+        tab.space(10)
+
+        update_btn = tab.button(
+            "Update notetypes",
+            on_click=self._update_all_notetypes_to_newest_version_and_reload_ui,
+        )
+
+        if self.models_with_available_updates():
+            tab.text("New versions of notetypes are available!")
+        else:
+            update_btn.setDisabled(True)
 
     def _add_nts_widgets_to_layout(
         self,
@@ -306,21 +309,24 @@ class NotetypesConfigWindow:
         tab_widget = self.window.main_tab
         tab_widget.setCurrentIndex(self._get_tab_idx_by_name(tab_name))
 
-    def _reload_tab(self, notetype_name: str) -> None:
+    def _reload_tab(self, tab_name: str) -> None:
         tab_widget = self.window.main_tab
-        index = self._get_tab_idx_by_name(notetype_name)
+        index = self._get_tab_idx_by_name(tab_name)
         tab_widget.removeTab(index)
-        tab_widget.addTab(
-            self._notetype_settings_tab(notetype_name, self.window),
-            notetype_name,
-        )
-        # inserting the tab at its index or moving it to it after adding doesn't work for
-        # some reason
-        # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
 
-        self._read_in_settings()
+        if tab_name == "General":
+            self._add_general_tab(self.window)
+        else:
+            notetype_name = tab_name
+            self._add_notetype_settings_tab(notetype_name, self.window)
+            # inserting the tab at its index or moving it to it after adding doesn't work for
+            # some reason
+            # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
+
+            self._read_in_settings()
+
         self.window.update_widgets()
-        self._set_active_tab(notetype_name)
+        self._set_active_tab(tab_name)
 
     def _get_tab_idx_by_name(self, tab_name: str) -> int:
         tab_widget = self.window.main_tab
@@ -347,53 +353,100 @@ class NotetypesConfigWindow:
 
         mw.col.models.update_dict(model)  # type: ignore
 
+        if self.clayout:
+            self._update_clayout_model(model)
+
         self._reload_tab(model["name"])
 
         tooltip("Notetype was reset", parent=self.window, period=1200)
 
-    def _update_notetype_and_reload_ui(self, model: NotetypeDict):
+    def _update_all_notetypes_to_newest_version_and_reload_ui(self):
         if not askUser(
-            f"Do you really want to update the <b>{model['name']}</b> notetype? Settings will be kept.",
+            f"Do you really want to update the note types? Settings will be kept.",
             defaultno=True,
         ):
             return
 
-        self._update_notetype_to_newest_version(model)
+        def task():
 
-        # restore the values from before the update for the settings that exist in both versions
-        if not self._safe_update_model_settings(model, ntss_for_model(model)):
-            return
+            to_be_updated = self.models_with_available_updates()
+            for model in to_be_updated:
+                self._update_notetype_to_newest_version(model)
 
-        mw.col.models.update_dict(model)  # type: ignore
+            # restore the values from before the update for the settings that exist in both versions
+            for model in to_be_updated:
+                if not self._safe_update_model_settings(model, ntss_for_model(model)):
+                    return None
 
-        self._reload_tab(model["name"])
+            return to_be_updated
 
-        tooltip("Notetype was updated", parent=self.window, period=1200)
+        def on_done(updated_models_fut: Future):
+            updated = updated_models_fut.result()
+            if updated is None:
+                tooltip(
+                    "An error occured while updating the notetypes, old notetypes are kept",
+                    parent=self.window,
+                    period=1200,
+                )
+                return
 
-    def _update_notetype_to_newest_version(self, model: NotetypeDict):
+            for model in updated:
+                mw.col.models.update_dict(model)  # type: ignore
+                if self.clayout and model["name"] == self.clayout.model["name"]:
+                    self._update_clayout_model(model)
+
+            self._reload_tab("General")
+            for model in sorted(updated, key=lambda m: m["name"]):
+                self._reload_tab(model["name"])
+
+            self._set_active_tab("General")
+
+            tooltip("Note types were updated", parent=self.window, period=1200)
+
+        mw.taskman.with_progress(
+            parent=self.window,
+            label="Updating note types...",
+            task=task,
+            on_done=on_done,
+            immediate=True,
+        )
+
+    def _update_notetype_to_newest_version(self, model: "NotetypeDict"):
         new_model = anking_notetype_model(model["name"])
         new_model["id"] = model["id"]
         new_model["mod"] = int(time.time())  # not sure if this is needed
         new_model = self._adjust_field_ords(model, new_model)
         model.update(new_model)
 
-    def _new_notetype_version_available(self, model: NotetypeDict):
-        def model_version(model):
-            front = model["tmpls"][0]["qfmt"]
-            m = re.match("<!-- version ([\w\d]+) -->\n", front)
-            if not m:
-                return None
-            return m.group(1)
-
-        current_version = model_version(model)
-        newest_version = model_version(anking_notetype_model(model["name"]))
+    @classmethod
+    def _new_notetype_version_available(cls, model: "NotetypeDict"):
+        current_version = cls.model_version(model)
+        newest_version = cls.model_version(anking_notetype_model(model["name"]))
         return current_version != newest_version
+
+    @classmethod
+    def model_version(cls, model):
+        front = model["tmpls"][0]["qfmt"]
+        m = re.match("<!-- version ([\w\d]+) -->\n", front)
+        if not m:
+            return None
+        return m.group(1)
+
+    @classmethod
+    def models_with_available_updates(cls):
+        return [
+            model
+            for name in anking_notetype_names()
+            if (model := mw.col.models.by_name(name)) is not None
+            and cls._new_notetype_version_available(model)
+        ]
 
     def _adjust_field_ords(
         self, cur_model: "NotetypeDict", new_model: "NotetypeDict"
     ) -> "NotetypeDict":
-        # this makes sure that when fields get added, removed or are moved
+        # this makes sure that when fields get added or are moved
         # field contents end up in the field with the same name as before
+        # note that the resulting model will have exactly the same set of fields as the new_model
         for fld in new_model["flds"]:
             if (
                 cur_ord := next(
@@ -429,7 +482,6 @@ class NotetypesConfigWindow:
     # changes to settings will be written to mw.col.models when the Save button is pressed
     # (on the add-ons' dialog or in Anki's note type manager window)
     # this is done by _apply_setting_changes_for_all_notetypes
-
     def _read_in_settings(self):
 
         # read in settings from notetypes and general ones into config
@@ -508,3 +560,16 @@ class NotetypesConfigWindow:
             ntss = ntss_for_model(model)
             self._safe_update_model_settings(model, ntss)
             mw.col.models.update_dict(model)
+
+    # clayout
+    def _update_clayout_model(self, model):
+        # update templates
+        # keep scrollbar in note type manager window where it was
+        # add basic mark to the change tracker
+        scroll_bar = self.clayout.tform.edit_area.verticalScrollBar()
+        scroll_pos = scroll_bar.value()
+        self.clayout.model = model
+        self.clayout.templates = model["tmpls"]
+        self.clayout.change_tracker.mark_basic()
+        self.clayout.update_current_ordinal_and_redraw(self.clayout.ord)
+        scroll_bar.setValue(min(scroll_pos, scroll_bar.maximum()))

@@ -252,7 +252,7 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "default": 0,
         },
         "tags_num_levels_to_show_back": {
-            "text": "Number of tag levels to show for on Back (0 means all)",
+            "text": "Number of tag levels to show on Back (0 means all)",
             "type": "number",
             "file": "back",
             "regex": "var +numTagLevelsToShow += +(\d+)",
