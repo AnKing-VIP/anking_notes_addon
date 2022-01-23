@@ -1,6 +1,6 @@
 import re
 from abc import ABC, abstractmethod
-from typing import Any, Dict, OrderedDict
+from typing import Any, Callable, Dict, OrderedDict, Union
 
 from .ankiaddonconfig import ConfigLayout, ConfigManager
 from .notetype_setting_definitions import anking_notetype_names
@@ -14,6 +14,7 @@ except:
 class NotetypeSetting(ABC):
     def __init__(self, config: Dict):
         self.config = config
+        self.register_general_setting_hook: Union[Callable, None] = None
 
     @staticmethod
     def from_config(config: Dict) -> "NotetypeSetting":
@@ -64,7 +65,14 @@ class NotetypeSetting(ABC):
                 conf.set(self.key(notetype_name), value)
             conf.config_window.update_widgets()
 
+        self.register_general_setting_hook = update_all
         conf.on_change(update_all)
+
+    def unregister_general_setting(self, conf: ConfigManager):
+        assert (
+            self.register_general_setting_hook is not None
+        ), "tried unregistering general setting without registering it first"
+        conf.remove_on_change_hook(self.register_general_setting_hook)
 
     def is_present(self, model: "NotetypeDict") -> bool:
         # returns True if the section related to the setting is present on the model
@@ -81,7 +89,15 @@ class NotetypeSetting(ABC):
     ) -> "NotetypeDict":
         result = model.copy()
         section = self._relevant_template_section(result)
-        setting_value = conf[self.key(model["name"])]
+        key = self.key(model["name"])
+
+        # if the setting is not in the config,
+        # use the default value if present else don't change anything
+        no_value = object()  # value different from all other values
+        setting_value = conf.get(key, self.config.get("default", no_value))
+        if setting_value is no_value:
+            return result
+
         processed_section = self._set_setting_value(section, setting_value)
         updated_text = self._relevant_template_text(result).replace(
             section, processed_section, 1

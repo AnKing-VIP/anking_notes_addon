@@ -2,9 +2,11 @@ import json
 import unittest
 from collections import defaultdict
 
-from anking_notetypes.config_window import ntss_for_model
+from src.anking_notetypes.config_window import ntss_for_model
 from src.anking_notetypes.notetype_setting_definitions import (
-    anking_notetype_model, anking_notetype_names)
+    anking_notetype_model,
+    anking_notetype_names,
+)
 
 
 class TestNotetypeSettingParsing(unittest.TestCase):
