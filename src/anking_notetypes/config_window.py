@@ -527,11 +527,14 @@ class NotetypesConfigWindow:
                 models_by_nts[nts].append(model)
 
         for nts, models in models_by_nts.items():
-            setting_value = nts.setting_value(models[0]) if models else None
-            if all(setting_value == nts.setting_value(model) for model in models):
-                self.conf.set(
-                    f"general.{nts.name()}", setting_value, on_change_trigger=False
-                )
+            try:
+                setting_value = nts.setting_value(models[0]) if models else None
+                if all(setting_value == nts.setting_value(model) for model in models):
+                    self.conf.set(
+                        f"general.{nts.name()}", setting_value, on_change_trigger=False
+                    )
+            except NotetypeParseException:
+                pass
 
     def _safe_update_model_settings(self, model, ntss: List[NotetypeSetting]) -> bool:
         # Takes a model and a list of note type setting objects (ntss) and updates the model so that
