@@ -27,8 +27,8 @@ setting_configs: Dict[str, Any] = OrderedDict(
             # the surrounding "<!--" are needed because of the disable field setting
             "elem_re": "(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?",
             "name_re": "\{\{#(.+?)\}\}",
-            "has_to_contain": 'class="hint"',
-            "section": "Hint Buttons",
+            "has_to_contain": '(class="hint"|id="extra")',
+            "section": "Fields",
         },
         "toggle_all_buttons": {
             "text": "Toggle all buttons shortcut",
