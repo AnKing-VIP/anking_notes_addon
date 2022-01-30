@@ -1,10 +1,18 @@
 <b>This add-on was funded by the Anki Palace. Please consider supporting our work using the links below so we can continue to fund add-on projects like this.</b>
 
+## Instructions for use:
+- See [this repo](https://github.com/AnKingMed/AnKing-Note-Types) with the note types
 
-<b>Problems, Bugs, Errors, Improvements</b>
+## Problems, Bugs, Errors, Improvements
 If you find a serious bug, please submit it on <a href="https://github.com/ankipalace/anking_notes_addon" rel="nofollow">Github</a> or email us at ankingmed@gmail.com. Please remember that we are not coders and thus may not be able to provide support.
 
-<b>Please consider checking out our:</b>
+## Instructions for building add-on
+To build the add-on with new note types you just have to copy the note types folder from their repo and put it here: https://github.com/AnKingMed/anking_notes_addon/tree/master/src/anking_notetypes/note_types
+and then build the add-on via the "Create Add-on Release" github action
+
+<br>
+
+### Please consider checking out our:
 <br>
 <a href="https://www.youtube.com/theanking/playlists" rel="nofollow">YouTube Channel</a>- <i>How to use Anki for beginners and advanced users.</i> 
 <br>
