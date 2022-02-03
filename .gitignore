@@ -3,6 +3,8 @@ tools/
 profile/
 meta.json
 
+tests/current.json
+
 src/*/gui/forms/anki*
 src/*/gui/resources/anki*
 
@@ -13,11 +15,5 @@ __pycache__/
 
 .vscode/
 *.code-workspace
-src/anking_notetypes/note_types/IO-one by one/.history/Back Template_20210907223308.html
-src/anking_notetypes/note_types/IO-one by one/.history/Back Template_20210911180125.html
-src/anking_notetypes/note_types/IO-one by one/.history/Back Template_20210911182240.html
-src/anking_notetypes/note_types/IO-one by one/.history/Back Template_20210911183243.html
-src/anking_notetypes/note_types/IO-one by one/.history/Back Template_20210911183333.html
-src/anking_notetypes/note_types/IO-one by one/.history/Styling_20210907222703.css
-src/anking_notetypes/note_types/IO-one by one/.history/Styling_20210911180201.css
-src/anking_notetypes/note_types/IO-one by one/.history/Styling_20210911180732.css
+
+**/.history

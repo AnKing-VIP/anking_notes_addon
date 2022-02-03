@@ -3,9 +3,11 @@
         "button_order": [
             "Personal Notes",
             "Missed Questions",
+            "Extra",
             "Textbook",
             "Additional Resources"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "reveal_cloze_shortcut": "N",
@@ -67,6 +69,7 @@
             "Personal Notes",
             "Missed Questions"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "io_reveal_next_shortcut": "N",
@@ -111,8 +114,10 @@
     "AnKing": {
         "button_order": [
             "Personal Notes",
-            "Missed Questions"
+            "Missed Questions",
+            "Extra"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "reveal_cloze_shortcut": "N",
@@ -167,6 +172,7 @@
             "Personal Notes",
             "Missed Questions"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "timer": true,
@@ -262,12 +268,14 @@
             "Missed Questions",
             "Pathoma",
             "Boards and Beyond",
+            "Extra",
             "First Aid",
             "Sketchy",
             "Pixorize",
             "Physeo",
             "Additional Resources"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "reveal_cloze_shortcut": "N",
@@ -344,10 +352,12 @@
         "button_order": [
             "Lecture Notes",
             "Missed Questions",
+            "Extra",
             "Pixorize",
             "Sketchy",
             "Additional Resources"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "reveal_cloze_shortcut": "N",
@@ -410,6 +420,7 @@
             "Examples",
             "Alternative Translations"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "timer": true,
@@ -458,8 +469,10 @@
     "Physeo-Cloze": {
         "button_order": [
             "Personal Notes",
-            "Missed Questions"
+            "Missed Questions",
+            "Extra"
         ],
+        "toggle_next_button": "H",
         "toggle_all_buttons": "'",
         "autoscroll_to_button": true,
         "reveal_cloze_shortcut": "N",

@@ -21,10 +21,10 @@ class TestNotetypeSettingParsing(unittest.TestCase):
                 setting_value = nts.setting_value(model)
                 current[notetype_name][setting_name] = setting_value
 
-        # with open("tests/settings.json", 'w') as f:
-        #     json.dump(current, f)
-
-        with open("tests/settings.json", "r") as f:
+        with open("tests/expected.json", "r") as f:
             expected = json.load(f)
 
-        assert current == expected
+        with open("tests/current.json", "w") as f:
+            json.dump(current, f)
+
+        self.assertDictEqual(dict(current),dict(expected))
