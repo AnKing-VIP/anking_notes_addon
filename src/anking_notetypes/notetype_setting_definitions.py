@@ -30,6 +30,15 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "has_to_contain": '(class="hint"|id="extra")',
             "section": "Fields",
         },
+        "toggle_next_button": {
+            "text": "Toggle next button shortcut",
+            "tooltip": "",
+            "type": "shortcut",
+            "file": "back",
+            "regex": f'var +ToggleNextButtonShortcut += +"({QUOT_STR_RE}*?)"',
+            "section": "Hint Buttons",
+            "default": "'",
+        },
         "toggle_all_buttons": {
             "text": "Toggle all buttons shortcut",
             "tooltip": "",
@@ -604,6 +613,7 @@ for setting_name, setting_config in setting_configs.items():
 # settings_by_notetype)
 # they can be overwritten in the note types settings
 general_settings = [
+    "toggle_next_button",
     "toggle_all_buttons",
     "autoscroll_to_button",
     "tags_toggle_shortcut",
