@@ -37,7 +37,7 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "file": "back",
             "regex": f'var +ToggleNextButtonShortcut += +"({QUOT_STR_RE}*?)"',
             "section": "Hint Buttons",
-            "default": "'",
+            "default": "H",
         },
         "toggle_all_buttons": {
             "text": "Toggle all buttons shortcut",
