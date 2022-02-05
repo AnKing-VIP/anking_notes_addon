@@ -184,7 +184,9 @@ setting_configs: Dict[str, Any] = OrderedDict(
         },
         "back_tts": {
             "text": "Back TTS",
-            "tooltip": "",
+            "tooltip": """if you enable this and want to use the shortcut for revealing hint buttons one by one 
+you may have to change the \"Toggle next Button\" shortcut to something else than "H"
+(it is in the Hint Buttons section)""",
             "type": "re_checkbox",
             "file": "back",
             "regex": "(<!--|{{)tts.+?(-->|}})",
