@@ -150,7 +150,7 @@ class ConfigWindow(QDialog):
             footer.setFont(font)
         if multiline:
             footer.setWordWrap(True)
-        if tooltip is not None:
+        if tooltip:
             footer.setToolTip(tooltip)
 
         self.main_layout.addWidget(footer)
@@ -173,7 +173,8 @@ class ConfigLayout(QBoxLayout):
         checkbox = QCheckBox()
         if description is not None:
             checkbox.setText(description)
-        if tooltip is not None:
+        if tooltip:
+            checkbox.setIcon(self._info_icon())
             checkbox.setToolTip(tooltip)
 
         def update() -> None:
@@ -203,8 +204,6 @@ class ConfigLayout(QBoxLayout):
     ) -> QComboBox:
         combobox = QComboBox()
         combobox.insertItems(0, labels)
-        if tooltip is not None:
-            combobox.setToolTip(tooltip)
 
         def update() -> None:
             conf = self.conf
@@ -223,14 +222,17 @@ class ConfigLayout(QBoxLayout):
             lambda idx: self.conf.set(key, values[idx])
         )
 
+        row = self.hlayout()
+
+        if tooltip:
+            combobox.setToolTip(tooltip)
+            row.addWidget(self._info_icon_label())
+
         if description is not None:
-            row = self.hlayout()
             row.text(description, tooltip=tooltip)
             row.space(7)
             row.addWidget(combobox)
             row.stretch()
-        else:
-            self.addWidget(combobox)
 
         return combobox
 
@@ -287,8 +289,6 @@ class ConfigLayout(QBoxLayout):
     ) -> QLineEdit:
         "For string config"
         line_edit = QLineEdit()
-        if tooltip is not None:
-            line_edit.setToolTip(tooltip)
 
         def update() -> None:
             val = self.conf.get(key)
@@ -304,8 +304,13 @@ class ConfigLayout(QBoxLayout):
 
         line_edit.editingFinished.connect(on_editing_finished)
 
+        row = self.hlayout()
+
+        if tooltip:
+            row.addWidget(self._info_icon_label())
+            line_edit.setToolTip(tooltip)
+
         if description is not None:
-            row = self.hlayout()
             row.text(description, tooltip=tooltip)
             row.space(7)
             row.addWidget(line_edit)
@@ -331,8 +336,7 @@ class ConfigLayout(QBoxLayout):
             spin_box.setDecimals(precision)
         else:
             spin_box = QSpinBox()
-        if tooltip is not None:
-            spin_box.setToolTip(tooltip)
+
         spin_box.setMinimum(minimum)
         spin_box.setMaximum(maximum)
         spin_box.setSingleStep(step)
@@ -357,14 +361,20 @@ class ConfigLayout(QBoxLayout):
 
         spin_box.valueChanged.connect(lambda val: self.conf.set(key, val))
 
+        row = self.hlayout()
+
+        if tooltip:
+            row.addWidget(self._info_icon_label())
+            spin_box.setToolTip(tooltip)
+
         if description is not None:
-            row = self.hlayout()
             row.text(description, tooltip=tooltip)
             row.space(7)
             row.addWidget(spin_box)
             row.stretch()
         else:
             self.addWidget(spin_box)
+
         return spin_box
 
     def color_input(
@@ -375,9 +385,6 @@ class ConfigLayout(QBoxLayout):
         button.setFixedWidth(25)
         button.setFixedHeight(25)
         button.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
-
-        if tooltip is not None:
-            button.setToolTip(tooltip)
 
         color_dialog = QColorDialog(self.config_window)
         color_dialog.setOption(QColorDialog.ColorDialogOption.ShowAlphaChannel)
@@ -412,8 +419,13 @@ class ConfigLayout(QBoxLayout):
         color_dialog.colorSelected.connect(lambda color: save(color))
         button.clicked.connect(lambda _: color_dialog.exec())
 
+        row = self.hlayout()
+
+        if tooltip:
+            row.addWidget(self._info_icon_label())
+            button.setToolTip(tooltip)
+
         if description is not None:
-            row = self.hlayout()
             row.text(description, tooltip=tooltip)
             row.space(7)
             row.addWidget(button)
@@ -442,7 +454,9 @@ class ConfigLayout(QBoxLayout):
         row.addWidget(line_edit)
         button = QPushButton("Browse")
         row.addWidget(button)
-        if tooltip is not None:
+
+        if tooltip:
+            row.insertWidget(0, self._info_icon_label())
             line_edit.setToolTip(tooltip)
 
         def update() -> None:
@@ -565,7 +579,7 @@ class ConfigLayout(QBoxLayout):
             label_widget.setFont(font)
         if multiline:
             label_widget.setWordWrap(True)
-        if tooltip is not None:
+        if tooltip:
             label_widget.setToolTip(tooltip)
 
         self.addWidget(label_widget)
@@ -582,32 +596,6 @@ class ConfigLayout(QBoxLayout):
         button.setAutoDefault(False)
         self.addWidget(button)
         return button
-
-    def text_button(
-        self,
-        text: str,
-        tooltip: str = "",
-        on_click: Optional[Callable] = None,
-        color: str = "",
-        size: int = 0,
-        url: str = "/",
-    ) -> QLabel:
-        """A QLabel that behaves like a button.
-
-        on_click is provided 1 argument: 'url'.
-        """
-        css = "text-decoration: none; color: palette(text);"
-        if size:
-            css += f" font-size: {size}px;"
-        label = QLabel(f'<a href="{url}" style="{css}">{text}</a>')
-        label.setTextFormat(Qt.RichText)
-        if tooltip:
-            label.setToolTip(tooltip)
-        if on_click:
-            label.linkActivated.connect(on_click)
-
-        self.addWidget(label)
-        return label
 
     def _separator(self, direction: QFrame.Shape) -> QFrame:
         """direction should be either QFrame.Shape.HLine or QFrame.VLine"""
@@ -714,11 +702,26 @@ class ConfigLayout(QBoxLayout):
         )
 
     def collapsible_section(self, title: str) -> "ConfigLayout":
+
         layout = ConfigLayout(self.config_window, QBoxLayout.Direction.TopToBottom)
         section = CollapsibleSection(title)
         section.setContentLayout(layout)
         self.addWidget(section)
         return layout
+
+    def _info_icon(self) -> QIcon:
+        dummy = QCheckBox()
+        return dummy.style().standardIcon(
+            QStyle.StandardPixmap.SP_MessageBoxInformation
+        )
+
+    def _info_icon_label(self) -> QLabel:
+        result = QLabel("")
+        pixmap = self._info_icon().pixmap(
+            QCheckBox().iconSize()
+        )  # use same icon size as for checkbox
+        result.setPixmap(pixmap)
+        return result
 
 
 class OrderTable(QTableWidget):
