@@ -202,7 +202,7 @@ you may have to change the \"Toggle next Button\" shortcut to something else tha
             "min": 0.1,
             "max": 10,
             "step": 0.1,
-            "file": "front",
+            "file": "back",
             "regex": "(?:<!--|{{)tts.*?speed=([\d\.]+).*?(?:-->|}})",
             "section": "Text to Speech",
             "default": 1.4,
