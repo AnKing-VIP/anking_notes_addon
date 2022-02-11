@@ -13,7 +13,7 @@ from aqt.utils import askUser, showInfo, tooltip
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 from .ankiaddonconfig.window import ConfigLayout
 from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
-from .notetype_setting import NotetypeParseException, NotetypeSetting
+from .notetype_setting import NotetypeSetting, NotetypeSettingException
 from .notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
@@ -375,8 +375,9 @@ class NotetypesConfigWindow:
 
             # restore the values from before the update for the settings that exist in both versions
             for model in to_be_updated:
-                if not self._safe_update_model_settings(model, ntss_for_model(model)):
-                    return None
+                self._safe_update_model_settings(
+                    model, ntss_for_model(model), show_tooltip_on_exception=False
+                )
 
             return to_be_updated
 
@@ -503,7 +504,7 @@ class NotetypesConfigWindow:
             for nts in ntss_for_model(model):
                 try:
                     self.conf[nts.key(notetype_name)] = nts.setting_value(model)
-                except NotetypeParseException as e:
+                except NotetypeSettingException as e:
                     error_msg += f"failed parsing {notetype_name}:\n{str(e)}\n\n"
 
         if error_msg:
@@ -533,26 +534,30 @@ class NotetypesConfigWindow:
                     self.conf.set(
                         f"general.{nts.name()}", setting_value, on_change_trigger=False
                     )
-            except NotetypeParseException:
+            except NotetypeSettingException:
                 pass
 
-    def _safe_update_model_settings(self, model, ntss: List[NotetypeSetting]) -> bool:
+    def _safe_update_model_settings(
+        self, model, ntss: List[NotetypeSetting], show_tooltip_on_exception=True
+    ) -> bool:
         # Takes a model and a list of note type setting objects (ntss) and updates the model so that
         # the passed settings in the model are set to the values of these settings in self.conf
         # If this function is successful it will return True,
         # if there is an exception while parsing the notetype it will return False (and show a tooltip)
-        new_model = model.copy()
         parse_exception = None
         for nts in ntss:
             try:
-                new_model = nts.updated_model(new_model, self.conf)
-            except NotetypeParseException as e:
+                model = nts.updated_model(model, self.conf)
+            except NotetypeSettingException as e:
                 parse_exception = e
+
         if parse_exception:
-            tooltip(f"failed parsing notetype:\n{str(parse_exception)}")
+            message = f"failed parsing {model['name']}:\n{str(parse_exception)}"
+            if show_tooltip_on_exception:
+                tooltip(message)
+            print(message)
             return False
 
-        model.update(new_model)
         return True
 
     def _apply_setting_changes_for_all_notetypes(self):

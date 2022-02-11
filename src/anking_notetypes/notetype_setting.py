@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from copy import deepcopy
 from typing import Any, Callable, Dict, OrderedDict, Union
 
 from .ankiaddonconfig import ConfigLayout, ConfigManager
@@ -79,15 +80,22 @@ class NotetypeSetting(ABC):
         relevant_template_text = self._relevant_template_text(model)
         return bool(re.search(self.config["regex"], relevant_template_text))
 
+    # can raise NotetypeSettingException
     def setting_value(self, model: "NotetypeDict") -> Any:
-        section = self._relevant_template_section(model)
-        result = self._extract_setting_value(section)
+        try:
+            section = self._relevant_template_section(model)
+            result = self._extract_setting_value(section)
+        except NotetypeSettingException as e:
+            raise e
+        except Exception as e:
+            raise NotetypeSettingException(e)
         return result
 
+    # can raise NotetypeSettingException
     def updated_model(
         self, model: "NotetypeDict", conf: ConfigManager
     ) -> "NotetypeDict":
-        result = model.copy()
+        result = deepcopy(model)
         section = self._relevant_template_section(result)
         key = self.key(model["name"])
 
@@ -98,10 +106,16 @@ class NotetypeSetting(ABC):
         if setting_value is no_value:
             return result
 
-        processed_section = self._set_setting_value(section, setting_value)
-        updated_text = self._relevant_template_text(result).replace(
-            section, processed_section, 1
-        )
+        try:
+            processed_section = self._set_setting_value(section, setting_value)
+
+            updated_text = self._relevant_template_text(result).replace(
+                section, processed_section, 1
+            )
+        except NotetypeSettingException as e:
+            raise e
+        except Exception as e:
+            raise NotetypeSettingException(e)
 
         templates = result["tmpls"]
         assert len(templates) == 1
@@ -123,24 +137,23 @@ class NotetypeSetting(ABC):
         # returns the config key of this setting for the notetype in the config
         return f"{notetype_name}.{self.name()}"
 
-    # can raise NotetypeParseException
     def _relevant_template_section(self, model: "NotetypeDict"):
         template_text = self._relevant_template_text(model)
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
-            raise NotetypeParseException(
+            raise NotetypeSettingException(
                 f"could not find '{self.config['text']}' in {self.config['file']} template of notetype '{model['name']}'"
             )
         result = section_match.group(0)
         return result
 
-    # raises NotetypeParseException if the current setting value is
+    # raises NotetypeSettingException if the current setting value is
     # not of the expected form and has to be changed for the notetype to work
     @abstractmethod
     def _extract_setting_value(self, section: str) -> Any:
         pass
 
-    # is not allowed to raise NotetypeParseExceptions
+    # is not allowed to raise NotetypeSettingExceptions
     @abstractmethod
     def _set_setting_value(self, section: str, setting_value: Any):
         pass
@@ -167,7 +180,7 @@ class NotetypeSetting(ABC):
         return result
 
 
-class NotetypeParseException(Exception):
+class NotetypeSettingException(Exception):
     pass
 
 
@@ -184,7 +197,7 @@ class ReCheckboxSetting(NotetypeSetting):
         checked = all(y in section for _, y in replacement_pairs)
         unchecked = all(x in section for x, _ in replacement_pairs)
         if not ((checked or unchecked) and not (checked and unchecked)):
-            raise NotetypeParseException(
+            raise NotetypeSettingException(
                 f"{self.config['text']}: error involving {replacement_pairs=} and {section=}"
             )
         return checked
@@ -237,7 +250,7 @@ class CheckboxSetting(NotetypeSetting):
     def _extract_setting_value(self, section: str) -> Any:
         value = re.search(self.config["regex"], section).group(1)
         if not value in ["true", "false"]:
-            raise NotetypeParseException(
+            raise NotetypeSettingException(
                 f"{self.config['text']}: expected 'true' or 'false' but got '{value}'"
             )
         return value == "true"
@@ -292,7 +305,7 @@ class DropdownSetting(NotetypeSetting):
     def _extract_setting_value(self, section: str) -> Any:
         result = re.search(self.config["regex"], section).group(1)
         if result not in self.config["options"]:
-            raise NotetypeParseException(
+            raise NotetypeSettingException(
                 f"{self.config['text']}: expected one of {self.config['options']} but got {result}"
             )
         return result
@@ -364,8 +377,8 @@ class NumberEditSetting(NotetypeSetting):
                 result = int(value_str)
             return result
         except:
-            raise NotetypeParseException(
-                f"{self.config['text']}: expected number but found {value_str}"
+            raise NotetypeSettingException(
+                f"{self.config['text']}: expected {'decimal' if self.config.get('decimal', False) else 'integer'} but found {value_str}"
             )
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
@@ -390,10 +403,15 @@ class ElementOrderSetting(NotetypeSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         result = section[:]
         offset = 0
-        elements = self._name_to_match_odict(section)
+        name_to_match = self._name_to_match_odict(section)
+        if set(setting_value) != set(name_to_match.keys()):
+            raise NotetypeSettingException(
+                f"invalid value: {setting_value}\nexpected elements: {list(name_to_match.keys())}"
+            )
+
         for i, name in enumerate(setting_value):
-            old: re.Match = elements[list(elements.keys())[i]]
-            new: re.Match = elements[name]
+            old: re.Match = name_to_match[list(name_to_match.keys())[i]]
+            new: re.Match = name_to_match[name]
             start, end = old.span()
             result = result[: start + offset] + new.group(0) + result[end + offset :]
             offset += len(new.group(0)) - len(old.group(0))
