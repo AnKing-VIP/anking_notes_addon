@@ -4,6 +4,8 @@ profile/
 meta.json
 
 tests/current.json
+tests/d1.json
+tests/d2.json
 
 src/*/gui/forms/anki*
 src/*/gui/resources/anki*
