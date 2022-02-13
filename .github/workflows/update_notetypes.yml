@@ -1,0 +1,55 @@
+name: Update note types
+
+on:
+  workflow_dispatch:
+    inputs:
+      notetypes_sha:
+        description: AnKing-Note-Types commit sha (uses newest by default)
+        required: false
+
+jobs:
+  get-note-types:
+    name: Update note types
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/checkout@v2
+        name: Checkout AnKing-Note-Types
+        with:
+          repository: AnKingMed/AnKing-Note-Types
+          path: "./AnKing-Note-Types"
+          fetch-depth: 0
+
+      - name: Get short sha for chosen AnKing-Note-Types commit
+        id: vars
+        shell: bash
+        run: |
+          cd ./AnKing-Note-Types
+          git checkout ${{ github.event.inputs.notetypes_sha }}
+          echo "::set-output name=notetypes_sha_short::$(git rev-parse --short HEAD)"
+
+      - name: Replace note types and remove AnKing-Note-Types folder
+        shell: bash
+        run: |
+          rm -r './src/anking_notetypes/note_types'
+          cd ./AnKing-Note-Types
+          git checkout ${{ github.event.inputs.notetypes_sha }}
+          cd ..
+          mv './AnKing-Note-Types/Note Types' './src/anking_notetypes/note_types'
+          rm -r './AnKing-Note-Types'
+
+      - name: Setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: Commit note type update
+        run: |
+          git add --all
+          git commit --allow-empty -m "Update note types to https://github.com/AnKingMed/AnKing-Note-Types/tree/${{ steps.vars.outputs.notetypes_sha_short }}/Note%20Types"
+          git push origin master
