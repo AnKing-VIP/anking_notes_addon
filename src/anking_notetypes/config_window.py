@@ -538,7 +538,7 @@ class NotetypesConfigWindow:
                 pass
 
     def _safe_update_model_settings(
-        self, model, ntss: List[NotetypeSetting], show_tooltip_on_exception=True
+        self, model, ntss: List["NotetypeSetting"], show_tooltip_on_exception=True
     ) -> bool:
         # Takes a model and a list of note type setting objects (ntss) and updates the model so that
         # the passed settings in the model are set to the values of these settings in self.conf
@@ -547,7 +547,7 @@ class NotetypesConfigWindow:
         parse_exception = None
         for nts in ntss:
             try:
-                model = nts.updated_model(model, self.conf)
+                model.update(nts.updated_model(model, self.conf))
             except NotetypeSettingException as e:
                 parse_exception = e
 
