@@ -126,7 +126,7 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "tooltip": "",
             "type": "re_checkbox",
             "file": "style",
-            "regex": ".timer *{[^}]*?display: (block|none);",
+            "regex": "\.timer *{[^}]*?display: (block|none);",
             "replacement_pairs": [("none", "block")],
             "section": "Timer",
             "default": True,
