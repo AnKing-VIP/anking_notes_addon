@@ -68,7 +68,7 @@ class NotetypesConfigWindow:
     def open(self):
 
         # dont open another window if one is already open
-        if self.window:
+        if self.__class__.window:
             is_open = True
             # when the window is closed c++ deletes the qdialog and calling methods
             # of the window fails with a RuntimeError
@@ -122,12 +122,12 @@ class NotetypesConfigWindow:
 
         # open the config window
         if self.clayout:
-            self.window = self.conf.open_config(self.clayout)
+            self.conf.open_config(self.clayout)
         else:
-            self.window = self.conf.open_config()
+            self.conf.open_config()
 
     def _setup_window_settings(self, window: ConfigWindow):
-        self.window = window
+        self.__class__.window = window
         window.setWindowTitle("AnKing Note Types")
         window.setMinimumHeight(500)
         window.setMinimumWidth(500)
