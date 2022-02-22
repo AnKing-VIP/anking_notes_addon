@@ -344,7 +344,7 @@ class NotetypesConfigWindow:
     # of whether the Save button is pressed after that
     def _reset_notetype_and_reload_ui(self, model: "NotetypeDict"):
         if not askUser(
-            f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?",
+            f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?<br><br>After doing this Anki will require a full sync on the next synchronization with AnkiWeb. Make sure to synchronize unsynchronized changes from other devices first.",
             defaultno=True,
         ):
             return
@@ -362,7 +362,7 @@ class NotetypesConfigWindow:
 
     def _update_all_notetypes_to_newest_version_and_reload_ui(self):
         if not askUser(
-            f"Do you really want to update the note types? Settings will be kept.",
+            f"Do you really want to update the note types? Settings will be kept.<br><br>After doing this Anki will require a full sync on the next synchronization with AnkiWeb. Make sure to synchronize unsynchronized changes from other devices first.",
             defaultno=True,
         ):
             return
@@ -416,6 +416,7 @@ class NotetypesConfigWindow:
         new_model = anking_notetype_model(model["name"])
         new_model["id"] = model["id"]
         new_model["mod"] = int(time.time())  # not sure if this is needed
+        new_model["usn"] = -1  # triggers full sync
         new_model = self._adjust_field_ords(model, new_model)
         model.update(new_model)
 
