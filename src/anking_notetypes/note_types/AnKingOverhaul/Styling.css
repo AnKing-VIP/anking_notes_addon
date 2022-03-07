@@ -52,6 +52,9 @@ html {
 }
 .ipad #firstaid,
 .ipad #sketchy,
+.ipad #sketchy2,
+.ipad #sketchyextra,
+.ipad #picmonic,
 .ipad #pixorize,
 .ipad #physeo,
 .ipad #additional {
@@ -67,6 +70,9 @@ html {
 /*Other Fields Font Size*/
 #firstaid,
 #sketchy,
+#sketchy2,
+#sketchyextra,
+#picmonic,
 #pixorize,
 #physeo,
 #additional {
@@ -76,6 +82,9 @@ html {
 /*Other Fields Font Size on Mobile*/
 .mobile #firstaid,
 .mobile #sketchy,
+.mobile #sketchy2,
+.mobile #sketchyextra,
+.mobile #picmonic,
 .mobile #pixorize,
 .mobile #physeo,
 .mobile #additional {
@@ -104,6 +113,9 @@ img {
 
 #firstaid img,
 #sketchy img,
+#sketchy2 img,
+#sketchyextra img,
+#picmonic img,
 #pixorize img,
 #physeo img,
 #additional img {
@@ -139,6 +151,11 @@ img {
 /* Timer Countdown Color */
 .timer {
   color: transparent;
+}
+/* Empty Link Color */
+a:not([href]) {
+  text-decoration: none;
+  color: inherit;
 }
 
 
@@ -295,6 +312,9 @@ hr { opacity: .7 }
 
 #firstaid img:active,
 #sketchy img:active,
+#sketchy2 img:active,
+#sketchyextra img:active,
+#picmonic img:active,
 #pixorize img:active,
 #physeo img:active,
 #additional img:active {
@@ -313,6 +333,33 @@ hr { opacity: .7 }
 }
 .centerbox {
   text-align: center;
+}
+
+
+/* ~~~~~~~~~ LISTS ~~~~~~~~~ */
+ul {
+  padding-left: 40px;
+  display: inline-block;
+  max-width: 50%;
+  margin: auto;
+  text-align: left;
+}
+ol {
+  padding-left: 40px;
+  display: inline-block;
+  max-width: 50%;
+  margin: auto;
+  text-align: left;
+}
+.mobile ul {
+  display: inline-block;
+  text-align: left; 
+  max-width: 100%;
+}
+.mobile ol {
+  display: inline-block;
+  text-align: left; 
+  max-width: 100%;
 }
 
 
