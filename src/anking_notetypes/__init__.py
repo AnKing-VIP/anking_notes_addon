@@ -9,7 +9,8 @@ from .compat import add_compat_aliases
 from .config_window import NotetypesConfigWindow
 from .gui.menu import setup_menu
 
-addon_dir_name = str(Path(__file__).parent.name)
+ADDON_DIR_NAME = str(Path(__file__).parent.name)
+RESOURCES_PATH = Path(__file__).parent / "resources"
 
 
 def open_window():
@@ -49,7 +50,7 @@ def maybe_show_notetypes_update_notice():
     if not models_with_available_updates:
         return
 
-    conf = mw.addonManager.getConfig(addon_dir_name)
+    conf = mw.addonManager.getConfig(ADDON_DIR_NAME)
     latest_notice_version = conf.get("latest_notified_note_type_version")
     if all(
         NotetypesConfigWindow.model_version(model) == latest_notice_version
@@ -67,14 +68,24 @@ def maybe_show_notetypes_update_notice():
         buttons=reversed(["Yes", "No", "Remind me later"]),
     ).run()
     if answer == "Yes":
-        mw.addonManager.writeConfig(addon_dir_name, conf)
+        mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
         open_window()
     elif answer == "No":
-        mw.addonManager.writeConfig(addon_dir_name, conf)
+        mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
     elif answer == "Remind me later":
         pass
 
 
 profile_did_open.append(maybe_show_notetypes_update_notice)
+
+
+def copy_resources_into_media_folder():
+    # add recources of all notetypes to collection media folder
+    for file in Path(RESOURCES_PATH).iterdir():
+        if not mw.col.media.have(file.name):
+            mw.col.media.add_file(str(file.absolute()))
+
+
+profile_did_open.append(copy_resources_into_media_folder)
 
 add_compat_aliases()

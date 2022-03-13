@@ -28,8 +28,6 @@ try:
 except:
     pass
 
-RESOURCES_PATH = Path(__file__).parent / "resources"
-
 
 def ntss_for_model(model: "NotetypeDict") -> List[NotetypeSetting]:
 
@@ -183,7 +181,9 @@ class NotetypesConfigWindow:
 
         if model:
             ntss = ntss_for_model(model)
-            ordered_ntss = self._adjust_configurable_field_nts_order(ntss, notetype_name)
+            ordered_ntss = self._adjust_configurable_field_nts_order(
+                ntss, notetype_name
+            )
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
@@ -296,7 +296,8 @@ class NotetypesConfigWindow:
             field_ntss,
             key=lambda nts: (
                 ordered_field_names.index(name)
-                if (name := nts.config["configurable_field_name"]) in ordered_field_names
+                if (name := nts.config["configurable_field_name"])
+                in ordered_field_names
                 else -1  # can happen because of different quotes in template versions
             ),
         )
@@ -475,10 +476,6 @@ class NotetypesConfigWindow:
         model = anking_notetype_model(notetype_name)
         model["id"] = 0
         mw.col.models.add_dict(model)  # type: ignore
-
-        # add recources of all notetypes to collection media folder
-        for file in Path(RESOURCES_PATH).iterdir():
-            mw.col.media.add_file(str(file.absolute()))
 
     # read / write notetype settings
     # changes to settings will be written to mw.col.models when the Save button is pressed
