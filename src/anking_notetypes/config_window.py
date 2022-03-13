@@ -17,7 +17,7 @@ from .notetype_setting import NotetypeSetting, NotetypeSettingException
 from .notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
-    btn_name_to_shortcut_odict,
+    configurable_fields_for_notetype,
     general_settings,
     general_settings_defaults_dict,
     setting_configs,
@@ -183,7 +183,7 @@ class NotetypesConfigWindow:
 
         if model:
             ntss = ntss_for_model(model)
-            ordered_ntss = self._adjust_hint_button_nts_order(ntss, notetype_name)
+            ordered_ntss = self._adjust_configurable_field_nts_order(ntss, notetype_name)
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
             scroll.stretch()
@@ -280,7 +280,7 @@ class NotetypesConfigWindow:
                 nts.add_widget_to_config_layout(layout, model)
             layout.space(7)
 
-    def _adjust_hint_button_nts_order(
+    def _adjust_configurable_field_nts_order(
         self, ntss: List[NotetypeSetting], notetype_name: str
     ) -> List[NotetypeSetting]:
         # adjusts the order of the hint button settings to be the same as
@@ -288,21 +288,21 @@ class NotetypesConfigWindow:
         # it would probably be better to check the order of the buttons on the current
         # version of the card, not the original one
 
-        hint_button_ntss = [
-            nts for nts in ntss if nts.config.get("hint_button_setting", False)
+        field_ntss = [
+            nts for nts in ntss if nts.config.get("configurable_field_name", False)
         ]
-        ordered_btn_names = list(btn_name_to_shortcut_odict(notetype_name).keys())
-        ordered_hint_button_ntss = sorted(
-            hint_button_ntss,
+        ordered_field_names = configurable_fields_for_notetype(notetype_name)
+        ordered_field_ntss = sorted(
+            field_ntss,
             key=lambda nts: (
-                ordered_btn_names.index(name)
-                if (name := nts.config["hint_button_setting"]) in ordered_btn_names
+                ordered_field_names.index(name)
+                if (name := nts.config["configurable_field_name"]) in ordered_field_names
                 else -1  # can happen because of different quotes in template versions
             ),
         )
 
-        other_ntss = [nts for nts in ntss if nts not in hint_button_ntss]
-        return other_ntss + ordered_hint_button_ntss
+        other_ntss = [nts for nts in ntss if nts not in field_ntss]
+        return other_ntss + ordered_field_ntss
 
     # tab actions
     def _set_active_tab(self, tab_name: str) -> None:

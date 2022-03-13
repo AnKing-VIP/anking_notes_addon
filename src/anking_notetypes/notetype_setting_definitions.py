@@ -1,7 +1,7 @@
 import json
 import re
 from pathlib import Path
-from typing import Any, Dict, OrderedDict, Tuple
+from typing import Any, Dict, List, OrderedDict, Tuple, Union
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -10,6 +10,16 @@ except:
 
 ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 
+# regular expression for fields for which the add-on offers settings aka configurable fields
+# most of these fields are represented as hint buttons, but not all of them
+# to be recognized by the add-on the field html needs to contain text matching the FIELD_HAS_TO_CONTAIN_RE
+# if something is a hint button or not is determined by its presence in the ButtonShortcuts dict
+# the surrounding "<!--" are needed because of the disable field setting
+CONDITIONAL_FIELD_RE = "(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?"
+CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = '(class="hint"|id="extra"|id="dermnet"|id="ome")'
+CONFIGURABLE_FIELD_NAME_RE = "\{\{#(.+?)\}\}"
+
+
 # for matching text between double quotes which can contain
 # escaped quotes
 QUOT_STR_RE = r'(?:\\.|[^"\\])'
@@ -17,17 +27,16 @@ QUOT_STR_RE = r'(?:\\.|[^"\\])'
 
 setting_configs: Dict[str, Any] = OrderedDict(
     {
-        "button_order": {
-            "text": "Button Order",
-            "tooltip": "drag and drop the button names to adjust their order",
+        "field_order": {
+            "text": "Field Order",
+            "tooltip": "drag and drop the field names to adjust their order",
             "tooltip": "",
             "type": "order",
             "file": "back",
             "regex": "[\w\W]*",
-            # the surrounding "<!--" are needed because of the disable field setting
-            "elem_re": "(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?",
-            "name_re": "\{\{#(.+?)\}\}",
-            "has_to_contain": '(class="hint"|id="extra")',
+            "elem_re": CONDITIONAL_FIELD_RE,
+            "name_re": CONFIGURABLE_FIELD_NAME_RE,
+            "has_to_contain": CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE,
             "section": "Fields",
         },
         "toggle_next_button": {
@@ -536,9 +545,20 @@ def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
 def all_btns_setting_configs():
     result = OrderedDict()
     for notetype_name in anking_notetype_templates().keys():
-        for btn_name, shortcut in btn_name_to_shortcut_odict(notetype_name).items():
-            result.update(btn_setting_config(btn_name, shortcut))
+        for field_name in configurable_fields_for_notetype(notetype_name):
+            shortcut = btn_name_to_shortcut_odict(notetype_name).get(field_name, None)
+            result.update(configurable_field_configs(field_name, shortcut))
     return result
+
+
+def configurable_fields_for_notetype(notetype_name: str) -> List[str]:
+    _, back, _ = anking_notetype_templates()[notetype_name]
+
+    return [
+        re.search(CONFIGURABLE_FIELD_NAME_RE, field).group(1)
+        for field in re.findall(CONDITIONAL_FIELD_RE, back)
+        if re.search(CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE, field)
+    ]
 
 
 def btn_name_to_shortcut_odict(notetype_name):
@@ -550,55 +570,69 @@ def btn_name_to_shortcut_odict(notetype_name):
         return dict()
 
     result = OrderedDict()
-    dict_key_value_pattern = '"([^"]+)" *: *"([^"]+)"'
+    dict_key_value_pattern = '"([^"]+)" *: *"([^"]*)"'
     button_shorcut_pairs = re.findall(dict_key_value_pattern, m.group(1))
     for btn_name, shortcut in button_shorcut_pairs:
         result[btn_name] = shortcut
     return result
 
 
-def btn_setting_config(name, default_shortcut):
+def configurable_field_configs(
+    name: str, default_shortcut_if_hint_button: Union[str, None]
+) -> Dict:
+    # if default_shortcut_if_hint_button is None, then this function assumes that
+    # the configurable field is not a hint button
     name_in_snake_case = name.lower().replace(" ", "_")
-    return {
-        f"btn_shortcut_{name_in_snake_case}": button_shortcut_setting_config(
-            name, default_shortcut
-        ),
-        f"autoreveal_{name_in_snake_case}": auto_reveal_setting_config(name, False),
+    result = {
         f"disable_{name_in_snake_case}": disable_field_setting_config(name, False),
     }
 
+    if default_shortcut_if_hint_button is not None:
+        result.update(
+            {
+                f"btn_shortcut_{name_in_snake_case}": button_shortcut_setting_config(
+                    name, default_shortcut_if_hint_button
+                ),
+                f"autoreveal_{name_in_snake_case}": button_auto_reveal_setting_config(
+                    name, False
+                ),
+            }
+        )
 
-def button_shortcut_setting_config(button_name, default):
+    return result
+
+
+def button_shortcut_setting_config(field_name: str, default) -> Dict:
     return {
-        "text": f"{button_name} Shortcut",
+        "text": f"{field_name} Shortcut",
         "type": "shortcut",
         "file": "back",
-        "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{button_name}" *: *"({QUOT_STR_RE}*?)"',
-        "hint_button_setting": button_name,
+        "regex": f'var+ ButtonShortcuts *= *{{[^}}]*?"{field_name}" *: *"({QUOT_STR_RE}*?)"',
+        "configurable_field_name": field_name,
         "section": "Hint Buttons",
         "default": default,
     }
 
 
-def auto_reveal_setting_config(button_name, default):
+def button_auto_reveal_setting_config(field_name, default):
     return {
-        "text": f"Auto Reveal {button_name}",
+        "text": f"Auto Reveal {field_name}",
         "type": "checkbox",
         "file": "back",
-        "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{button_name}" *: *(.+),\n',
-        "hint_button_setting": button_name,
+        "regex": f'var+ ButtonAutoReveal *= *{{[^}}]*?"{field_name}" *: *(.+),\n',
+        "configurable_field_name": field_name,
         "section": "Hint Buttons",
         "default": default,
     }
 
 
-def disable_field_setting_config(button_name, default):
+def disable_field_setting_config(field_name, default):
     return {
-        "text": f"Disable {button_name} Field",
+        "text": f"Disable {field_name} Field",
         "tooltip": "",
         "type": "wrap_checkbox",
         "file": "back",
-        "regex": f"(<!--)?{{{{#{button_name}}}}}[\w\W]+?{{{{/{button_name}}}}}(-->)?",
+        "regex": f"(<!--)?{{{{#{field_name}}}}}[\w\W]+?{{{{/{field_name}}}}}(-->)?",
         "wrap_into": ("<!--", "-->"),
         "section": "Fields",
         "default": default,
