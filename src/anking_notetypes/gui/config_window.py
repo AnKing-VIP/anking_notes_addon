@@ -584,7 +584,7 @@ class NotetypesConfigWindow:
         Returns a list of all notetype versions of the notetype in the collection.
         """
         models = [
-            mw.col.models.get(x.id)
+            mw.col.models.get(x.id) # type: ignore
             for x in mw.col.models.all_names_and_ids()
             if x.name == notetype_name
             or re.match(f"{notetype_name} \(.+ / .+\)", x.name)
