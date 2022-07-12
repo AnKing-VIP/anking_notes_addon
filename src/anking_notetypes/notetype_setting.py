@@ -93,11 +93,11 @@ class NotetypeSetting(ABC):
 
     # can raise NotetypeSettingException
     def updated_model(
-        self, model: "NotetypeDict", conf: ConfigManager
+        self, model: "NotetypeDict", model_archetype_name: str, conf: ConfigManager
     ) -> "NotetypeDict":
         result = deepcopy(model)
         section = self._relevant_template_section(result)
-        key = self.key(model["name"])
+        key = self.key(model_archetype_name)
 
         # if the setting is not in the config,
         # use the default value if present else don't change anything

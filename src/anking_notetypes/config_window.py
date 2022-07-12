@@ -2,7 +2,6 @@ import re
 import time
 from collections import defaultdict
 from concurrent.futures import Future
-from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from aqt import mw
@@ -108,7 +107,7 @@ class NotetypesConfigWindow:
                 return
 
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
-            self._safe_update_model_settings(model, [nts])
+            self._safe_update_model_settings(model, model["name"], [nts])
 
             self._update_clayout_model(model)
 
@@ -134,18 +133,13 @@ class NotetypesConfigWindow:
         window.reset_btn.hide()
         window.advanced_btn.hide()
 
-        if self.clayout:
-            # hide save button in live preview (notetype manager) mode
-            # because changes are saved using the save button of the notetype manager window
-            window.save_btn.hide()
-        else:
-            # overwrite on_save function
-            def on_save(window: ConfigWindow):
-                self._apply_setting_changes_for_all_notetypes()
-                window.close()
+        # overwrite on_save function
+        def on_save(window: ConfigWindow):
+            self._apply_setting_changes_for_all_notetypes()
+            window.close()
 
-            window.save_btn.clicked.disconnect()  # type: ignore
-            window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
+        window.save_btn.clicked.disconnect()  # type: ignore
+        window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
         if self.clayout:
             self._set_active_tab(self.clayout.model["name"])
@@ -536,7 +530,11 @@ class NotetypesConfigWindow:
                 pass
 
     def _safe_update_model_settings(
-        self, model, ntss: List["NotetypeSetting"], show_tooltip_on_exception=True
+        self,
+        model: NotetypeDict,
+        model_archetype_name: str,
+        ntss: List["NotetypeSetting"],
+        show_tooltip_on_exception=True,
     ) -> bool:
         # Takes a model and a list of note type setting objects (ntss) and updates the model so that
         # the passed settings in the model are set to the values of these settings in self.conf
@@ -545,7 +543,13 @@ class NotetypesConfigWindow:
         parse_exception = None
         for nts in ntss:
             try:
-                model.update(nts.updated_model(model, self.conf))
+                model.update(
+                    nts.updated_model(
+                        model=model,
+                        model_archetype_name=model_archetype_name,
+                        conf=self.conf,
+                    )
+                )
             except NotetypeSettingException as e:
                 parse_exception = e
 
@@ -560,12 +564,28 @@ class NotetypesConfigWindow:
 
     def _apply_setting_changes_for_all_notetypes(self):
         for notetype_name in anking_notetype_names():
-            model = mw.col.models.by_name(notetype_name)
-            if not model:
-                continue
-            ntss = ntss_for_model(model)
-            self._safe_update_model_settings(model, ntss)
-            mw.col.models.update_dict(model)
+            for model in self._all_notetype_versions(notetype_name):
+                if not model:
+                    continue
+                ntss = ntss_for_model(model)
+                self._safe_update_model_settings(
+                    model=model, model_archetype_name=notetype_name, ntss=ntss
+                )
+                mw.col.models.update_dict(model)
+
+    def _all_notetype_versions(self, notetype_name: str) -> List[NotetypeDict]:
+        """
+        This is done to make this add-on compatible with note types created by AnkiHub decks.
+        Returns a list of all notetype versions of the notetype in the collection.
+        """
+        models = [
+            mw.col.models.get(x.id)
+            for x in mw.col.models.all_names_and_ids()
+            if x.name == notetype_name
+            or re.match(f"{notetype_name} \(.+ / .+\)", x.name)
+            or re.match(f"{notetype_name}-[a-zA-Z0-9]{{5}}", x.name)
+        ]
+        return models
 
     # clayout
     def _update_clayout_model(self, model):

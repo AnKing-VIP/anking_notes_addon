@@ -28,7 +28,9 @@ class TestNotetypeSettingManipulation(unittest.TestCase):
                     temp_conf = deepcopy(conf)
                     temp_conf[nts.key(notetype_name)] = test_value
                     temp_model = deepcopy(model)
-                    temp_model = nts.updated_model(temp_model, temp_conf)
+                    temp_model = nts.updated_model(
+                        temp_model, temp_model["name"], temp_conf
+                    )
 
                     d1 = config(temp_model)
                     d2 = temp_conf
