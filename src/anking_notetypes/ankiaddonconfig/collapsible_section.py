@@ -1,4 +1,16 @@
-from aqt.qt import *
+from aqt.qt import (
+    QAbstractAnimation,
+    QFrame,
+    QParallelAnimationGroup,
+    QPropertyAnimation,
+    QScrollArea,
+    QSizePolicy,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+    pyqtSlot,
+)
 
 
 # https://stackoverflow.com/a/52617714

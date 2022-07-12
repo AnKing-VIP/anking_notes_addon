@@ -3,9 +3,40 @@ from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
 
 import aqt.addons
 from aqt import mw
-from aqt.qt import *
+from aqt.qt import (
+    QT_VERSION_STR,
+    QAbstractItemView,
+    QAbstractSpinBox,
+    QBoxLayout,
+    QCheckBox,
+    QCloseEvent,
+    QColor,
+    QColorDialog,
+    QComboBox,
+    QCursor,
+    QDialog,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFont,
+    QFontComboBox,
+    QFrame,
+    QHBoxLayout,
+    QIcon,
+    QKeySequenceEdit,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QScrollArea,
+    QSizePolicy,
+    QSpinBox,
+    QStyle,
+    Qt,
+    QTableWidget,
+    QTableWidgetItem,
+    QTabWidget,
+    QWidget,
+)
 from aqt.utils import restoreGeom, saveGeom, tooltip
-
 
 from .collapsible_section import CollapsibleSection
 from .errors import InvalidConfigValueError
@@ -48,24 +79,24 @@ class ConfigWindow(QDialog):
     def setup_buttons(self, btn_box: "ConfigLayout") -> None:
 
         self.advanced_btn = QPushButton("Advanced")
-        self.advanced_btn.clicked.connect(self.on_advanced)
+        self.advanced_btn.clicked.connect(self.on_advanced)  # type: ignore
         btn_box.addWidget(self.advanced_btn)
 
         self.reset_btn = QPushButton("Restore Defaults")
-        self.reset_btn.clicked.connect(self.on_reset)
+        self.reset_btn.clicked.connect(self.on_reset)  # type: ignore
         self.reset_btn.setAutoDefault(False)
         btn_box.addWidget(self.reset_btn)
 
         btn_box.addStretch(1)
 
         self.cancel_btn = QPushButton("Cancel")
-        self.cancel_btn.clicked.connect(self.on_cancel)
+        self.cancel_btn.clicked.connect(self.on_cancel)  # type: ignore
         btn_box.addWidget(self.cancel_btn)
 
         self.save_btn = QPushButton("Save")
         self.save_btn.setDefault(True)
         self.save_btn.setShortcut("Ctrl+Return")
-        self.save_btn.clicked.connect(self.on_save)
+        self.save_btn.clicked.connect(self.on_save)  # type: ignore
         btn_box.addWidget(self.save_btn)
 
     def update_widgets(self) -> None:
@@ -92,7 +123,6 @@ class ConfigWindow(QDialog):
         self.close()
 
     def on_reset(self) -> None:
-        self.conf.load_defaults()
         self.update_widgets()
         tooltip("Press save to save changes")
 
@@ -140,7 +170,7 @@ class ConfigWindow(QDialog):
     ) -> QLabel:
         footer = QLabel(text)
         if html:
-            footer.setTextFormat(Qt.RichText)
+            footer.setTextFormat(Qt.TextFormat.RichText)
             footer.setOpenExternalLinks(True)
         else:
             footer.setTextFormat(Qt.TextFormat.PlainText)
@@ -185,10 +215,10 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        checkbox.stateChanged.connect(
+        checkbox.stateChanged.connect(  # type: ignore
             lambda s: self.conf.set(
                 key,
-                s == (Qt.CheckState.Checked.value if QT6 else Qt.CheckState.Checked),
+                s == (Qt.CheckState.Checked.value if QT6 else Qt.CheckState.Checked),  # type: ignore
             )
         )
         self.addWidget(checkbox)
@@ -218,7 +248,7 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        combobox.currentIndexChanged.connect(
+        combobox.currentIndexChanged.connect(  # type: ignore
             lambda idx: self.conf.set(key, values[idx])
         )
 
@@ -302,7 +332,7 @@ class ConfigLayout(QBoxLayout):
         def on_editing_finished():
             self.conf.set(key, line_edit.text())
 
-        line_edit.editingFinished.connect(on_editing_finished)
+        line_edit.editingFinished.connect(on_editing_finished)  # type: ignore
 
         row = self.hlayout()
 
@@ -359,7 +389,7 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        spin_box.valueChanged.connect(lambda val: self.conf.set(key, val))
+        spin_box.valueChanged.connect(lambda val: self.conf.set(key, val))  # type: ignore
 
         row = self.hlayout()
 
@@ -416,8 +446,8 @@ class ConfigLayout(QBoxLayout):
             set_color(rgb)
 
         self.widget_updates.append(update)
-        color_dialog.colorSelected.connect(lambda color: save(color))
-        button.clicked.connect(lambda _: color_dialog.exec())
+        color_dialog.colorSelected.connect(lambda color: save(color))  # type: ignore
+        button.clicked.connect(lambda _: color_dialog.exec())  # type: ignore
 
         row = self.hlayout()
 
@@ -482,7 +512,7 @@ class ConfigLayout(QBoxLayout):
                 update()
 
         self.widget_updates.append(update)
-        button.clicked.connect(get_path)
+        button.clicked.connect(get_path)  # type: ignore
 
         return (line_edit, button)
 
@@ -504,7 +534,7 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        edit.keySequenceChanged.connect(
+        edit.keySequenceChanged.connect(  # type: ignore
             lambda s: self.conf.set(key, edit.keySequence().toString())
         )
 
@@ -517,7 +547,7 @@ class ConfigLayout(QBoxLayout):
         shortcut_clear_btn.setSizePolicy(
             QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
         )
-        shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)
+        shortcut_clear_btn.clicked.connect(on_shortcut_clear_btn_click)  # type: ignore
 
         layout = QHBoxLayout()
         layout.addWidget(edit)
@@ -543,7 +573,7 @@ class ConfigLayout(QBoxLayout):
 
         self.widget_updates.append(update)
 
-        combo.currentTextChanged.connect(
+        combo.currentTextChanged.connect(  # type: ignore
             lambda s: self.conf.set(key, combo.currentText())
         )
 
@@ -566,7 +596,7 @@ class ConfigLayout(QBoxLayout):
             Qt.TextInteractionFlag.TextBrowserInteraction
         )
         if html:
-            label_widget.setTextFormat(Qt.RichText)
+            label_widget.setTextFormat(Qt.TextFormat.RichText)
             label_widget.setOpenExternalLinks(True)
         else:
             label_widget.setTextFormat(Qt.TextFormat.PlainText)
@@ -592,7 +622,7 @@ class ConfigLayout(QBoxLayout):
     ) -> QPushButton:
         button = QPushButton()
         button.setText(text)
-        button.clicked.connect(on_click)
+        button.clicked.connect(on_click)  # type: ignore
         button.setAutoDefault(False)
         self.addWidget(button)
         return button
@@ -625,7 +655,7 @@ class ConfigLayout(QBoxLayout):
 
     def hcontainer(self) -> "ConfigLayout":
         """Adds (empty) QWidget > ConfigLayout."""
-        return self._container(QBoxLayout.RightToLeft)
+        return self._container(QBoxLayout.Direction.RightToLeft)
 
     def vcontainer(self) -> "ConfigLayout":
         """Adds (empty) QWidget > ConfigLayout."""
@@ -675,8 +705,10 @@ class ConfigLayout(QBoxLayout):
         return self._scroll_layout(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Minimum,
-            Qt.ScrollBarAlwaysOn if always else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
-            Qt.ScrollBarAlwaysOff,
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+            if always
+            else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
         )
 
     def vscroll_layout(self, always: bool = False) -> "ConfigLayout":
@@ -684,8 +716,10 @@ class ConfigLayout(QBoxLayout):
         return self._scroll_layout(
             QSizePolicy.Minimum,
             QSizePolicy.Policy.Expanding,
-            Qt.ScrollBarAlwaysOff,
-            Qt.ScrollBarAlwaysOn if always else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+            if always
+            else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
         )
 
     def scroll_layout(

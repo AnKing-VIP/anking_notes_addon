@@ -4,7 +4,7 @@ from sys import platform
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 from aqt import mw
-from aqt.qt import *
+from aqt.qt import QDialog, Qt
 
 from .window import ConfigWindow
 
