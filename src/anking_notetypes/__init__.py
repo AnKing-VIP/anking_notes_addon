@@ -6,7 +6,7 @@ from aqt.qt import *
 from aqt.utils import askUserDialog
 
 from .compat import add_compat_aliases
-from .config_window import NotetypesConfigWindow
+from .gui.config_window import NotetypesConfigWindow
 from .gui.menu import setup_menu
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)

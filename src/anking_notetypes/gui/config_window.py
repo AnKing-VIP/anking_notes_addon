@@ -9,11 +9,11 @@ from aqt.clayout import CardLayout
 from aqt.qt import *
 from aqt.utils import askUser, showInfo, tooltip
 
-from .ankiaddonconfig import ConfigManager, ConfigWindow
-from .ankiaddonconfig.window import ConfigLayout
-from .gui.anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
-from .notetype_setting import NotetypeSetting, NotetypeSettingException
-from .notetype_setting_definitions import (
+from ..ankiaddonconfig import ConfigManager, ConfigWindow
+from ..ankiaddonconfig.window import ConfigLayout
+from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
+from ..notetype_setting import NotetypeSetting, NotetypeSettingException
+from ..notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
     configurable_fields_for_notetype,

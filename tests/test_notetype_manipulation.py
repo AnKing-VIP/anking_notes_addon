@@ -3,7 +3,7 @@ import unittest
 from copy import deepcopy
 from pathlib import Path
 
-from src.anking_notetypes.config_window import ntss_for_model
+from anking_notetypes.gui.config_window import ntss_for_model
 from src.anking_notetypes.notetype_setting import NotetypeSetting
 from src.anking_notetypes.notetype_setting_definitions import (
     anking_notetype_model,
