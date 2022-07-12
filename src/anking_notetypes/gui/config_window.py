@@ -1,5 +1,4 @@
 import re
-import time
 from collections import defaultdict
 from concurrent.futures import Future
 from typing import Any, Dict, List, Optional, Union
@@ -11,6 +10,7 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
+from ..constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
     anking_notetype_model,
@@ -20,7 +20,9 @@ from ..notetype_setting_definitions import (
     general_settings_defaults_dict,
     setting_configs,
 )
+from ..utils import update_notetype_to_newest_version
 from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
+from .note_type_versions_dialog import handle_extra_notetype_versions
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -63,6 +65,8 @@ class NotetypesConfigWindow:
         self.last_general_ntss: Union[List[NotetypeSetting], None] = None
 
     def open(self):
+
+        handle_extra_notetype_versions()
 
         # dont open another window if one is already open
         if self.__class__.window:
@@ -348,7 +352,7 @@ class NotetypesConfigWindow:
         ):
             return
 
-        self._update_notetype_to_newest_version(model)
+        update_notetype_to_newest_version(model, model["name"])
 
         mw.col.models.update_dict(model)  # type: ignore
 
@@ -416,14 +420,6 @@ class NotetypesConfigWindow:
             immediate=True,
         )
 
-    def _update_notetype_to_newest_version(self, model: "NotetypeDict"):
-        new_model = anking_notetype_model(model["name"])
-        new_model["id"] = model["id"]
-        new_model["mod"] = int(time.time())  # not sure if this is needed
-        new_model["usn"] = -1  # triggers full sync
-        new_model = self._adjust_field_ords(model, new_model)
-        model.update(new_model)
-
     @classmethod
     def _new_notetype_version_available(cls, model: "NotetypeDict"):
         current_version = cls.model_version(model)
@@ -446,30 +442,6 @@ class NotetypesConfigWindow:
             if (model := mw.col.models.by_name(name)) is not None
             and cls._new_notetype_version_available(model)
         ]
-
-    def _adjust_field_ords(
-        self, cur_model: "NotetypeDict", new_model: "NotetypeDict"
-    ) -> "NotetypeDict":
-        # this makes sure that when fields get added or are moved
-        # field contents end up in the field with the same name as before
-        # note that the resulting model will have exactly the same set of fields as the new_model
-        for fld in new_model["flds"]:
-            if (
-                cur_ord := next(
-                    (
-                        _fld["ord"]
-                        for _fld in cur_model["flds"]
-                        if _fld["name"] == fld["name"]
-                    ),
-                    None,
-                )
-            ) is not None:
-                fld["ord"] = cur_ord
-            else:
-                # it's okay to assign this to multiple fields because the
-                # backend assigns new ords equal to the fields index
-                fld["ord"] = len(new_model["flds"]) - 1
-        return new_model
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
@@ -591,8 +563,8 @@ class NotetypesConfigWindow:
             mw.col.models.get(x.id)  # type: ignore
             for x in mw.col.models.all_names_and_ids()
             if x.name == notetype_name
-            or re.match(rf"{notetype_name} \(.+ / .+\)", x.name)
-            or re.match(rf"{notetype_name}-[a-zA-Z0-9]{{5}}", x.name)
+            or re.match(ANKIHUB_NOTETYPE_RE.format(notetype_name=notetype_name), x.name)
+            or re.match(NOTETYPE_COPY_RE.format(notetype_name=notetype_name), x.name)
         ]
         return models
 
