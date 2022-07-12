@@ -2,7 +2,7 @@ from pathlib import Path
 
 from aqt import mw
 from aqt.gui_hooks import card_layout_will_show, profile_did_open
-from aqt.qt import *
+from aqt.qt import QPushButton
 from aqt.utils import askUserDialog
 
 from .compat import add_compat_aliases
@@ -64,7 +64,8 @@ def maybe_show_notetypes_update_notice():
 
     answer = askUserDialog(
         title="AnKing note types update",
-        text="New versions of the AnKing note types are available! \nYou can choose to update them in the AnKing Note Types dialog. Open the dialog now?",
+        text="New versions of the AnKing note types are available! \nYou can choose to update them in the "
+        "AnKing Note Types dialog. Open the dialog now?",
         buttons=reversed(["Yes", "No", "Remind me later"]),
     ).run()
     if answer == "Yes":

@@ -21,7 +21,7 @@ assignees: ''
  - [ ] I've tried to disable other add-ons to see if there are any interactions present
  - [ ] My issue disappears when I hold shift while starting Anki.
  - [ ] I've checked if anyone else reported this problem before by looking through the issue reports. I also checked to see if there is a section about known issues in the add-on description, documentation, or README.
- 
+
 
 #### What Anki version are you using?
 

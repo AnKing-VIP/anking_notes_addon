@@ -142,7 +142,8 @@ class NotetypeSetting(ABC):
         section_match = re.search(self.config["regex"], template_text)
         if not section_match:
             raise NotetypeSettingException(
-                f"could not find '{self.config['text']}' in {self.config['file']} template of notetype '{model['name']}'"
+                f"could not find '{self.config['text']}' in {self.config['file']}"
+                "template of notetype '{model['name']}'"
             )
         result = section_match.group(0)
         return result
@@ -249,7 +250,7 @@ class CheckboxSetting(NotetypeSetting):
 
     def _extract_setting_value(self, section: str) -> Any:
         value = re.search(self.config["regex"], section).group(1)
-        if not value in ["true", "false"]:
+        if value not in ["true", "false"]:
             raise NotetypeSettingException(
                 f"{self.config['text']}: expected 'true' or 'false' but got '{value}'"
             )
@@ -378,7 +379,8 @@ class NumberEditSetting(NotetypeSetting):
             return result
         except:
             raise NotetypeSettingException(
-                f"{self.config['text']}: expected {'decimal' if self.config.get('decimal', False) else 'integer'} but found {value_str}"
+                f"{self.config['text']}: expected {'decimal' if self.config.get('decimal', False) else 'integer'} "
+                f"but found {value_str}"
             )
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:

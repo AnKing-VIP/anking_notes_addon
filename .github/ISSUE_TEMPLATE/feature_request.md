@@ -24,7 +24,7 @@ assignees: ''
 
 #### Problem case
 
-*Is your feature request related to a problem? If so, please describe it here.  E.g.: "My workflow is such and such, and this and that would help."* 
+*Is your feature request related to a problem? If so, please describe it here.  E.g.: "My workflow is such and such, and this and that would help."*
 
 
 

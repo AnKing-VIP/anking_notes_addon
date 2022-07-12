@@ -2,7 +2,7 @@ import json
 import unittest
 from collections import defaultdict
 
-from anking_notetypes.gui.config_window import ntss_for_model
+from src.anking_notetypes.gui.config_window import ntss_for_model
 from src.anking_notetypes.notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,

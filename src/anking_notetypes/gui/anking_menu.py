@@ -12,7 +12,10 @@ MENU_NAME = "&AnKing"
 
 GET_HELP_MENU_NAME = "Get Anki Help"
 GET_HELP_MENU_OPTIONS = [
-    ("Online Mastery Course", f"https://courses.ankipalace.com/?utm_source={addon_name}&utm_medium=anki_add-on&utm_campaign=mastery_course"),
+    (
+        "Online Mastery Course",
+        f"https://courses.ankipalace.com/?utm_source={addon_name}&utm_medium=anki_add-on&utm_campaign=mastery_course"
+    ),
     ("Daily Q and A Support", "https://www.ankipalace.com/memberships"),
     ("1-on-1 Tutoring", "https://www.ankipalace.com/tutoring"),
 ]

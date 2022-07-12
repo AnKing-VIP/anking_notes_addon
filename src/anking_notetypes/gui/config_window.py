@@ -2,16 +2,15 @@ import re
 import time
 from collections import defaultdict
 from concurrent.futures import Future
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from aqt import mw
 from aqt.clayout import CardLayout
-from aqt.qt import *
+from aqt.qt import QWidget
 from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
-from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
     anking_notetype_model,
@@ -21,6 +20,7 @@ from ..notetype_setting_definitions import (
     general_settings_defaults_dict,
     setting_configs,
 )
+from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
 
 try:
     from anki.models import NotetypeDict  # type: ignore
@@ -341,7 +341,9 @@ class NotetypesConfigWindow:
     # of whether the Save button is pressed after that
     def _reset_notetype_and_reload_ui(self, model: "NotetypeDict"):
         if not askUser(
-            f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?<br><br>After doing this Anki will require a full sync on the next synchronization with AnkiWeb. Make sure to synchronize unsynchronized changes from other devices first.",
+            f"Do you really want to reset the <b>{model['name']}</b> notetype to its default form?<br><br>"
+            "After doing this Anki will require a full sync on the next synchronization with AnkiWeb. "
+            "Make sure to synchronize unsynchronized changes from other devices first.",
             defaultno=True,
         ):
             return
@@ -359,7 +361,9 @@ class NotetypesConfigWindow:
 
     def _update_all_notetypes_to_newest_version_and_reload_ui(self):
         if not askUser(
-            f"Do you really want to update the note types? Settings will be kept.<br><br>After doing this Anki will require a full sync on the next synchronization with AnkiWeb. Make sure to synchronize unsynchronized changes from other devices first.",
+            "Do you really want to update the note types? Settings will be kept.<br><br>After doing this Anki "
+            "will require a full sync on the next synchronization with AnkiWeb. Make sure to synchronize "
+            "unsynchronized changes from other devices first.",
             defaultno=True,
         ):
             return
@@ -429,7 +433,7 @@ class NotetypesConfigWindow:
     @classmethod
     def model_version(cls, model):
         front = model["tmpls"][0]["qfmt"]
-        m = re.match("<!-- version ([\w\d]+) -->\n", front)
+        m = re.match(r"<!-- version ([\w\d]+) -->\n", front)
         if not m:
             return None
         return m.group(1)
@@ -584,11 +588,11 @@ class NotetypesConfigWindow:
         Returns a list of all notetype versions of the notetype in the collection.
         """
         models = [
-            mw.col.models.get(x.id) # type: ignore
+            mw.col.models.get(x.id)  # type: ignore
             for x in mw.col.models.all_names_and_ids()
             if x.name == notetype_name
-            or re.match(f"{notetype_name} \(.+ / .+\)", x.name)
-            or re.match(f"{notetype_name}-[a-zA-Z0-9]{{5}}", x.name)
+            or re.match(rf"{notetype_name} \(.+ / .+\)", x.name)
+            or re.match(rf"{notetype_name}-[a-zA-Z0-9]{{5}}", x.name)
         ]
         return models
 
