@@ -107,7 +107,9 @@ class NotetypesConfigWindow:
                 return
 
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
-            self._safe_update_model_settings(model, model["name"], [nts])
+            self._safe_update_model_settings(
+                model=model, model_archetype_name=model["name"], ntss=[nts]
+            )
 
             self._update_clayout_model(model)
 
@@ -371,7 +373,10 @@ class NotetypesConfigWindow:
             # restore the values from before the update for the settings that exist in both versions
             for model in to_be_updated:
                 self._safe_update_model_settings(
-                    model, ntss_for_model(model), show_tooltip_on_exception=False
+                    model=model,
+                    model_archetype_name=model["name"],
+                    ntss=ntss_for_model(model),
+                    show_tooltip_on_exception=False,
                 )
 
             return to_be_updated
