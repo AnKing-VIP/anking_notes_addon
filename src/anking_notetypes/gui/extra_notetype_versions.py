@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import Future
 from copy import deepcopy
 from typing import Dict, List
 
@@ -7,7 +8,7 @@ from aqt.utils import askUser, tooltip
 
 from ..constants import NOTETYPE_COPY_RE
 from ..notetype_setting_definitions import anking_notetype_names
-from ..utils import adjust_field_ords
+from ..utils import adjust_field_ords, create_backup
 
 
 def handle_extra_notetype_versions():
@@ -34,11 +35,23 @@ def handle_extra_notetype_versions():
         "There are extra copies of AnKing note types. Do you want to convert all note types with names like "
         'for example "AnKingOverhaul-1dgs0" to "AnKingOverhaul" respectively?\n\n'
         "This will delete the extra note types and require a full upload of the collection "
-        "the next time you sync with AnkiWeb.\n\n"
+        "the next time you sync with AnkiWeb. A backup will be created before the changes are applied.\n\n"
         "No matter what you chose the AnKing Note Types window will open after you select an option.",
         title="Extra copies of AnKing note types",
     ):
         return
+
+    mw.taskman.with_progress(
+        create_backup,
+        on_done=lambda future: convert(future, copy_mids_by_notetype),
+        label="Creating Backup...",
+        immediate=True,
+    )
+
+
+def convert(future: Future, copy_mids_by_notetype: Dict[str, List[int]] = dict()):
+
+    future.result()  # throws an exception if there was an exception in the background task
 
     for notetype_name, copy_mids in copy_mids_by_notetype.items():
         notetype = mw.col.models.by_name(notetype_name)
