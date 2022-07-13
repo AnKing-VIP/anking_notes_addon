@@ -11,7 +11,7 @@ from ..notetype_setting_definitions import anking_notetype_names
 from ..utils import adjust_field_ords, create_backup
 
 
-def handle_extra_notetype_versions():
+def handle_extra_notetype_versions() -> None:
 
     # mids of copies of the AnKing notetype identified by its name
     copy_mids_by_notetype: Dict[str, List[int]] = dict()
@@ -51,7 +51,7 @@ def handle_extra_notetype_versions():
 
 def convert_extra_notetypes(
     future: Future, copy_mids_by_notetype: Dict[str, List[int]]
-):
+) -> None:
     """
     Change note type of notes that have copies of an AnKing note type as a type to the original note type.
     Remove the extra note type copies.
