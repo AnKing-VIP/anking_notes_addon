@@ -52,6 +52,10 @@ def handle_extra_notetype_versions():
 def convert_extra_notetypes(
     future: Future, copy_mids_by_notetype: Dict[str, List[int]]
 ):
+    """
+    Change note type of notes that have copies of an AnKing note type as a type to the original note type.
+    Remove the extra note type copies.
+    """
 
     future.result()  # throws an exception if there was an exception in the background task
 
