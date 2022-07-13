@@ -1,5 +1,7 @@
 import time
 
+from aqt import mw
+
 from .notetype_setting_definitions import anking_notetype_model
 
 try:
@@ -43,3 +45,16 @@ def adjust_field_ords(
             # backend assigns new ords equal to the fields index
             fld["ord"] = len(new_model["flds"]) - 1
     return new_model
+
+
+def create_backup() -> None:
+    try:
+        mw.col.create_backup(
+            backup_folder=mw.pm.backupFolder(),
+            force=True,
+            wait_for_completion=True,
+        )
+    except AttributeError:  # < 2.1.50
+        mw.col.close(downgrade=False)
+        mw.backup()  # type: ignore
+        mw.col.reopen(after_full_sync=False)

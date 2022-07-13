@@ -22,7 +22,7 @@ from ..notetype_setting_definitions import (
 )
 from ..utils import update_notetype_to_newest_version
 from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
-from .note_type_versions_dialog import handle_extra_notetype_versions
+from .extra_notetype_versions import handle_extra_notetype_versions
 
 try:
     from anki.models import NotetypeDict  # type: ignore

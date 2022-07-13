@@ -43,13 +43,15 @@ def handle_extra_notetype_versions():
 
     mw.taskman.with_progress(
         create_backup,
-        on_done=lambda future: convert(future, copy_mids_by_notetype),
+        on_done=lambda future: convert_extra_notetypes(future, copy_mids_by_notetype),
         label="Creating Backup...",
         immediate=True,
     )
 
 
-def convert(future: Future, copy_mids_by_notetype: Dict[str, List[int]] = dict()):
+def convert_extra_notetypes(
+    future: Future, copy_mids_by_notetype: Dict[str, List[int]]
+):
 
     future.result()  # throws an exception if there was an exception in the background task
 
@@ -64,11 +66,7 @@ def convert(future: Future, copy_mids_by_notetype: Dict[str, List[int]] = dict()
             new_notetype["id"] = notetype_copy["id"]
             new_notetype["name"] = notetype_copy["name"]  # to prevent duplicates
             new_notetype["usn"] = -1  # triggers full sync
-
-            # XXX TODO: check if fields would be deleted by this and warn the user?
-            # XXX TODO: check if this is reliable
             new_notetype = adjust_field_ords(notetype_copy, new_notetype)
-
             mw.col.models.update_dict(new_notetype)
 
             # change the notes of type <notetype_copy> to type <notetype>
