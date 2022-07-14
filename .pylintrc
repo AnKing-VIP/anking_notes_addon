@@ -1,0 +1,15 @@
+[MESSAGES CONTROL]
+disable=
+    C, # convention
+    R, # refactoring
+    bare-except,
+    unnecessary-lambda,
+    raise-missing-from,
+    unspecified-encoding,
+    redefined-outer-name,
+    redefined-builtin,
+    attribute-defined-outside-init,
+
+
+[TYPECHECK]
+ignored-modules=aqt.qt
