@@ -57,12 +57,12 @@ def maybe_add_get_help_submenu(menu: QMenu) -> None:
             new_act.setProperty(submenu_property, True)
             new_act.setProperty("version", SUBMENU_VER)
             return
-    else:
-        submenu = create_get_help_submenu(menu)
-        menu.addMenu(submenu)
-        new_act = submenu.menuAction()
-        new_act.setProperty(submenu_property, True)
-        new_act.setProperty("version", SUBMENU_VER)
+
+    submenu = create_get_help_submenu(menu)
+    menu.addMenu(submenu)
+    new_act = submenu.menuAction()
+    new_act.setProperty(submenu_property, True)
+    new_act.setProperty("version", SUBMENU_VER)
 
 
 def get_anking_menu() -> QMenu:

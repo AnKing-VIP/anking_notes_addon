@@ -4,14 +4,16 @@ from copy import deepcopy
 from pathlib import Path
 
 from src.anking_notetypes.gui.config_window import ntss_for_model
-from src.anking_notetypes.notetype_setting import NotetypeSetting
+from src.anking_notetypes.notetype_setting import (  # pylint: disable=unused-import
+    NotetypeSetting,
+)
 from src.anking_notetypes.notetype_setting_definitions import (
     anking_notetype_model,
     anking_notetype_names,
 )
 
 try:
-    from anki.models import NotetypeDict  # type: ignore
+    from anki.models import NotetypeDict  # type: ignore pylint: disable=unused-import
 except:
     pass
 

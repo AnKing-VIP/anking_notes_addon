@@ -376,7 +376,7 @@ class NotetypesConfigWindow:
 
             to_be_updated = self.models_with_available_updates()
             for model in to_be_updated:
-                self._update_notetype_to_newest_version(model)
+                update_notetype_to_newest_version(model, model["name"])
 
             # restore the values from before the update for the settings that exist in both versions
             for model in to_be_updated:

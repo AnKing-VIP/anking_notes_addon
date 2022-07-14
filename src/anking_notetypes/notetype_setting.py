@@ -7,7 +7,7 @@ from .ankiaddonconfig import ConfigLayout, ConfigManager
 from .notetype_setting_definitions import anking_notetype_names
 
 try:
-    from anki.models import NotetypeDict  # type: ignore
+    from anki.models import NotetypeDict  # type: ignore pylint: disable=unused-import
 except:
     pass
 
@@ -50,7 +50,7 @@ class NotetypeSetting(ABC):
 
     def add_widget_to_general_config_layout(self, layout: ConfigLayout):
 
-        # XXX dummy model
+        # dummy model
         model = {"name": "general"}
         self.add_widget_to_config_layout(layout, model)
 
@@ -286,7 +286,7 @@ class FontFamilySetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        # XXX dont need to verify, because used in css and will be ignored if not valid
+        # dont need to verify, because used in css and will be ignored if not valid
         return re.search(self.config["regex"], section).group(1)
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
@@ -324,7 +324,7 @@ class ColorSetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        # XXX dont need to verify, because used in css and will be ignored if not valid
+        # dont need to verify, because used in css and will be ignored if not valid
         color_str = re.search(self.config["regex"], section).group(1)
         return color_str
 
@@ -348,7 +348,7 @@ class ShortcutSetting(NotetypeSetting):
         )
 
     def _extract_setting_value(self, section: str) -> Any:
-        # XXX dont need to verify, because notetype js will ignore the shortcut if its invalid
+        # dont need to verify, because notetype js will ignore the shortcut if its invalid
         shortcut_str = re.search(self.config["regex"], section).group(1)
         return shortcut_str
 

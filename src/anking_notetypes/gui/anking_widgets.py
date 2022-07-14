@@ -1,7 +1,20 @@
 from pathlib import Path
 from typing import Tuple
 
-from aqt.qt import *
+from aqt.qt import (
+    QCursor,
+    QDir,
+    QHBoxLayout,
+    QIcon,
+    QLabel,
+    QPixmap,
+    QSize,
+    QSizePolicy,
+    Qt,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
 from aqt.utils import openLink
 
 QDir.addSearchPath("icons", f"{Path(__file__).parent.parent}/resources")

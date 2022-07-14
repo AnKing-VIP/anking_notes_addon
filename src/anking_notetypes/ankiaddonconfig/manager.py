@@ -15,7 +15,7 @@ class ConfigManager:
         self.window_open_hooks: List[Callable[[ConfigWindow], None]] = []
         self.change_hooks: List[Callable] = []
         self._config: Dict
-        addon_dir = __name__.split(".")[0]
+        addon_dir = __name__.split(".", maxsplit=1)[0]
         self.addon_dir = addon_dir
         try:
             self.addon_name = mw.addonManager.addon_meta(addon_dir).human_name()

@@ -5,7 +5,7 @@ from aqt import mw
 from .notetype_setting_definitions import anking_notetype_model
 
 try:
-    from anki.models import NotetypeDict  # type: ignore
+    from anki.models import NotetypeDict  # type: ignore # pylint: disable=unused-import
 except:
     pass
 
