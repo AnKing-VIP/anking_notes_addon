@@ -153,7 +153,8 @@ img {
   color: transparent;
 }
 /* Empty Link Color */
-a:not([href]) {
+a:not([href]),
+a[href^="javascript:"] {
   text-decoration: none;
   color: inherit;
 }
@@ -563,6 +564,10 @@ html:not(.mobile) #button-pixorize:hover {
 
 html:not(.mobile) #button-physeo:hover {
   background-color: #A1C0C6 !important;
+}
+
+html:not(.mobile) #button-bootcamp:hover {
+  background-color: #0b8198 !important;
 }
 
 html:not(.mobile) #button-ome:hover {
