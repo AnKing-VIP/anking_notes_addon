@@ -7,7 +7,7 @@ from .ankiaddonconfig import ConfigLayout, ConfigManager
 from .notetype_setting_definitions import anking_notetype_names
 
 try:
-    from anki.models import NotetypeDict  # type: ignore pylint: disable=unused-import
+    from anki.models import NotetypeDict  # pylint: disable=unused-import
 except:
     pass
 

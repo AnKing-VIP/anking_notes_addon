@@ -134,7 +134,9 @@ class ConfigWindow(QDialog):
 
     def advanced_window(self) -> aqt.addons.ConfigEditor:
         return aqt.addons.ConfigEditor(
-            self, self.conf.addon_dir, self.conf._config  # type: ignore pylint: disable=protected-access
+            self,
+            self.conf.addon_dir,
+            self.conf._config,  # pylint: disable=protected-access
         )
 
     def closeEvent(self, evt: QCloseEvent) -> None:
@@ -737,7 +739,6 @@ class ConfigLayout(QBoxLayout):
         )
 
     def collapsible_section(self, title: str) -> "ConfigLayout":
-
         layout = ConfigLayout(self.config_window, QBoxLayout.Direction.TopToBottom)
         section = CollapsibleSection(title)
         section.setContentLayout(layout)

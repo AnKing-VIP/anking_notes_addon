@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List, OrderedDict, Tuple, Union
 
 try:
-    from anki.models import NotetypeDict  # type: ignore pylint: disable=unused-import
+    from anki.models import NotetypeDict  # pylint: disable=unused-import
 except:
     pass
 
