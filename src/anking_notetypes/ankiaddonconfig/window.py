@@ -16,6 +16,7 @@ from aqt.qt import (
     QCursor,
     QDialog,
     QDoubleSpinBox,
+    QDropEvent,
     QFileDialog,
     QFont,
     QFontComboBox,
@@ -759,13 +760,17 @@ class ConfigLayout(QBoxLayout):
 
 
 class OrderTable(QTableWidget):
-    def __init__(self, on_edit):
+    def __init__(self, on_edit: Callable):
         super().__init__()
-        self._on_edit = on_edit
+        self._on_edit: Callable = on_edit
 
-    def dropEvent(self, dropEvent):
+    def dropEvent(self, dropEvent: QDropEvent):
         item_src = self.selectedItems()[0]
-        item_dest = self.itemAt(dropEvent.pos())
+        try:
+            item_dest = self.itemAt(dropEvent.position().toPoint())  # type: ignore
+        except:
+            # for older versions of qt
+            item_dest = self.itemAt(dropEvent.pos())
         src_value = item_src.text()
         item_src.setText(item_dest.text())
         item_dest.setText(src_value)
