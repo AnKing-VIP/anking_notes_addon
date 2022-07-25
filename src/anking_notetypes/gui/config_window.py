@@ -25,7 +25,7 @@ from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayou
 from .extra_notetype_versions import handle_extra_notetype_versions
 
 try:
-    from anki.models import NotetypeDict  # type: ignore
+    from anki.models import NotetypeDict  # pylint: disable=unused-import
 except:
     pass
 
@@ -512,7 +512,7 @@ class NotetypesConfigWindow:
 
     def _safe_update_model_settings(
         self,
-        model: NotetypeDict,
+        model: "NotetypeDict",
         model_archetype_name: str,
         ntss: List["NotetypeSetting"],
         show_tooltip_on_exception=True,
@@ -554,7 +554,7 @@ class NotetypesConfigWindow:
                 )
                 mw.col.models.update_dict(model)
 
-    def _all_notetype_versions(self, notetype_name: str) -> List[NotetypeDict]:
+    def _all_notetype_versions(self, notetype_name: str) -> List["NotetypeDict"]:
         """
         This is done to make this add-on compatible with note types created by AnkiHub decks.
         Returns a list of all notetype versions of the notetype in the collection.
