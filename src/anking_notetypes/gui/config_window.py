@@ -58,8 +58,18 @@ class NotetypesConfigWindow:
         # code in this class assumes that if bool(clayout) is true, clayout.model contains
         # an anking notetype model
         self.clayout = None
-        if clayout_ and clayout_.model["name"] in anking_notetype_names():
-            self.clayout = clayout_
+        if clayout_:
+            if clayout_.model["name"] in anking_notetype_names():
+                self.clayout = clayout_
+            elif (
+                clayout_.model["name"] in self._all_supported_note_types()
+                and (base_name := self._base_name(clayout_.model["name"])) is not None
+            ):
+                showInfo(
+                    "When you edit this note type here you won't see the changes in the preview.\n\n"
+                    f'You can edit "{base_name}" instead and the changes '
+                    "will be applied to this note type too."
+                )
 
         self.conf = None
         self.last_general_ntss: Union[List[NotetypeSetting], None] = None
@@ -112,7 +122,7 @@ class NotetypesConfigWindow:
 
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
             self._safe_update_model_settings(
-                model=model, model_archetype_name=model["name"], ntss=[nts]
+                model=model, model_base_name=model["name"], ntss=[nts]
             )
 
             self._update_clayout_model(model)
@@ -382,7 +392,7 @@ class NotetypesConfigWindow:
             for model in to_be_updated:
                 self._safe_update_model_settings(
                     model=model,
-                    model_archetype_name=model["name"],
+                    model_base_name=model["name"],
                     ntss=ntss_for_model(model),
                     show_tooltip_on_exception=False,
                 )
@@ -513,7 +523,7 @@ class NotetypesConfigWindow:
     def _safe_update_model_settings(
         self,
         model: "NotetypeDict",
-        model_archetype_name: str,
+        model_base_name: str,
         ntss: List["NotetypeSetting"],
         show_tooltip_on_exception=True,
     ) -> bool:
@@ -527,7 +537,7 @@ class NotetypesConfigWindow:
                 model.update(
                     nts.updated_model(
                         model=model,
-                        model_archetype_name=model_archetype_name,
+                        model_base_name=model_base_name,
                         conf=self.conf,
                     )
                 )
@@ -550,7 +560,7 @@ class NotetypesConfigWindow:
                     continue
                 ntss = ntss_for_model(model)
                 self._safe_update_model_settings(
-                    model=model, model_archetype_name=notetype_name, ntss=ntss
+                    model=model, model_base_name=notetype_name, ntss=ntss
                 )
                 mw.col.models.update_dict(model)
 
@@ -567,6 +577,23 @@ class NotetypesConfigWindow:
             or re.match(NOTETYPE_COPY_RE.format(notetype_name=notetype_name), x.name)
         ]
         return models
+
+    def _all_supported_note_types(self) -> List[str]:
+        return [
+            version["name"]
+            for base_name in anking_notetype_names()
+            for version in self._all_notetype_versions(base_name)
+        ]
+
+    def _base_name(self, notetype_name: str) -> str:
+        return next(
+            (
+                name
+                for name in anking_notetype_names()
+                if notetype_name.startswith(name + " ")
+            ),
+            None,
+        )
 
     # clayout
     def _update_clayout_model(self, model):
