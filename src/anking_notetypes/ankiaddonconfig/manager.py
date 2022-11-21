@@ -4,7 +4,7 @@ from sys import platform
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 from aqt import mw
-from aqt.qt import QDialog, Qt
+from aqt.qt import Qt
 
 from .window import ConfigWindow
 
@@ -115,7 +115,7 @@ class ConfigManager:
 
     # Config Window
 
-    def open_config(self, parent: QDialog = mw) -> ConfigWindow:
+    def open_config(self, parent=mw) -> ConfigWindow:
         config_window = ConfigWindow(self, parent)
         self.config_window = config_window
         for fn in self.window_open_hooks:
@@ -134,9 +134,6 @@ class ConfigManager:
             config_window.raise_()
 
         return config_window
-
-    def use_custom_window(self) -> None:
-        mw.addonManager.setConfigAction(self.addon_dir, self.open_config)
 
     def on_window_open(self, fn: Callable[["ConfigWindow"], None]) -> None:
         self.window_open_hooks.append(fn)

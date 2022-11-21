@@ -1,7 +1,6 @@
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, List, Optional, Tuple, Union
 
-import aqt.addons
 from aqt import mw
 from aqt.qt import (
     QT_VERSION_STR,
@@ -79,15 +78,6 @@ class ConfigWindow(QDialog):
 
     def setup_buttons(self, btn_box: "ConfigLayout") -> None:
 
-        self.advanced_btn = QPushButton("Advanced")
-        self.advanced_btn.clicked.connect(self.on_advanced)  # type: ignore
-        btn_box.addWidget(self.advanced_btn)
-
-        self.reset_btn = QPushButton("Restore Defaults")
-        self.reset_btn.clicked.connect(self.on_reset)  # type: ignore
-        self.reset_btn.setAutoDefault(False)
-        btn_box.addWidget(self.reset_btn)
-
         btn_box.addStretch(1)
 
         self.cancel_btn = QPushButton("Cancel")
@@ -126,18 +116,6 @@ class ConfigWindow(QDialog):
     def on_reset(self) -> None:
         self.update_widgets()
         tooltip("Press save to save changes")
-
-    def on_advanced(self) -> None:
-        self.advanced_window().exec()
-        self.conf.load()
-        self.update_widgets()
-
-    def advanced_window(self) -> aqt.addons.ConfigEditor:
-        return aqt.addons.ConfigEditor(
-            self,
-            self.conf.addon_dir,
-            self.conf._config,  # pylint: disable=protected-access
-        )
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         # Discard the contents when clicked cancel,
@@ -363,7 +341,7 @@ class ConfigLayout(QBoxLayout):
         precision: int = 2,
     ) -> QAbstractSpinBox:
         "For integer config"
-        spin_box: QAbstractSpinBox
+        spin_box: Union[QDoubleSpinBox, QSpinBox]
         if decimal:
             spin_box = QDoubleSpinBox()
             spin_box.setDecimals(precision)
@@ -643,7 +621,7 @@ class ConfigLayout(QBoxLayout):
         return self._separator(QFrame.Shape.HLine)
 
     def vseparator(self) -> QFrame:
-        return self._separator(QFrame.VLine)
+        return self._separator(QFrame.Shape.VLine)
 
     def _container(self, direction: QBoxLayout.Direction) -> "ConfigLayout":
         """Adds (empty) QWidget > ConfigLayout.
@@ -707,7 +685,7 @@ class ConfigLayout(QBoxLayout):
         """Adds QScrollArea > QWidget*2 > ConfigLayout, returns the layout."""
         return self._scroll_layout(
             QSizePolicy.Policy.Expanding,
-            QSizePolicy.Minimum,
+            QSizePolicy.Policy.Minimum,
             Qt.ScrollBarPolicy.ScrollBarAlwaysOn
             if always
             else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
@@ -717,7 +695,7 @@ class ConfigLayout(QBoxLayout):
     def vscroll_layout(self, always: bool = False) -> "ConfigLayout":
         """Adds QScrollArea > QWidget*2 > ConfigLayout, returns the layout."""
         return self._scroll_layout(
-            QSizePolicy.Minimum,
+            QSizePolicy.Policy.Minimum,
             QSizePolicy.Policy.Expanding,
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
             Qt.ScrollBarPolicy.ScrollBarAlwaysOn
@@ -732,8 +710,8 @@ class ConfigLayout(QBoxLayout):
     ) -> "ConfigLayout":
         """Legacy. Adds QScrollArea > QWidget*2 > ConfigLayout, returns the layout."""
         return self._scroll_layout(
-            QSizePolicy.Policy.Expanding if horizontal else QSizePolicy.Minimum,
-            QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Minimum,
+            QSizePolicy.Policy.Expanding if horizontal else QSizePolicy.Policy.Minimum,
+            QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Policy.Minimum,
             Qt.ScrollBarPolicy.ScrollBarAsNeeded,
             Qt.ScrollBarPolicy.ScrollBarAsNeeded,
         )

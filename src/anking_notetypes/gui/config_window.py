@@ -145,10 +145,6 @@ class NotetypesConfigWindow:
         window.setMinimumHeight(500)
         window.setMinimumWidth(500)
 
-        # hide reset and advanced buttons
-        window.reset_btn.hide()
-        window.advanced_btn.hide()
-
         # overwrite on_save function
         def on_save(window: ConfigWindow):
             self._apply_setting_changes_for_all_notetypes()
