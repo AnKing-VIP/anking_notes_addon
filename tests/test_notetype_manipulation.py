@@ -26,7 +26,7 @@ class TestNotetypeSettingManipulation(unittest.TestCase):
             ntss = ntss_for_model(model)
             conf = config(model)
             for nts in ntss:
-                for test_value in test_values(nts, model):
+                for test_value in _test_values(nts, model):
                     temp_conf = deepcopy(conf)
                     temp_conf[nts.key(notetype_name)] = test_value
                     temp_model = deepcopy(model)
@@ -59,7 +59,7 @@ def config(model: "NotetypeDict"):
     return result
 
 
-def test_values(nts: "NotetypeSetting", model: "NotetypeDict"):
+def _test_values(nts: "NotetypeSetting", model: "NotetypeDict"):
     config = nts.config
     if config["type"] == "checkbox":
         return [True, False]
