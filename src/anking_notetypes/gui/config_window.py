@@ -362,9 +362,9 @@ class NotetypesConfigWindow:
         ):
             return
 
-        update_notetype_to_newest_version(model, model["name"])
-
-        mw.col.models.update_dict(model)  # type: ignore
+        for model_version in self._notetype_versions(model["name"]):
+            update_notetype_to_newest_version(model_version, model["name"])
+            mw.col.models.update_dict(model_version)  # type: ignore
 
         if self.clayout:
             self._update_clayout_model(model)
@@ -385,17 +385,18 @@ class NotetypesConfigWindow:
         def task():
 
             to_be_updated = self.models_with_available_updates()
-            for model in to_be_updated:
-                update_notetype_to_newest_version(model, model["name"])
 
-            # restore the values from before the update for the settings that exist in both versions
             for model in to_be_updated:
-                self._safe_update_model_settings(
-                    model=model,
-                    model_base_name=model["name"],
-                    ntss=ntss_for_model(model),
-                    show_tooltip_on_exception=False,
-                )
+                for model_version in self._notetype_versions(model["name"]):
+                    update_notetype_to_newest_version(model_version, model["name"])
+
+                    # restore the values from before the update for the settings that exist in both versions
+                    self._safe_update_model_settings(
+                        model=model_version,
+                        model_base_name=model["name"],
+                        ntss=ntss_for_model(model_version),
+                        show_tooltip_on_exception=False,
+                    )
 
             return to_be_updated
 
@@ -555,7 +556,7 @@ class NotetypesConfigWindow:
 
     def _apply_setting_changes_for_all_notetypes(self):
         for notetype_name in anking_notetype_names():
-            for model in self._all_notetype_versions(notetype_name):
+            for model in self._notetype_versions(notetype_name):
                 if not model:
                     continue
                 ntss = ntss_for_model(model)
@@ -564,7 +565,7 @@ class NotetypesConfigWindow:
                 )
                 mw.col.models.update_dict(model)
 
-    def _all_notetype_versions(self, notetype_name: str) -> List["NotetypeDict"]:
+    def _notetype_versions(self, notetype_name: str) -> List["NotetypeDict"]:
         """
         This is done to make this add-on compatible with note types created by AnkiHub decks.
         Returns a list of all notetype versions of the notetype in the collection.
@@ -582,7 +583,7 @@ class NotetypesConfigWindow:
         return [
             version["name"]
             for base_name in anking_notetype_names()
-            for version in self._all_notetype_versions(base_name)
+            for version in self._notetype_versions(base_name)
         ]
 
     def _base_name(self, notetype_name: str) -> str:
