@@ -13,16 +13,20 @@ ADDON_DIR_NAME = str(Path(__file__).parent.name)
 RESOURCES_PATH = Path(__file__).parent / "resources"
 
 
-def on_profile_did_open():
+def setup():
     add_compat_aliases()
 
     setup_menu(open_window)
 
-    copy_resources_into_media_folder()
+    card_layout_will_show.append(add_button_to_clayout)
 
     replace_default_addon_config_action()
 
-    card_layout_will_show.append(add_button_to_clayout)
+    profile_did_open.append(on_profile_did_open)
+
+
+def on_profile_did_open():
+    copy_resources_into_media_folder()
 
     maybe_show_notetypes_update_notice()
 
@@ -96,4 +100,4 @@ def replace_default_addon_config_action():
 
 
 if mw is not None:
-    profile_did_open.append(on_profile_did_open)
+    setup()
