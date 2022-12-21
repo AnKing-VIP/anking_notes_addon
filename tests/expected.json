@@ -246,6 +246,7 @@
         "disable_sketchy_extra": false,
         "extra_text_color": "navy",
         "field_order": [
+            "OME",
             "Lecture Notes",
             "Missed Questions",
             "Pathoma",
@@ -259,7 +260,6 @@
             "Pixorize",
             "Physeo",
             "Bootcamp",
-            "OME",
             "Additional Resources"
         ],
         "font_family": "Arial Greek, Arial",
