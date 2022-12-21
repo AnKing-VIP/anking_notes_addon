@@ -424,6 +424,8 @@ class ElementOrderSetting(NotetypeSetting):
             m
             for m in re.finditer(self.config["elem_re"], str(section_text))
             if re.search(self.config["has_to_contain"], m.group(0))
+            and "OME"
+            not in m.group(0)  # OME banner has to be excluded from the order setting
         ]
         result = OrderedDict(
             [
