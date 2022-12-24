@@ -20,6 +20,14 @@ def update_notetype_to_newest_version(
     new_notetype["name"] = notetype["name"]  # keep the name
     new_notetype["mod"] = int(time.time())  # not sure if this is needed
     new_notetype["usn"] = -1  # triggers full sync
+
+    # retain the ankihub_id field if it exists on the old model
+    ankihub_field = next(
+        (x for x in notetype["flds"] if x["name"] == "ankihub_id"), None
+    )
+    if ankihub_field:
+        new_notetype["flds"].append(ankihub_field)
+
     new_notetype = adjust_field_ords(notetype, new_notetype)
     retain_ankihub_modifications_to_templates(notetype, new_notetype)
     notetype.update(new_notetype)
