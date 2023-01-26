@@ -3,7 +3,7 @@ import time
 
 from aqt import mw
 
-from .constants import ANKIHUB_TEMPLATE_SNIPPET_RE
+from .constants import ANKIHUB_TEMPLATE_END_COMMENT, ANKIHUB_TEMPLATE_SNIPPET_RE
 from .notetype_setting_definitions import anking_notetype_model
 
 try:
@@ -29,7 +29,12 @@ def update_notetype_to_newest_version(
         new_notetype["flds"].append(ankihub_field)
 
     new_notetype = adjust_field_ords(notetype, new_notetype)
+
+    # the order is important here
+    # the end comment must be added after the ankihub snippet
     retain_ankihub_modifications_to_templates(notetype, new_notetype)
+    retain_content_below_ankihub_end_comment(notetype, new_notetype)
+
     notetype.update(new_notetype)
 
 
@@ -39,8 +44,31 @@ def retain_ankihub_modifications_to_templates(
     for old_template, new_template in zip(old_notetype["tmpls"], new_notetype["tmpls"]):
         for template_type in ["qfmt", "afmt"]:
             m = re.search(ANKIHUB_TEMPLATE_SNIPPET_RE, old_template[template_type])
-            if m:
-                new_template[template_type] += "\n\n" + m.group(0)
+            if not m:
+                continue
+
+            new_template[template_type] = (
+                new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
+            )
+
+    return new_notetype
+
+
+def retain_content_below_ankihub_end_comment(
+    old_notetype: "NotetypeDict", new_notetype: "NotetypeDict"
+) -> "NotetypeDict":
+    for old_template, new_template in zip(old_notetype["tmpls"], new_notetype["tmpls"]):
+        for template_type in ["qfmt", "afmt"]:
+            m = re.search(
+                rf"{ANKIHUB_TEMPLATE_END_COMMENT}[\w\W]*",
+                old_template[template_type],
+            )
+            if not m:
+                continue
+
+            new_template[template_type] = (
+                new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
+            )
 
     return new_notetype
 

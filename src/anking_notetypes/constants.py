@@ -8,3 +8,10 @@ ANKIHUB_TEMPLATE_SNIPPET_RE = (
     r"[\w\W]*"
     f"<!-- END {ANKIHUB_NOTE_TYPE_MODIFICATION_STRING} -->"
 )
+ANKIHUB_TEMPLATE_END_COMMENT = (
+    "<!--\n"
+    "ANKIHUB_END\n"
+    "Text below this comment will not be modified by AnkiHub or AnKing add-ons.\n"
+    "Do not edit or remove this comment if you want to protect the content below.\n"
+    "-->"
+)
