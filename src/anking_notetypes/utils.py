@@ -33,7 +33,7 @@ def update_notetype_to_newest_version(
     # the order is important here
     # the end comment must be added after the ankihub snippet
     retain_ankihub_modifications_to_templates(notetype, new_notetype)
-    retain_content_below_ankihub_end_comment(notetype, new_notetype)
+    retain_content_below_ankihub_end_comment_or_add_end_comment(notetype, new_notetype)
 
     notetype.update(new_notetype)
 
@@ -54,21 +54,27 @@ def retain_ankihub_modifications_to_templates(
     return new_notetype
 
 
-def retain_content_below_ankihub_end_comment(
+def retain_content_below_ankihub_end_comment_or_add_end_comment(
     old_notetype: "NotetypeDict", new_notetype: "NotetypeDict"
 ) -> "NotetypeDict":
+    # will add the end comment if it doesn't exist
     for old_template, new_template in zip(old_notetype["tmpls"], new_notetype["tmpls"]):
         for template_type in ["qfmt", "afmt"]:
             m = re.search(
                 rf"{ANKIHUB_TEMPLATE_END_COMMENT}[\w\W]*",
                 old_template[template_type],
             )
-            if not m:
-                continue
-
-            new_template[template_type] = (
-                new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
-            )
+            if m:
+                new_template[template_type] = (
+                    new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
+                )
+            else:
+                new_template[template_type] = (
+                    new_template[template_type].rstrip("\n ")
+                    + "\n\n"
+                    + ANKIHUB_TEMPLATE_END_COMMENT
+                    + "\n\n"
+                )
 
     return new_notetype
 
