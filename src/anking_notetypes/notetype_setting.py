@@ -299,7 +299,7 @@ class DropdownSetting(NotetypeSetting):
             key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
-            labels=self.config["options"],
+            labels=self.config.get("labels", self.config["options"]),
             values=self.config["options"],
         )
 
