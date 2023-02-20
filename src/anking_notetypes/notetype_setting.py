@@ -33,6 +33,8 @@ class NotetypeSetting(ABC):
             return ShortcutSetting(config)
         if config["type"] == "dropdown":
             return DropdownSetting(config)
+        if config["type"] == "useraction":
+            return UserActionSetting(config)
         if config["type"] == "color":
             return ColorSetting(config)
         if config["type"] == "font_family":
@@ -299,7 +301,7 @@ class DropdownSetting(NotetypeSetting):
             key=self.key(model["name"]),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
-            labels=self.config["options"],
+            labels=self.config.get("labels", self.config["options"]),
             values=self.config["options"],
         )
 
@@ -313,6 +315,19 @@ class DropdownSetting(NotetypeSetting):
 
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         return self._replace_first_capture_group(section, setting_value)
+
+class UserActionSetting(DropdownSetting):
+
+    def _extract_setting_value(self, section: str) -> Any:
+        result = re.search(self.config["regex"], section).group(1)
+        if result not in self.config["options"]:
+            # Note that custom actions will also be lableled as "None"
+            return "custom"
+        return result
+
+    def _set_setting_value(self, section: str, setting_value: Any) -> str:
+        if setting_value != "custom":
+            return self._replace_first_capture_group(section, setting_value)
 
 
 class ColorSetting(NotetypeSetting):

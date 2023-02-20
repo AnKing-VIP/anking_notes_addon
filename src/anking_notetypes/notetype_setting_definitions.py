@@ -27,6 +27,40 @@ CONFIGURABLE_FIELD_NAME_RE = r"\{\{#(.+?)\}\}"
 QUOT_STR_RE = r'(?:\\.|[^"\\])'
 
 
+HINT_BUTTONS = {
+    'ln': 'Personal/Lecture Notes',
+    'mq': 'Missed Questions',
+    'tx': 'Textbook',
+    'ar': 'Additional Resources',
+    'pixorize': 'Pixorize',
+    'sketchy': 'Sketchy',
+    'sketchy2': 'Sketchy 2',
+    'sketchyextra': 'Sketchy Extra',
+    'pat': 'Pathoma',
+    'bb': 'Boards and Beyond',
+    'picomnic': 'Picomnic',
+    'physeo': 'Physeo',
+    'bootcamp': 'Bootcamp',
+    'df': 'Definitions',
+    'exp': 'Examples',
+    'alt': 'Alternative Translations',
+    'ex': 'Extra'
+}
+
+ANKIMOBILE_USER_ACTIONS = [
+    "undefined", "window.revealNextCloze", "window.toggleAllCloze", "window.toggleNextButton",
+    "() => (Array.from(document.getElementsByClassName('hintBtn')).forEach(e => toggleHintBtn(e.id)))", "window.showtags",
+    "() => revealNextClozeOf('word')",
+    *[f"() => toggleHintBtn('hint-{id}')" for id in HINT_BUTTONS.keys()]
+
+]
+ANKIMOBILE_USER_ACTION_LABELS = [
+    "None", "Reveal Next Cloze", "Toggle All Clozes", "Toggle Next Button",
+    "Toggle All Buttons", "Toggle Tags", "Reveal Cloze Word",
+    *[f"Reveal {name}" for name in HINT_BUTTONS.values()]
+]
+
+
 setting_configs: Dict[str, Any] = OrderedDict(
     {
         "field_order": {
@@ -505,6 +539,16 @@ you may have to change the \"Toggle next Button\" shortcut to something else tha
             "section": "Colors",
             "default": "yellow",
         },
+        **{f"user_action_{i}": {
+            "text": f"User Action {i}",
+            "type": "useraction",
+            "file": "back",
+            "regex": f'var +userJs{i} += +([^/\\n]*)',
+            "options": ANKIMOBILE_USER_ACTIONS,
+            "labels": ANKIMOBILE_USER_ACTION_LABELS,
+            "section": "AnkiMobile User Actions",
+            "default": "undefined",
+        } for i in range(1, 9)}
     }
 )
 
@@ -696,6 +740,7 @@ general_settings = [
     "image_occlusion_border_color",
     "image_occlusion_active_rect_color",
     "image_occlusion_active_border_color",
+    *[f"user_action_{i}" for i in range(1, 9)]
 ]
 
 
