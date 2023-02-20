@@ -46,7 +46,7 @@ HINT_BUTTONS = {
     'alt': 'Alternative Translations',
     'ex': 'Extra'
 }
-# TODO: maybe we should not show an error if the user has custom actions
+
 ANKIMOBILE_USER_ACTIONS = [
     "undefined", "window.revealNextCloze", "window.toggleAllCloze", "window.toggleNextButton",
     "() => (Array.from(document.getElementsByClassName('hintBtn')).forEach(e => toggleHintBtn(e.id)))", "window.showtags",
@@ -541,7 +541,7 @@ you may have to change the \"Toggle next Button\" shortcut to something else tha
         },
         **{f"user_action_{i}": {
             "text": f"User Action {i}",
-            "type": "dropdown",
+            "type": "useraction",
             "file": "back",
             "regex": f'var +userJs{i} += +([^/\\n]*)',
             "options": ANKIMOBILE_USER_ACTIONS,
