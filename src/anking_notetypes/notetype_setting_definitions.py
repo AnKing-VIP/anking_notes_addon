@@ -48,15 +48,18 @@ HINT_BUTTONS = {
 }
 
 ANKIMOBILE_USER_ACTIONS = [
-    "undefined", "window.revealNextCloze", "window.toggleAllCloze", "window.toggleNextButton",
-    "() => (Array.from(document.getElementsByClassName('hintBtn')).forEach(e => toggleHintBtn(e.id)))", "window.showtags",
-    "() => revealNextClozeOf('word')",
+    "undefined", "window.revealNextCloze", "window.toggleAllCloze", "() => revealNextClozeOf('word')",
+    "window.toggleNextButton",
+    "() => (Array.from(document.getElementsByClassName('hintBtn')).forEach(e => toggleHintBtn(e.id)))",
+    "window.toggleNext", "window.toggleAll", "window.showtags",
     *[f"() => toggleHintBtn('hint-{id}')" for id in HINT_BUTTONS.keys()]
 
 ]
 ANKIMOBILE_USER_ACTION_LABELS = [
-    "None", "Reveal Next Cloze", "Toggle All Clozes", "Toggle Next Button",
-    "Toggle All Buttons", "Toggle Tags", "Reveal Cloze Word",
+    "None", "Reveal Next Cloze", "Toggle All Clozes", "Reveal Cloze Word",
+    "Toggle Next Button", "Toggle All Buttons",
+    "Reveal Next Occlusion", "Toggle All Occlusions",
+    "Toggle Tags",
     *[f"Reveal {name}" for name in HINT_BUTTONS.values()]
 ]
 
