@@ -54,7 +54,15 @@
         "toggle_all_buttons": "'",
         "toggle_all_clozes_shortcut": ",",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "AnKingDerm": {
         "autoflip": false,
@@ -121,7 +129,15 @@
         "toggle_all_buttons": "'",
         "toggle_all_clozes_shortcut": ",",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "AnKingMCAT": {
         "autoflip": false,
@@ -190,7 +206,15 @@
         "toggle_all_buttons": "'",
         "toggle_all_clozes_shortcut": ",",
         "toggle_next_button": "H",
-        "underlined_text_color": "#5EB3B3"
+        "underlined_text_color": "#5EB3B3",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "AnKingOverhaul": {
         "autoflip": false,
@@ -293,7 +317,15 @@
         "toggle_all_buttons": "'",
         "toggle_all_clozes_shortcut": ",",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "Basic-AnKing": {
         "autoreveal_missed_questions": false,
@@ -342,7 +374,15 @@
         "timer_text_color": "transparent",
         "toggle_all_buttons": "'",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "Basic-AnKingLanguage": {
         "autoreveal_alternative_translations": false,
@@ -395,7 +435,15 @@
         "timer_text_color": "transparent",
         "toggle_all_buttons": "'",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "IO-one by one": {
         "autoflip": false,
@@ -443,7 +491,15 @@
         "text_color": "black",
         "toggle_all_buttons": "'",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "Physeo-Cloze": {
         "autoflip": false,
@@ -500,7 +556,15 @@
         "toggle_all_buttons": "'",
         "toggle_all_clozes_shortcut": ",",
         "toggle_next_button": "H",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     },
     "Physeo-IO one by one": {
         "autoflip": false,
@@ -547,6 +611,14 @@
         "tags_toggle_shortcut": "C",
         "text_color": "#56868a",
         "toggle_all_buttons": "'",
-        "underlined_text_color": "inherit"
+        "underlined_text_color": "inherit",
+        "user_action_1": "undefined",
+        "user_action_2": "undefined",
+        "user_action_3": "undefined",
+        "user_action_4": "undefined",
+        "user_action_5": "undefined",
+        "user_action_6": "undefined",
+        "user_action_7": "undefined",
+        "user_action_8": "undefined"
     }
 }

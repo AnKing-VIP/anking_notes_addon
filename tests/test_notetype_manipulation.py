@@ -8,6 +8,7 @@ from src.anking_notetypes.notetype_setting import (  # pylint: disable=unused-im
     NotetypeSetting,
 )
 from src.anking_notetypes.notetype_setting_definitions import (
+    ANKIMOBILE_USER_ACTIONS,
     anking_notetype_model,
     anking_notetype_names,
 )
@@ -85,5 +86,8 @@ def _test_values(nts: "NotetypeSetting", model: "NotetypeDict"):
     elif config["type"] == "order":
         value = nts.setting_value(model)
         return [sorted(value), sorted(value, reverse=True)]
+    elif config["type"] == "useraction":
+        value = ANKIMOBILE_USER_ACTIONS[:2]
+        return value
     else:
         assert False, "unknown type of notetype setting"
