@@ -10,11 +10,11 @@ except:
 
 ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 
-# regular expression for fields for which the add-on offers settings aka configurable fields
-# most of these fields are represented as hint buttons, but not all of them
-# to be recognized by the add-on the field html needs to contain text matching the FIELD_HAS_TO_CONTAIN_RE
-# if something is a hint button or not is determined by its presence in the ButtonShortcuts dict
-# the surrounding "<!--" are needed because of the disable field setting
+# Regular expression for fields for which the add-on offers settings aka configurable fields.
+# Most of these fields are represented as hint buttons, but not all of them.
+# To be recognized by the add-on the field html needs to contain text matching the FIELD_HAS_TO_CONTAIN_RE.
+# If something is a hint button or not is determined by its presence in the ButtonShortcuts dict.
+# The surrounding "<!--" are needed because of the disable field setting.
 CONDITIONAL_FIELD_RE = r"(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?"
 CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = (
     r'(class="hint"|id="extra"|id="dermnet"|id="ome")'
@@ -22,45 +22,53 @@ CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = (
 CONFIGURABLE_FIELD_NAME_RE = r"\{\{#(.+?)\}\}"
 
 
-# for matching text between double quotes which can contain
-# escaped quotes
+# for matching text between double quotes which can contain escaped quotes
 QUOT_STR_RE = r'(?:\\.|[^"\\])'
 
 
 HINT_BUTTONS = {
-    'ln': 'Personal/Lecture Notes',
-    'mq': 'Missed Questions',
-    'tx': 'Textbook',
-    'ar': 'Additional Resources',
-    'pixorize': 'Pixorize',
-    'sketchy': 'Sketchy',
-    'sketchy2': 'Sketchy 2',
-    'sketchyextra': 'Sketchy Extra',
-    'pat': 'Pathoma',
-    'bb': 'Boards and Beyond',
-    'picomnic': 'Picomnic',
-    'physeo': 'Physeo',
-    'bootcamp': 'Bootcamp',
-    'df': 'Definitions',
-    'exp': 'Examples',
-    'alt': 'Alternative Translations',
-    'ex': 'Extra'
+    "ln": "Personal/Lecture Notes",
+    "mq": "Missed Questions",
+    "tx": "Textbook",
+    "ar": "Additional Resources",
+    "pixorize": "Pixorize",
+    "sketchy": "Sketchy",
+    "sketchy2": "Sketchy 2",
+    "sketchyextra": "Sketchy Extra",
+    "pat": "Pathoma",
+    "bb": "Boards and Beyond",
+    "picomnic": "Picomnic",
+    "physeo": "Physeo",
+    "bootcamp": "Bootcamp",
+    "df": "Definitions",
+    "exp": "Examples",
+    "alt": "Alternative Translations",
+    "ex": "Extra",
 }
 
 ANKIMOBILE_USER_ACTIONS = [
-    "undefined", "window.revealNextCloze", "window.toggleAllCloze", "() => revealNextClozeOf('word')",
+    "undefined",
+    "window.revealNextCloze",
+    "window.toggleAllCloze",
+    "() => revealNextClozeOf('word')",
     "window.toggleNextButton",
     "() => (Array.from(document.getElementsByClassName('hintBtn')).forEach(e => toggleHintBtn(e.id)))",
-    "window.toggleNext", "window.toggleAll", "window.showtags",
-    *[f"() => toggleHintBtn('hint-{id}')" for id in HINT_BUTTONS.keys()]
-
+    "window.toggleNext",
+    "window.toggleAll",
+    "window.showtags",
+    *[f"() => toggleHintBtn('hint-{id}')" for id in HINT_BUTTONS.keys()],
 ]
 ANKIMOBILE_USER_ACTION_LABELS = [
-    "None", "Reveal Next Cloze", "Toggle All Clozes", "Reveal Cloze Word",
-    "Toggle Next Button", "Toggle All Buttons",
-    "Reveal Next Occlusion", "Toggle All Occlusions",
+    "None",
+    "Reveal Next Cloze",
+    "Toggle All Clozes",
+    "Reveal Cloze Word",
+    "Toggle Next Button",
+    "Toggle All Buttons",
+    "Reveal Next Occlusion",
+    "Toggle All Occlusions",
     "Toggle Tags",
-    *[f"Reveal {name}" for name in HINT_BUTTONS.values()]
+    *[f"Reveal {name}" for name in HINT_BUTTONS.values()],
 ]
 
 
@@ -542,16 +550,19 @@ you may have to change the \"Toggle next Button\" shortcut to something else tha
             "section": "Colors",
             "default": "yellow",
         },
-        **{f"user_action_{i}": {
-            "text": f"User Action {i}",
-            "type": "useraction",
-            "file": "back",
-            "regex": f'var +userJs{i} += +([^/\\n]*)',
-            "options": ANKIMOBILE_USER_ACTIONS,
-            "labels": ANKIMOBILE_USER_ACTION_LABELS,
-            "section": "AnkiMobile User Actions",
-            "default": "undefined",
-        } for i in range(1, 9)}
+        **{
+            f"user_action_{i}": {
+                "text": f"User Action {i}",
+                "type": "useraction",
+                "file": "back",
+                "regex": f"var +userJs{i} += +([^/\\n]*)",
+                "options": ANKIMOBILE_USER_ACTIONS,
+                "labels": ANKIMOBILE_USER_ACTION_LABELS,
+                "section": "AnkiMobile User Actions",
+                "default": "undefined",
+            }
+            for i in range(1, 9)
+        },
     }
 )
 
@@ -692,10 +703,9 @@ setting_configs = OrderedDict(**setting_configs, **all_btns_setting_configs())
 for setting_name, setting_config in setting_configs.items():
     setting_config["name"] = setting_name
 
-# settings that apply to multiple note types
-# (the ones that have this setting listed in
-# settings_by_notetype)
-# they can be overwritten in the note types settings
+# Settings that apply to multiple note types (the ones that have this setting listed in
+# settings_by_notetype).
+# They can be overwritten in the note types settings.
 general_settings = [
     "toggle_next_button",
     "toggle_all_buttons",
@@ -743,7 +753,7 @@ general_settings = [
     "image_occlusion_border_color",
     "image_occlusion_active_rect_color",
     "image_occlusion_active_border_color",
-    *[f"user_action_{i}" for i in range(1, 9)]
+    *[f"user_action_{i}" for i in range(1, 9)],
 ]
 
 
