@@ -1,16 +1,17 @@
 <!-- version 64ca528 -->
-<div id="front">{{edit:Front}}</div>
+<div id="text">{{cloze:Text}}</div>
 
 <br>
 
 <!-- ##############  Text-to-speech  ##############
 replace the arrows/dashes from the statement below with double curly brackets-->
 
-<!--tts en_US voices=Apple_Samantha,Microsoft_Zira speed=1.4:Front-->
-
+<!--{{tts en_US voices=Apple_Samantha,Microsoft_Zira speed=1.4:cloze:Text}}-->
 
 <script>
 // ############## USER CONFIGURATION START ##############
+// Auto flip to back when One by one mode.
+var autoflip = false 
 
 // Timer config (timer length, timer finished message)
 var minutes = 0
@@ -30,6 +31,70 @@ var numTagLevelsToShow = 0;
 // ############## USER CONFIGURATION END ##############
 </script>
 
+
+<!-- CLOZE ONE BY ONE FRONT -->
+<div id="one-by-one" style="display: none;">{{One by one}}</div>
+
+<script>
+  var clozeOneByOneEnabled = true;
+    clozeOneByOneEnabled = document.getElementById("one-by-one").textContent !== "";
+  
+  window.clozeHints = [];
+  if (clozeOneByOneEnabled) {
+    // Save cloze hints to display in the back
+    let clozes = document.getElementsByClassName("cloze")
+    for(var i = 0; i < clozes.length; i++) {
+      if (clozes[i].innerHTML === "[...]") {
+        window.clozeHints.push("")
+      } else {
+        window.clozeHints.push(clozes[i].innerHTML)
+      }
+    }
+
+    if (autoflip) {
+    // avoid flickering. Must unset this in the back.
+    document.getElementById("qa").style.display = "none";
+
+    if (window.pycmd) {
+        pycmd("ans")
+    } else if (window.showAnswer) {
+        showAnswer()
+    }
+}
+// AnkiMobile JS API doesn't have one for show answer.
+// Best alternative is to use Taps/Swipes to show answer.
+  }
+</script>
+
+<!-- COUNTDOWN TIMER -->
+<div class="timer" id="s2"></div>
+<script>
+  function countdown(elementName, minutes, seconds) {
+    var element, endTime, mins, msLeft, time;
+    function twoDigits( n ) {
+      return (n <= 9 ? "0" + n : n); 
+    }
+    function updateTimer() {
+      msLeft = endTime - (+new Date);
+      
+      if ( msLeft < 1000 ) {
+        element.innerHTML = timeOverMsg;
+      } else {
+        time = new Date( msLeft );
+        mins = time.getUTCMinutes();
+        element.innerHTML = mins + ':' + twoDigits(time.getUTCSeconds());
+        setTimeout( updateTimer, time.getUTCMilliseconds() + 500 );
+      }
+    }
+    element = document.getElementById(elementName);
+    endTime = (+new Date) + 1000 * (60*minutes + seconds) + 500;
+    updateTimer();
+  }
+  countdown("s2", minutes, seconds ); //2nd value is the minute, 3rd is the seconds
+</script>
+
+<!-- SKETCHY HYPERLINK IMAGE -->
+<a href="https://www.sketchy.com/explore/mcat?utm_medium=affiliate&utm_source=ankideck&utm_campaign=mcat-deck-global-logo&utm_term=anking"><img src="_Sketchy_White_logo.png" alt="Sketchy" id="pic"></a>
 
 <!-- NOT-PERSISTING EVENT LISTENER -->
 <script>
@@ -93,42 +158,6 @@ var numTagLevelsToShow = 0;
     
     return matchShortcut
   }
-</script>
-
-<!-- COUNTDOWN TIMER -->
-<div class="timer" id="s2"></div>
-<script>
-  function countdown(elementName, minutes, seconds) {
-    var element, endTime, mins, msLeft, time;
-    function twoDigits( n ) {
-      return (n <= 9 ? "0" + n : n); 
-    }
-    function updateTimer() {
-      msLeft = endTime - (+new Date);
-      
-      if ( msLeft < 1000 ) {
-        element.innerHTML = timeOverMsg;
-      } else {
-        time = new Date( msLeft );
-        mins = time.getUTCMinutes();
-        element.innerHTML = mins + ':' + twoDigits(time.getUTCSeconds());
-        setTimeout( updateTimer, time.getUTCMilliseconds() + 500 );
-      }
-    }
-    element = document.getElementById(elementName);
-    endTime = (+new Date) + 1000 * (60*minutes + seconds) + 500;
-    updateTimer();
-  }
-  countdown("s2", minutes, seconds ); //2nd value is the minute, 3rd is the seconds
-</script>
-
-<!-- ANKING HYPERLINK IMAGE -->
-<a href="https://www.ankingmed.com"><img src="_AnKingRound.png" alt="The AnKing" id="pic"></a>
-
-
-<script>
-    //DONT FADE BETWEEN CARDS
-	qFade=0; if (typeof anki !== 'undefined') anki.qFade=qFade;
 </script>
 
 <!-- CLICKABLE COLORFUL TAGS -->

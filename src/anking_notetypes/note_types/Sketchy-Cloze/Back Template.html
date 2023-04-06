@@ -1,6 +1,6 @@
 <!-- version 64ca528 -->
  <script>
-// ##############  HINT REVEAL SHORTCUTS  ##############
+// ##############  BUTTON REVEAL SHORTCUTS  ##############
 // All shortcuts will also open with "H" if using the Hint Hotkeys add-on 
 var ButtonShortcuts = {
     "Personal Notes" : "Alt + 1",
@@ -9,7 +9,7 @@ var ButtonShortcuts = {
 
 var ToggleAllButtonsShortcut = "'"
 var ToggleNextButtonShortcut = "H";
-// ##############  SHOW HINTS AUTOMATICALLY  ##############
+// ##############  SHOW BUTTON HINTS AUTOMATICALLY  ##############
 var ButtonAutoReveal = {
     "Personal Notes": false,
     "Missed Questions": false,
@@ -61,7 +61,6 @@ var clozeHider = (elem) => `<span style="background-color: red; color: transpare
 
 <div class="editcloze" id="text">{{edit:cloze:Text}}</div>
 
-
 <br>
 
 <!-- ##############  TEXT-TO-SPEECH ##############
@@ -71,7 +70,6 @@ replace the arrows/dashes from the statement below with double curly brackets-->
 
 
 <hr>
-
 
 <!-- BUTTON FIELDS -->
 <!-- ClOZE ONE BY ONE BUTTONS -->
@@ -98,7 +96,7 @@ replace the arrows/dashes from the statement below with double curly brackets-->
 <span id = "hint-ln" class="hintBtn" data-name="Personal Notes">
   <a href="#" class="hint" onclick="toggleHintBtn('hint-ln')"></a>
   <button id="button-ln" class="button-general" onclick="toggleHintBtn('hint-ln')">
-    <img src="_Anking_v3.png"> Personal Notes
+    <img src="_Sketchy_White_logo.png" style="height:12px;"> Personal Notes
   </button>
   <div dir="auto" id="notes" class="hints" style="display: none;">{{edit:Personal Notes}}</div>
 </span>
@@ -108,20 +106,30 @@ replace the arrows/dashes from the statement below with double curly brackets-->
 <span id = "hint-mq" class="hintBtn" data-name="Missed Questions">
   <a href="#" class="hint" onclick="toggleHintBtn('hint-mq')"></a>
   <button id="button-mq" class="button-general" onclick="toggleHintBtn('hint-mq')">
-    <img src="_Anking_v3.png"> Missed Questions
+    <img src="_Sketchy_White_logo.png" style="height:12px;"> Missed Questions
   </button>
   <div dir="auto" id="missed" class="hints" style="display: none;">{{edit:Missed Questions}}</div>
 </span>
 {{/Missed Questions}}
 
+<br>
 <!-- Extra field -->
 {{#Extra}}<p></p>
 <div id="extra">{{edit:Extra}}</div>
 <br>{{/Extra}}
 
+<div id="imagefield" class="row">
+    <div class="column1">
+        {{#Thumbnail}}{{Thumbnail}}{{/Thumbnail}}
+    </div>
+    <div class="column2">
+        {{#Link}}{{Link}}{{/Link}}
+    </div>
+</div>
 
-<!-- ANKING HYPERLINK IMAGE -->
-<a href="https://www.ankingmed.com"><img src="_AnKingRound.png" alt="The AnKing" id="pic"></a>
+
+<!-- SKETCHY HYPERLINK IMAGE -->
+<a href="https://www.sketchy.com/explore/mcat?utm_medium=affiliate&utm_source=ankideck&utm_campaign=mcat-deck-global-logo&utm_term=anking"><img src="_Sketchy_White_logo.png" alt="Sketchy" id="pic"></a>
 
 <!-- NOT-PERSISTING EVENT LISTENER -->
 <script>
