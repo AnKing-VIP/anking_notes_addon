@@ -128,11 +128,14 @@ class ConfigWindow(QDialog):
 
     # Add Widgets
 
-    def add_tab(self, name: str) -> "ConfigLayout":
+    def add_tab(self, name: str, index=None) -> "ConfigLayout":
         tab = QWidget(self)
         layout = ConfigLayout(self, QBoxLayout.Direction.TopToBottom)
         tab.setLayout(layout)
-        self.main_tab.addTab(tab, name)
+        if index is None:
+            self.main_tab.addTab(tab, name)
+        else:
+            self.main_tab.insertTab(index, tab, name)
         return layout
 
     def execute_on_save(self, hook: Callable[[], None]) -> None:

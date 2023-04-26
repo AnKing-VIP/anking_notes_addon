@@ -177,13 +177,14 @@ class NotetypesConfigWindow:
         self,
         notetype_name: str,
         window: ConfigWindow,
+        index: Optional[int] = None,
     ):
         if self.clayout and self.clayout.model["name"] == notetype_name:
             model = self.clayout.model
         else:
             model = mw.col.models.by_name(notetype_name)  # type: ignore
 
-        tab = window.add_tab(notetype_name)
+        tab = window.add_tab(notetype_name, index=index)
 
         if model:
             ntss = ntss_for_model(model)
@@ -210,7 +211,7 @@ class NotetypesConfigWindow:
             )
 
     def _add_general_tab(self, window: ConfigWindow):
-        tab = window.add_tab("General")
+        tab = window.add_tab("General", index=0)
 
         prev_ntss = self.last_general_ntss
         self.last_general_ntss = ntss = general_ntss()
@@ -325,10 +326,7 @@ class NotetypesConfigWindow:
             self._add_general_tab(self.window)
         else:
             notetype_name = tab_name
-            self._add_notetype_settings_tab(notetype_name, self.window)
-            # inserting the tab at its index or moving it to it after adding doesn't work for
-            # some reason
-            # tab_widget.tabBar().move(tab_widget.tabBar().count()-1, index)
+            self._add_notetype_settings_tab(notetype_name, self.window, index=index)
 
             self._read_in_settings()
 
