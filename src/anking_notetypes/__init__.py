@@ -8,6 +8,7 @@ from aqt.utils import askUserDialog
 from .compat import add_compat_aliases
 from .gui.config_window import NotetypesConfigWindow
 from .gui.menu import setup_menu
+from .notetype_setting_definitions import anking_notetype_models
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)
 RESOURCES_PATH = Path(__file__).parent / "resources"
@@ -65,7 +66,7 @@ def maybe_show_notetypes_update_notice():
     latest_notice_version = conf.get("latest_notified_note_type_version")
     if all(
         NotetypesConfigWindow.model_version(model) == latest_notice_version
-        for model in models_with_available_updates
+        for model in anking_notetype_models()
     ):
         return
 

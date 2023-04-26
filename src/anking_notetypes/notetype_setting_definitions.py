@@ -601,6 +601,10 @@ def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
     return result
 
 
+def anking_notetype_models() -> List["NotetypeDict"]:
+    return [anking_notetype_model(name) for name in anking_notetype_names()]
+
+
 def all_btns_setting_configs():
     result = OrderedDict()
     for notetype_name in anking_notetype_templates().keys():
