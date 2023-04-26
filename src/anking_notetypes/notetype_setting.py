@@ -316,8 +316,8 @@ class DropdownSetting(NotetypeSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         return self._replace_first_capture_group(section, setting_value)
 
-class UserActionSetting(DropdownSetting):
 
+class UserActionSetting(DropdownSetting):
     def _extract_setting_value(self, section: str) -> Any:
         result = re.search(self.config["regex"], section).group(1)
         if result not in self.config["options"]:
@@ -328,6 +328,7 @@ class UserActionSetting(DropdownSetting):
     def _set_setting_value(self, section: str, setting_value: Any) -> str:
         if setting_value != "custom":
             return self._replace_first_capture_group(section, setting_value)
+        return None
 
 
 class ColorSetting(NotetypeSetting):
