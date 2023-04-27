@@ -6,7 +6,11 @@ from aqt.qt import QPushButton
 from aqt.utils import askUserDialog
 
 from .compat import add_compat_aliases
-from .gui.config_window import NotetypesConfigWindow
+from .gui.config_window import (
+    NotetypesConfigWindow,
+    note_type_version,
+    models_with_available_updates,
+)
 from .gui.menu import setup_menu
 from .notetype_setting_definitions import anking_notetype_models
 
@@ -56,22 +60,20 @@ def maybe_show_notetypes_update_notice():
     if not mw.col:
         return
 
-    models_with_available_updates = (
-        NotetypesConfigWindow.models_with_available_updates()
-    )
-    if not models_with_available_updates:
+    models_with_updates = models_with_available_updates()
+    if not models_with_updates:
         return
 
     conf = mw.addonManager.getConfig(ADDON_DIR_NAME)
     latest_notice_version = conf.get("latest_notified_note_type_version")
     if all(
-        NotetypesConfigWindow.model_version(model) == latest_notice_version
+        note_type_version(model) == latest_notice_version
         for model in anking_notetype_models()
     ):
         return
 
-    conf["latest_notified_note_type_version"] = NotetypesConfigWindow.model_version(
-        models_with_available_updates[0]
+    conf["latest_notified_note_type_version"] = note_type_version(
+        models_with_updates[0]
     )
 
     answer = askUserDialog(

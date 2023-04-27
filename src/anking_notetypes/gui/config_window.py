@@ -62,8 +62,8 @@ class NotetypesConfigWindow:
             if clayout_.model["name"] in anking_notetype_names():
                 self.clayout = clayout_
             elif (
-                clayout_.model["name"] in self._all_supported_note_types()
-                and (base_name := self._base_name(clayout_.model["name"])) is not None
+                clayout_.model["name"] in _names_of_all_supported_note_types()
+                and (base_name := _model_base_name(clayout_.model["name"])) is not None
             ):
                 showInfo(
                     "When you edit this note type here you won't see the changes in the preview.\n\n"
@@ -240,7 +240,7 @@ class NotetypesConfigWindow:
             on_click=self._update_all_notetypes_to_newest_version_and_reload_ui,
         )
 
-        if self.models_with_available_updates():
+        if models_with_available_updates():
             tab.text("New versions of notetypes are available!")
         else:
             update_btn.setDisabled(True)
@@ -356,7 +356,7 @@ class NotetypesConfigWindow:
         ):
             return
 
-        for model_version in self._notetype_versions(model["name"]):
+        for model_version in _note_type_versions(model["name"]):
             update_notetype_to_newest_version(model_version, model["name"])
             mw.col.models.update_dict(model_version)  # type: ignore
 
@@ -377,9 +377,9 @@ class NotetypesConfigWindow:
             return
 
         def task():
-            to_be_updated = self.models_with_available_updates()
+            to_be_updated = models_with_available_updates()
             for model in to_be_updated:
-                base_name = self._base_name(model["name"])
+                base_name = _model_base_name(model["name"])
                 update_notetype_to_newest_version(model, base_name)
                 mw.col.models.update_dict(model)
 
@@ -395,13 +395,6 @@ class NotetypesConfigWindow:
 
         def on_done(updated_models_fut: Future):
             updated_models = updated_models_fut.result()
-            if updated_models is None:
-                tooltip(
-                    "An error occured while updating the notetypes, old notetypes are kept",
-                    parent=self.window,
-                    period=1200,
-                )
-                return
 
             for model in updated_models:
                 if self.clayout and model["name"] == self.clayout.model["name"]:
@@ -409,7 +402,7 @@ class NotetypesConfigWindow:
 
             self._reload_tab("General")
             updated_base_models = [
-                m for m in updated_models if m["name"] == self._base_name(m["name"])
+                m for m in updated_models if m["name"] == _model_base_name(m["name"])
             ]
             for model in sorted(updated_base_models, key=lambda m: m["name"]):
                 self._reload_tab(model["name"])
@@ -425,30 +418,6 @@ class NotetypesConfigWindow:
             on_done=on_done,
             immediate=True,
         )
-
-    @classmethod
-    def _new_notetype_version_available(cls, model: "NotetypeDict") -> bool:
-        current_version = cls.model_version(model)
-        base_name = cls._base_name(model["name"])
-        newest_version = cls.model_version(anking_notetype_model(base_name))
-        return current_version != newest_version
-
-    @classmethod
-    def model_version(cls, model) -> Optional[str]:
-        front = model["tmpls"][0]["qfmt"]
-        m = re.match(r"<!-- version ([\w\d]+) -->\n", front)
-        if not m:
-            return None
-        return m.group(1)
-
-    @classmethod
-    def models_with_available_updates(cls) -> List["NotetypeDict"]:
-        return [
-            model
-            for name in anking_notetype_names()
-            for model in cls._notetype_versions(name)
-            if cls._new_notetype_version_available(model)
-        ]
 
     def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
         self._import_notetype(notetype_name)
@@ -552,7 +521,7 @@ class NotetypesConfigWindow:
 
     def _apply_setting_changes_for_all_notetypes(self):
         for notetype_name in anking_notetype_names():
-            for model in self._notetype_versions(notetype_name):
+            for model in _note_type_versions(notetype_name):
                 if not model:
                     continue
                 ntss = ntss_for_model(model)
@@ -560,43 +529,6 @@ class NotetypesConfigWindow:
                     model=model, model_base_name=notetype_name, ntss=ntss
                 )
                 mw.col.models.update_dict(model)
-
-    @classmethod
-    def _notetype_versions(cls, notetype_name: str) -> List["NotetypeDict"]:
-        """
-        This is done to make this add-on compatible with note types created by AnkiHub decks.
-        Returns a list of all notetype versions of the notetype in the collection.
-        """
-        models = [
-            mw.col.models.get(x.id)  # type: ignore
-            for x in mw.col.models.all_names_and_ids()
-            if x.name == notetype_name
-            or re.match(ANKIHUB_NOTETYPE_RE.format(notetype_name=notetype_name), x.name)
-            or re.match(NOTETYPE_COPY_RE.format(notetype_name=notetype_name), x.name)
-        ]
-        return models
-
-    @classmethod
-    def _all_supported_note_types(cls) -> List[str]:
-        """Returns a list of all supported note types in the collection including all versions."""
-        return [
-            version["name"]
-            for base_name in anking_notetype_names()
-            for version in cls._notetype_versions(base_name)
-        ]
-
-    @classmethod
-    def _base_name(cls, notetype_name: str) -> str:
-        """Returns the base name of a note type, that is if it's a version of a an anking note type
-        it will return the base name, otherwise it will return the name itself."""
-        return next(
-            (
-                name
-                for name in anking_notetype_names()
-                if notetype_name == name or notetype_name.startswith(name + " ")
-            ),
-            None,
-        )
 
     # clayout
     def _update_clayout_model(self, model):
@@ -610,3 +542,66 @@ class NotetypesConfigWindow:
         self.clayout.change_tracker.mark_basic()
         self.clayout.update_current_ordinal_and_redraw(self.clayout.ord)
         scroll_bar.setValue(min(scroll_pos, scroll_bar.maximum()))
+
+
+def note_type_version(model: "NotetypeDict") -> Optional[str]:
+    """Returns the version of the model or None if it is not specified.
+    The version is specified on the top of the front template of the model."""
+    front = model["tmpls"][0]["qfmt"]
+    m = re.match(r"<!-- version ([\w\d]+) -->\n", front)
+    if not m:
+        return None
+    return m.group(1)
+
+
+def models_with_available_updates() -> List["NotetypeDict"]:
+    return [
+        model
+        for name in anking_notetype_names()
+        for model in _note_type_versions(name)
+        if _new_version_available_for_model(model)
+    ]
+
+
+def _new_version_available_for_model(model: "NotetypeDict") -> bool:
+    current_version = note_type_version(model)
+    base_name = _model_base_name(model["name"])
+    newest_version = note_type_version(anking_notetype_model(base_name))
+    return current_version != newest_version
+
+
+def _note_type_versions(note_type_name: str) -> List["NotetypeDict"]:
+    """Returns a list of all notetype versions of the notetype in the collection.
+    Version of a note type are created by the AnkiHub add-on and by copying
+    the base AnKing note types or importing them from different sources."""
+    models = [
+        mw.col.models.get(x.id)  # type: ignore
+        for x in mw.col.models.all_names_and_ids()
+        if x.name == note_type_name
+        or re.match(ANKIHUB_NOTETYPE_RE.format(notetype_name=note_type_name), x.name)
+        or re.match(NOTETYPE_COPY_RE.format(notetype_name=note_type_name), x.name)
+    ]
+    return models
+
+
+def _model_base_name(model_name: str) -> str:
+    """Returns the base name of a note type, that is if it's a version of a an anking note type
+    it will return the base name, otherwise it will return the name itself."""
+    return next(
+        (
+            name
+            for name in anking_notetype_names()
+            if model_name == name or model_name.startswith(name + " ")
+        ),
+        None,
+    )
+
+
+def _names_of_all_supported_note_types() -> List[str]:
+    """Returns a list of names of note types supported by the add-on that are in the collection,
+    including all versions of the base note types."""
+    return [
+        version["name"]
+        for base_name in anking_notetype_names()
+        for version in _note_type_versions(base_name)
+    ]
