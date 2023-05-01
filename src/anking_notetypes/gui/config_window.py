@@ -591,7 +591,7 @@ def _model_base_name(model_name: str) -> str:
         (
             name
             for name in anking_notetype_names()
-            if model_name == name or model_name.startswith(name + " ")
+            if re.match(rf"{name}($| |-)", model_name)
         ),
         None,
     )
