@@ -379,9 +379,9 @@ class NotetypesConfigWindow:
         def task():
             to_be_updated = models_with_available_updates()
             for model in to_be_updated:
+                # update the model to the newest version
                 base_name = _model_base_name(model["name"])
                 update_notetype_to_newest_version(model, base_name)
-                mw.col.models.update_dict(model)
 
                 # restore the values from before the update for the settings that exist in both versions
                 self._safe_update_model_settings(
@@ -390,6 +390,9 @@ class NotetypesConfigWindow:
                     ntss=ntss_for_model(model),
                     show_tooltip_on_exception=False,
                 )
+
+                # update the model in the database
+                mw.col.models.update_dict(model)
 
             return to_be_updated
 
