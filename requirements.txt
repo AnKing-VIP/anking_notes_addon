@@ -1,10 +1,11 @@
-aqt==2.1.62
+aqt==2.1.54
 pyqt5==5.15.9
 pyqtwebengine==5.15.2
 pyqtwebengine-qt5==5.15.2
 
 pre-commit==2.20.0
 autopep8==1.5.7
+mypy==0.971
 pytest==6.2.4
 
 # required for building
