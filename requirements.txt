@@ -1,9 +1,12 @@
-# required for building
-aab==0.1.5b6
+anki==2.1.61
+aqt==2.1.61
+pyqt5==5.15.9
+pyqtwebengine==5.15.2
+pyqtwebengine-qt5==5.15.2
 
-# code analysis
-anki
-aqt
-
-# formatting
+pre-commit==2.20.0
 autopep8==1.5.7
+pytest==6.2.4
+
+# required for building
+aab==0.1.4
