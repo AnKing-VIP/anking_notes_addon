@@ -1,5 +1,4 @@
-anki==2.1.61
-aqt==2.1.61
+aqt==2.1.62
 pyqt5==5.15.9
 pyqtwebengine==5.15.2
 pyqtwebengine-qt5==5.15.2
