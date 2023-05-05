@@ -56,7 +56,7 @@ class AnkingIconsLayout(QHBoxLayout):
         self.addStretch()
 
 
-class AnkiPalaceLayout(QHBoxLayout):
+class AnkiMasteryCourseLayout(QHBoxLayout):
     def __init__(self, parent: QWidget) -> None:
         QHBoxLayout.__init__(self, parent)
         self.setContentsMargins(0, 0, 0, 0)
@@ -66,9 +66,9 @@ class AnkiPalaceLayout(QHBoxLayout):
     def setup(self) -> None:
         addon_name = __name__.split(".")[0]
         icon_data = (
-            "AnkiPalace_no_text.png",
+            "AnKingSmall.png",
             (64, 64),
-            f"https://courses.ankipalace.com/?utm_source={addon_name}&utm_medium=anki_add-on&utm_campaign=mastery_course",
+            f"https://www.theanking.com/anki-mastery-course/?utm_source={addon_name}&utm_medium=anki_add-on&utm_campaign=mastery_course",
         )
         btn = icon_button(icon_data)
         self.addStretch()
@@ -81,7 +81,7 @@ class AnkiPalaceLayout(QHBoxLayout):
 
         label1 = QLabel("Interested in learning how to use Anki effectively?")
         label2 = QLabel(
-            "Check out AnkiPalace, a comprehensive series of lessons\n"
+            "Check out the Anki Mastery Course, a comprehensive series of lessons\n"
             "and video tutorials designed by the AnKing team."
         )
         text_layout.addWidget(label1)

@@ -21,7 +21,7 @@ from ..notetype_setting_definitions import (
     setting_configs,
 )
 from ..utils import update_notetype_to_newest_version
-from .anking_widgets import AnkingIconsLayout, AnkiPalaceLayout, GithubLinkLayout
+from .anking_widgets import AnkingIconsLayout, AnkiMasteryCourseLayout, GithubLinkLayout
 from .extra_notetype_versions import handle_extra_notetype_versions
 
 try:
@@ -163,7 +163,7 @@ class NotetypesConfigWindow:
 
         widget = QWidget()
         window.main_layout.addWidget(widget)
-        AnkiPalaceLayout(widget)
+        AnkiMasteryCourseLayout(widget)
 
         window.main_layout.addSpacing(10)
         widget = QWidget()
