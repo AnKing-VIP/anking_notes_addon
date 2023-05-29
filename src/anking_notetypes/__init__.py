@@ -1,7 +1,7 @@
+from concurrent.futures import Future
 from pathlib import Path
 from typing import List, Sequence
 
-from anki.collection import Collection, OpChanges
 from anki.notes import Note, NoteId
 from anki.utils import ids2str
 from aqt import mw
@@ -11,7 +11,6 @@ from aqt.gui_hooks import (
     card_layout_will_show,
     profile_did_open,
 )
-from aqt.operations import CollectionOp
 from aqt.qt import QMenu, QPushButton
 from aqt.utils import askUserDialog, tooltip
 
@@ -160,10 +159,10 @@ def on_auto_reveal_fields_action(
     for field in chosen:
         autoopen_tags.append(f"autoopen::{field.lower().replace(' ', '_')}")
 
-    def op(col: Collection) -> OpChanges:
+    def task() -> None:
         notes = []
         for nid in selected_nids:
-            note = col.get_note(nid)
+            note = mw.col.get_note(nid)
             notes.append(note)
             new_tags = []
             for tag in note.tags:
@@ -171,9 +170,14 @@ def on_auto_reveal_fields_action(
                     new_tags.append(tag)
             new_tags.extend(autoopen_tags)
             note.tags = new_tags
-        return col.update_notes(notes)
+            note.flush()
 
-    CollectionOp(browser, op).run_in_background()
+    def on_done(fut: Future) -> None:
+        mw.progress.finish()
+        fut.result()
+
+    mw.progress.start(label="Updating notes...", immediate=True)
+    mw.taskman.run_in_background(task, on_done)
 
 
 def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> None:

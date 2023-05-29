@@ -84,7 +84,6 @@ def choose_subset(
         layout.addWidget(label)
 
     layout.addSpacing(10)
-
     button_box = QDialogButtonBox(
         QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
     )
