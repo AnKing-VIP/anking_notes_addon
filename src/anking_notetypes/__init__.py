@@ -1,27 +1,29 @@
-from typing import Sequence, List
-
 from pathlib import Path
+from typing import List, Sequence
 
-from anki.collection import OpChanges, Collection
-from aqt.operations import CollectionOp
-from anki.notes import NoteId, Note
+from anki.collection import Collection, OpChanges
+from anki.notes import Note, NoteId
 from anki.utils import ids2str
-
 from aqt import mw
-from aqt.gui_hooks import card_layout_will_show, profile_did_open, browser_will_show_context_menu
-from aqt.qt import QPushButton, QMenu
-from aqt.utils import askUserDialog, tooltip
 from aqt.browser import Browser
+from aqt.gui_hooks import (
+    browser_will_show_context_menu,
+    card_layout_will_show,
+    profile_did_open,
+)
+from aqt.operations import CollectionOp
+from aqt.qt import QMenu, QPushButton
+from aqt.utils import askUserDialog, tooltip
 
 from .compat import add_compat_aliases
 from .gui.config_window import (
     NotetypesConfigWindow,
-    note_type_version,
     models_with_available_updates,
+    note_type_version,
 )
 from .gui.menu import setup_menu
 from .gui.utils import choose_subset
-from .notetype_setting_definitions import anking_notetype_models, HINT_BUTTONS
+from .notetype_setting_definitions import HINT_BUTTONS, anking_notetype_models
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)
 RESOURCES_PATH = Path(__file__).parent / "resources"
@@ -66,7 +68,6 @@ def add_button_to_clayout(clayout):
 
 
 def maybe_show_notetypes_update_notice():
-
     # can happen when restoring data from backup
     if not mw.col:
         return
@@ -115,7 +116,9 @@ def replace_default_addon_config_action():
 
 def hint_fields_for_nids(nids: Sequence[NoteId]) -> List[str]:
     all_fields = mw.col.db.list(
-        'select distinct name from fields where ntid in (select distinct mid from notes where id in %s)' % ids2str(nids))
+        "select distinct name from fields where ntid in (select distinct mid from notes where id in %s)"
+        % ids2str(nids)
+    )
     hint_fields = []
     for field in all_fields:
         if field in HINT_BUTTONS.values():
@@ -128,16 +131,22 @@ def note_autoopen_fields(note: Note) -> List[str]:
     prefix = "autoopen::"
     for tag in note.tags:
         if tag.startswith(prefix):
-            tags.append(tag[tag.index(prefix) + len(prefix):].replace('_', ' '))
+            tags.append(tag[tag.index(prefix) + len(prefix) :].replace("_", " "))
     return tags
 
 
-def on_auto_reveal_fields_action(browser: Browser, selected_nids: Sequence[NoteId]) -> None:
+def on_auto_reveal_fields_action(
+    browser: Browser, selected_nids: Sequence[NoteId]
+) -> None:
     fields = hint_fields_for_nids(selected_nids)
     if not fields:
         tooltip("No hint fields found in the selected notes.", parent=browser)
         return
-    current = note_autoopen_fields(mw.col.get_note(selected_nids[0])) if len(selected_nids) == 1 else []
+    current = (
+        note_autoopen_fields(mw.col.get_note(selected_nids[0]))
+        if len(selected_nids) == 1
+        else []
+    )
     chosen = choose_subset(
         "Choose which fields of the selected notes should be automatically revealed<br>",
         choices=fields,

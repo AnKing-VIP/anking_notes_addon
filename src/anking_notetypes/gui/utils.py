@@ -1,9 +1,17 @@
-
 from typing import Any, List, Optional
 
 import aqt
-from aqt.qt import (QDialog, QDialogButtonBox, QLabel, QListWidget,
-                    QListWidgetItem, QPushButton, Qt, QVBoxLayout, qconnect)
+from aqt.qt import (
+    QDialog,
+    QDialogButtonBox,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QPushButton,
+    Qt,
+    QVBoxLayout,
+    qconnect,
+)
 from aqt.utils import disable_help_button
 
 # NOTE: Adapted from AnkiHub
@@ -54,7 +62,9 @@ def choose_subset(
         item = QListWidgetItem(choice)
         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)  # type: ignore
         item.setCheckState(
-            Qt.CheckState.Checked if choice.lower() in current else Qt.CheckState.Unchecked
+            Qt.CheckState.Checked
+            if choice.lower() in current
+            else Qt.CheckState.Unchecked
         )
         list_widget.addItem(item)
 
@@ -74,7 +84,9 @@ def choose_subset(
 
     layout.addSpacing(10)
 
-    button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+    button_box = QDialogButtonBox(
+        QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+    )
     qconnect(button_box.accepted, dialog.accept)
     qconnect(button_box.rejected, dialog.reject)
 
