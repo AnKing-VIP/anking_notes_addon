@@ -1,9 +1,17 @@
+from typing import Sequence, List
+
 from pathlib import Path
 
+from anki.collection import OpChanges, Collection
+from aqt.operations import CollectionOp
+from anki.notes import NoteId, Note
+from anki.utils import ids2str
+
 from aqt import mw
-from aqt.gui_hooks import card_layout_will_show, profile_did_open
-from aqt.qt import QPushButton
-from aqt.utils import askUserDialog
+from aqt.gui_hooks import card_layout_will_show, profile_did_open, browser_will_show_context_menu
+from aqt.qt import QPushButton, QMenu
+from aqt.utils import askUserDialog, tooltip
+from aqt.browser import Browser
 
 from .compat import add_compat_aliases
 from .gui.config_window import (
@@ -12,7 +20,8 @@ from .gui.config_window import (
     models_with_available_updates,
 )
 from .gui.menu import setup_menu
-from .notetype_setting_definitions import anking_notetype_models
+from .gui.utils import choose_subset
+from .notetype_setting_definitions import anking_notetype_models, HINT_BUTTONS
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)
 RESOURCES_PATH = Path(__file__).parent / "resources"
@@ -28,6 +37,8 @@ def setup():
     replace_default_addon_config_action()
 
     profile_did_open.append(on_profile_did_open)
+
+    browser_will_show_context_menu.append(on_browser_will_show_context_menu)
 
 
 def on_profile_did_open():
@@ -100,6 +111,71 @@ def copy_resources_into_media_folder():
 
 def replace_default_addon_config_action():
     mw.addonManager.setConfigAction(ADDON_DIR_NAME, open_window)
+
+
+def hint_fields_for_nids(nids: Sequence[NoteId]) -> List[str]:
+    all_fields = mw.col.db.list(
+        'select distinct name from fields where ntid in (select distinct mid from notes where id in %s)' % ids2str(nids))
+    hint_fields = []
+    for field in all_fields:
+        if field in HINT_BUTTONS.values():
+            hint_fields.append(field)
+    return hint_fields
+
+
+def note_autoopen_fields(note: Note) -> List[str]:
+    tags = []
+    prefix = "autoopen::"
+    for tag in note.tags:
+        if tag.startswith(prefix):
+            tags.append(tag[tag.index(prefix) + len(prefix):].replace('_', ' '))
+    return tags
+
+
+def on_auto_reveal_fields_action(browser: Browser, selected_nids: Sequence[NoteId]) -> None:
+    fields = hint_fields_for_nids(selected_nids)
+    if not fields:
+        tooltip("No hint fields found in the selected notes.", parent=browser)
+        return
+    current = note_autoopen_fields(mw.col.get_note(selected_nids[0])) if len(selected_nids) == 1 else []
+    chosen = choose_subset(
+        "Choose which fields of the selected notes should be automatically revealed<br>",
+        choices=fields,
+        current=current,
+        description_html="This will modify the autopopen::field_name tags of the notes.",
+        parent=browser,
+    )
+    if chosen is None:
+        return
+    autoopen_tags = []
+    for field in chosen:
+        autoopen_tags.append(f"autoopen::{field.lower().replace(' ', '_')}")
+
+    def op(col: Collection) -> OpChanges:
+        notes = []
+        for nid in selected_nids:
+            note = col.get_note(nid)
+            notes.append(note)
+            new_tags = []
+            for tag in note.tags:
+                if not tag.startswith("autoopen::"):
+                    new_tags.append(tag)
+            new_tags.extend(autoopen_tags)
+            note.tags = new_tags
+        return col.update_notes(notes)
+
+    CollectionOp(browser, op).run_in_background()
+
+
+def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> None:
+    selected_nids = browser.selected_notes()
+    action = context_menu.addAction(
+        "AnKing Notetypes: Auto-reveal fields",
+        lambda: on_auto_reveal_fields_action(browser, selected_nids),
+    )
+    context_menu.addAction(action)
+    if not selected_nids:
+        action.setDisabled(True)
 
 
 if mw is not None:
