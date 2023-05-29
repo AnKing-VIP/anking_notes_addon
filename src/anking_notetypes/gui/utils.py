@@ -20,14 +20,15 @@ from aqt.utils import disable_help_button
 def choose_subset(
     prompt: str,
     choices: List[str],
-    current: List[str] = [],
+    current: Optional[List[str]] = None,
     adjust_height_to_content=True,
     description_html: Optional[str] = None,
     parent: Any = None,
 ) -> Optional[List[str]]:
     if not parent:
         parent = aqt.mw.app.activeWindow()
-
+    if current is None:
+        current = []
     dialog = QDialog(parent)
     disable_help_button(dialog)
 
