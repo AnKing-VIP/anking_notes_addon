@@ -74,8 +74,10 @@ def choose_subset(
 
     layout.addSpacing(10)
 
-    button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
+    button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     qconnect(button_box.accepted, dialog.accept)
+    qconnect(button_box.rejected, dialog.reject)
+
     layout.addWidget(button_box)
 
     if adjust_height_to_content:
