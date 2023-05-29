@@ -1,8 +1,10 @@
 from concurrent.futures import Future
 from pathlib import Path
-from typing import List, Sequence
+from typing import TYPE_CHECKING, List, Sequence
 
-from anki.notes import Note, NoteId
+if TYPE_CHECKING:
+    from anki.notes import Note, NoteId
+
 from anki.utils import ids2str
 from aqt import mw
 from aqt.browser import Browser
@@ -113,7 +115,7 @@ def replace_default_addon_config_action():
     mw.addonManager.setConfigAction(ADDON_DIR_NAME, open_window)
 
 
-def hint_fields_for_nids(nids: Sequence[NoteId]) -> List[str]:
+def hint_fields_for_nids(nids: Sequence["NoteId"]) -> List[str]:
     all_fields = mw.col.db.list(
         "select distinct name from fields where ntid in (select distinct mid from notes where id in %s)"
         % ids2str(nids)
@@ -125,7 +127,7 @@ def hint_fields_for_nids(nids: Sequence[NoteId]) -> List[str]:
     return hint_fields
 
 
-def note_autoopen_fields(note: Note) -> List[str]:
+def note_autoopen_fields(note: "Note") -> List[str]:
     tags = []
     prefix = "autoopen::"
     for tag in note.tags:
@@ -135,7 +137,7 @@ def note_autoopen_fields(note: Note) -> List[str]:
 
 
 def on_auto_reveal_fields_action(
-    browser: Browser, selected_nids: Sequence[NoteId]
+    browser: Browser, selected_nids: Sequence["NoteId"]
 ) -> None:
     fields = hint_fields_for_nids(selected_nids)
     if not fields:
