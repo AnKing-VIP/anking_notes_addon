@@ -176,6 +176,7 @@ def on_auto_reveal_fields_action(
 
     def on_done(fut: Future) -> None:
         mw.progress.finish()
+        browser.onReset()
         fut.result()
 
     mw.progress.start(label="Updating notes...", immediate=True)
