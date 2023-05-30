@@ -144,7 +144,7 @@ def on_auto_reveal_fields_action(
         tooltip("No hint fields found in the selected notes.", parent=browser)
         return
     current = (
-        note_autoopen_fields(mw.col.get_note(selected_nids[0]))
+        note_autoopen_fields(mw.col.getNote(selected_nids[0]))
         if len(selected_nids) == 1
         else []
     )
@@ -164,7 +164,7 @@ def on_auto_reveal_fields_action(
     def task() -> None:
         notes = []
         for nid in selected_nids:
-            note = mw.col.get_note(nid)
+            note = mw.col.getNote(nid)
             notes.append(note)
             new_tags = []
             for tag in note.tags:
@@ -184,7 +184,7 @@ def on_auto_reveal_fields_action(
 
 
 def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> None:
-    selected_nids = browser.selected_notes()
+    selected_nids = browser.selectedNotes()
     action = context_menu.addAction(
         "AnKing Notetypes: Auto-reveal fields",
         lambda: on_auto_reveal_fields_action(browser, selected_nids),

@@ -12,7 +12,6 @@ from aqt.qt import (
     QVBoxLayout,
     qconnect,
 )
-from aqt.utils import disable_help_button
 
 # NOTE: Adapted from AnkiHub
 
@@ -30,8 +29,12 @@ def choose_subset(
     if current is None:
         current = []
     dialog = QDialog(parent)
-    disable_help_button(dialog)
+    try:
+        from aqt.utils import disable_help_button
 
+        disable_help_button(dialog)
+    except ImportError:
+        pass
     dialog.setWindowModality(Qt.WindowModality.WindowModal)
     layout = QVBoxLayout()
     dialog.setLayout(layout)
