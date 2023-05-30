@@ -2,6 +2,7 @@ aqt==2.1.54
 pyqt5==5.15.9
 pyqtwebengine==5.15.2
 pyqtwebengine-qt5==5.15.2
+PyQt5-stubs==5.15.6.0
 
 pre-commit==2.20.0
 autopep8==1.5.7
