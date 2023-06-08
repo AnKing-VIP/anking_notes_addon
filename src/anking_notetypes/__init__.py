@@ -152,7 +152,7 @@ def on_auto_reveal_fields_action(
         "Choose which fields of the selected notes should be automatically revealed<br>",
         choices=fields,
         current=current,
-        description_html="This will modify the autopopen::field_name tags of the notes.",
+        description_html="This will modify the autoopen::field_name tags of the notes.",
         parent=browser,
     )
     if chosen is None:
