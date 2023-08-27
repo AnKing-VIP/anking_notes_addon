@@ -226,7 +226,7 @@ def on_editor_will_show_context_menu(webview: EditorWebView, menu: QMenu) -> Non
         editor.loadNoteKeepingFocus()
 
     if qtmajor >= 6:
-        data = webview.lastContextMenuRequest()
+        data = webview.lastContextMenuRequest()  # type: ignore
     else:
         data = webview.page().contextMenuData()
     if (
