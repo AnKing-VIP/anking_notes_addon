@@ -1,4 +1,4 @@
-<!-- version 938fa4f -->
+<!-- version 340fd72 -->
 <script>
 // ##############  OCCLUSION SHORTCUTS  ##############
 var RevealIncrementalShortcut = "N";
@@ -207,6 +207,16 @@ var numTagLevelsToShow = 0;
 </script>
 {{/Tags}}
     
+<!-- IMAGE BLUR -->
+<script>
+    for (const image of document.querySelectorAll(".blur")) {
+        image.addEventListener("click", () => {
+            image.classList.toggle("blur");
+        });
+    }
+</script>
+
+
 <!-- HINT BUTTONS SETUP -->
 <script>
     (function() {

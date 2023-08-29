@@ -1,4 +1,4 @@
-<!-- version 938fa4f -->
+<!-- version 340fd72 -->
 <div id="front">{{edit:Front}}</div>
 
 <br>
@@ -94,6 +94,16 @@ var numTagLevelsToShow = 0;
     return matchShortcut
   }
 </script>
+
+<!-- IMAGE BLUR -->
+<script>
+    for (const image of document.querySelectorAll(".blur")) {
+        image.addEventListener("click", () => {
+            image.classList.toggle("blur");
+        });
+    }
+</script>
+
 
 <!-- COUNTDOWN TIMER -->
 <div class="timer" id="s2"></div>

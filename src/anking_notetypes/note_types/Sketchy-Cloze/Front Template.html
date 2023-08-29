@@ -1,4 +1,4 @@
-<!-- version 938fa4f -->
+<!-- version 340fd72 -->
 <div id="text">{{cloze:Text}}</div>
 
 <br>
@@ -17,6 +17,16 @@ var autoflip = false
 var minutes = 0
 var seconds = 9
 var timeOverMsg = "<span style='color:#CC5B5B'>!<br/>!<br/>!<br/>!<br/>!<br/>!</span>"
+
+<!-- IMAGE BLUR -->
+<script>
+    for (const image of document.querySelectorAll(".blur")) {
+        image.addEventListener("click", () => {
+            image.classList.toggle("blur");
+        });
+    }
+</script>
+
 
 // ##############  TAG SHORTCUT  ##############
 var toggleTagsShortcut = "C";
