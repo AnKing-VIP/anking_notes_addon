@@ -31,7 +31,6 @@ from .gui.utils import choose_subset
 from .notetype_setting_definitions import (
     HINT_BUTTONS,
     anking_notetype_models,
-    anking_notetype_names,
 )
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)
@@ -229,11 +228,8 @@ def on_editor_will_show_context_menu(webview: EditorWebView, menu: QMenu) -> Non
         data = webview.lastContextMenuRequest()  # type: ignore
     else:
         data = webview.page().contextMenuData()
-    if (
-        webview.editor.note.note_type()["name"] in anking_notetype_names()
-        and data.mediaUrl().isValid()
-    ):
-        blur_image_action = QAction("Blur/Unblur Image", menu)
+    if data.mediaUrl().isValid():
+        blur_image_action = QAction("AnKing Notetypes: Blur/Unblur Image", menu)
         qconnect(blur_image_action.triggered, on_blur_image)
         menu.addAction(blur_image_action)
 
