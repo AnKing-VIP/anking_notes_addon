@@ -7,6 +7,7 @@ if TYPE_CHECKING:
 
 from anki.utils import ids2str
 from aqt import mw
+from aqt.qt import QUrl
 from aqt.browser import Browser
 from aqt.editor import EditorWebView
 from aqt.gui_hooks import (
@@ -206,11 +207,15 @@ def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> 
 def on_editor_will_show_context_menu(webview: EditorWebView, menu: QMenu) -> None:
     def on_blur_image() -> None:
         editor = webview.editor
-        filename = data.mediaUrl().path().strip("/")
+        url = data.mediaUrl()
+        if url.matches(QUrl(mw.serverURL()), QUrl.UrlFormattingOption.RemovePath):
+            src = url.path().strip("/")
+        else:
+            src = url.toString()
         field = editor.note.fields[editor.currentField]
         soup = BeautifulSoup(field, "html.parser")
         for img in soup("img"):
-            if img.get("src") != filename:
+            if img.get("src", "").strip("/") != src:
                 continue
             classes = img.get("class", [])
             if "blur" in classes:
