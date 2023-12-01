@@ -19,11 +19,7 @@
         "disable_missed_questions": false,
         "disable_personal_notes": false,
         "extra_text_color": "navy",
-        "field_order": [
-            "Personal Notes",
-            "Missed Questions",
-            "Extra"
-        ],
+        "field_order": ["Personal Notes", "Missed Questions", "Extra"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -359,15 +355,10 @@
         "btn_shortcut_missed_questions": "Alt + 2",
         "btn_shortcut_personal_notes": "Alt + 1",
         "cloze_color": "blue",
-        "one_by_one_cloze_color": "#009400",
-        "one_by_one_cloze_hint_color": "#009400",
         "disable_missed_questions": false,
         "disable_personal_notes": false,
         "extra_text_color": "navy",
-        "field_order": [
-            "Personal Notes",
-            "Missed Questions"
-        ],
+        "field_order": ["Personal Notes", "Missed Questions"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -420,17 +411,11 @@
         "btn_shortcut_definitions": "Alt + 1",
         "btn_shortcut_examples": "Alt + 2",
         "cloze_color": "blue",
-        "one_by_one_cloze_color": "#009400",
-        "one_by_one_cloze_hint_color": "#009400",
         "disable_alternative_translations": false,
         "disable_definitions": false,
         "disable_examples": false,
         "extra_text_color": "navy",
-        "field_order": [
-            "Definitions",
-            "Examples",
-            "Alternative Translations"
-        ],
+        "field_order": ["Definitions", "Examples", "Alternative Translations"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -484,11 +469,7 @@
         "disable_extra": false,
         "disable_missed_questions": false,
         "disable_personal_notes": false,
-        "field_order": [
-            "Extra",
-            "Personal Notes",
-            "Missed Questions"
-        ],
+        "field_order": ["Extra", "Personal Notes", "Missed Questions"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -545,11 +526,7 @@
         "disable_missed_questions": false,
         "disable_personal_notes": false,
         "extra_text_color": "#56868a",
-        "field_order": [
-            "Personal Notes",
-            "Missed Questions",
-            "Extra"
-        ],
+        "field_order": ["Personal Notes", "Missed Questions", "Extra"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -607,11 +584,7 @@
         "disable_extra": false,
         "disable_missed_questions": false,
         "disable_personal_notes": false,
-        "field_order": [
-            "Extra",
-            "Personal Notes",
-            "Missed Questions"
-        ],
+        "field_order": ["Extra", "Personal Notes", "Missed Questions"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
@@ -667,11 +640,7 @@
         "disable_missed_questions": false,
         "disable_personal_notes": false,
         "extra_text_color": "#0088FA",
-        "field_order": [
-            "Personal Notes",
-            "Missed Questions",
-            "Extra"
-        ],
+        "field_order": ["Personal Notes", "Missed Questions", "Extra"],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
