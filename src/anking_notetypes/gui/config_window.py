@@ -495,10 +495,10 @@ class NotetypesConfigWindow:
         ntss: List["NotetypeSetting"],
         show_tooltip_on_exception=True,
     ) -> bool:
-        # Takes a model and a list of note type setting objects (ntss) and updates the model so that
-        # the passed settings in the model are set to the values of these settings in self.conf
-        # If this function is successful it will return True,
-        # if there is an exception while parsing the notetype it will return False (and show a tooltip)
+        """Updates the model with the passed settings. Returns True if successful, False if there was an exception.
+        model: The model to update
+        notetype_base_name: The base name of the note type. This is used to get the correct setting values from self.conf
+        ntss: The settings to update"""
         parse_exception = None
         for nts in ntss:
             try:
