@@ -93,10 +93,10 @@ class NotetypesConfigWindow:
         self.conf.add_config_tab(lambda window: self._add_general_tab(window))
 
         # setup tabs for all notetypes
-        for notetype_name in sorted(anking_notetype_names()):
+        for notetype_base_name in sorted(anking_notetype_names()):
             self.conf.add_config_tab(
-                lambda window, notetype_name=notetype_name: self._add_notetype_settings_tab(
-                    notetype_name, window
+                lambda window, note_type_base_name=notetype_base_name: self._add_notetype_settings_tab(
+                    note_type_base_name, window
                 )
             )
 
@@ -466,8 +466,8 @@ class NotetypesConfigWindow:
 
         # if all notetypes that have a nts have the same value set the value to it
         models_by_nts: Dict[NotetypeSetting, "NotetypeDict"] = defaultdict(lambda: [])
-        for notetype_name in anking_notetype_names():
-            model = mw.col.models.by_name(notetype_name)
+        for notetype_base_name in anking_notetype_names():
+            model = _most_basic_notetype_version(notetype_base_name)
             if not model:
                 continue
 
