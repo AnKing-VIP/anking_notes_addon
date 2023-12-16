@@ -154,7 +154,7 @@ def on_auto_reveal_fields_action(
         tooltip("No hint fields found in the selected notes.", parent=browser)
         return
     current = (
-        note_autoopen_fields(mw.col.getNote(selected_nids[0]))
+        note_autoopen_fields(mw.col.get_note(selected_nids[0]))
         if len(selected_nids) == 1
         else []
     )
@@ -174,7 +174,7 @@ def on_auto_reveal_fields_action(
     def task() -> None:
         notes = []
         for nid in selected_nids:
-            note = mw.col.getNote(nid)
+            note = mw.col.get_note(nid)
             notes.append(note)
             new_tags = []
             for tag in note.tags:
