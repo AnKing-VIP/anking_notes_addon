@@ -13,35 +13,33 @@ except:
 
 
 def update_notetype_to_newest_version(
-    notetype: "NotetypeDict", notetype_base_name: str
+    model: "NotetypeDict", notetype_base_name: str
 ) -> None:
-    new_notetype = anking_notetype_model(notetype_base_name)
-    new_notetype["id"] = notetype["id"]
-    new_notetype["name"] = notetype["name"]  # keep the name
-    new_notetype["mod"] = int(time.time())  # not sure if this is needed
-    new_notetype["usn"] = -1  # triggers full sync
+    new_model = anking_notetype_model(notetype_base_name)
+    new_model["id"] = model["id"]
+    new_model["name"] = model["name"]  # keep the name
+    new_model["mod"] = int(time.time())  # not sure if this is needed
+    new_model["usn"] = -1  # triggers full sync
 
     # retain the ankihub_id field if it exists on the old model
-    ankihub_field = next(
-        (x for x in notetype["flds"] if x["name"] == "ankihub_id"), None
-    )
+    ankihub_field = next((x for x in model["flds"] if x["name"] == "ankihub_id"), None)
     if ankihub_field:
-        new_notetype["flds"].append(ankihub_field)
+        new_model["flds"].append(ankihub_field)
 
-    new_notetype = adjust_field_ords(notetype, new_notetype)
+    new_model = adjust_field_ords(model, new_model)
 
     # the order is important here
     # the end comment must be added after the ankihub snippet
-    retain_ankihub_modifications_to_templates(notetype, new_notetype)
-    retain_content_below_ankihub_end_comment_or_add_end_comment(notetype, new_notetype)
+    retain_ankihub_modifications_to_templates(model, new_model)
+    retain_content_below_ankihub_end_comment_or_add_end_comment(model, new_model)
 
-    notetype.update(new_notetype)
+    model.update(new_model)
 
 
 def retain_ankihub_modifications_to_templates(
-    old_notetype: "NotetypeDict", new_notetype: "NotetypeDict"
+    old_model: "NotetypeDict", new_model: "NotetypeDict"
 ) -> "NotetypeDict":
-    for old_template, new_template in zip(old_notetype["tmpls"], new_notetype["tmpls"]):
+    for old_template, new_template in zip(old_model["tmpls"], new_model["tmpls"]):
         for template_type in ["qfmt", "afmt"]:
             m = re.search(ANKIHUB_TEMPLATE_SNIPPET_RE, old_template[template_type])
             if not m:
@@ -51,14 +49,14 @@ def retain_ankihub_modifications_to_templates(
                 new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
             )
 
-    return new_notetype
+    return new_model
 
 
 def retain_content_below_ankihub_end_comment_or_add_end_comment(
-    old_notetype: "NotetypeDict", new_notetype: "NotetypeDict"
+    old_model: "NotetypeDict", new_model: "NotetypeDict"
 ) -> "NotetypeDict":
     # will add the end comment if it doesn't exist
-    for old_template, new_template in zip(old_notetype["tmpls"], new_notetype["tmpls"]):
+    for old_template, new_template in zip(old_model["tmpls"], new_model["tmpls"]):
         for template_type in ["qfmt", "afmt"]:
             m = re.search(
                 rf"{ANKIHUB_TEMPLATE_END_COMMENT}[\w\W]*",
@@ -76,7 +74,7 @@ def retain_content_below_ankihub_end_comment_or_add_end_comment(
                     + "\n\n"
                 )
 
-    return new_notetype
+    return new_model
 
 
 def adjust_field_ords(
