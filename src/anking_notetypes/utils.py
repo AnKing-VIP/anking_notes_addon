@@ -13,9 +13,9 @@ except:
 
 
 def update_notetype_to_newest_version(
-    notetype: "NotetypeDict", notetype_archetype_name: str
+    notetype: "NotetypeDict", notetype_base_name: str
 ) -> None:
-    new_notetype = anking_notetype_model(notetype_archetype_name)
+    new_notetype = anking_notetype_model(notetype_base_name)
     new_notetype["id"] = notetype["id"]
     new_notetype["name"] = notetype["name"]  # keep the name
     new_notetype["mod"] = int(time.time())  # not sure if this is needed

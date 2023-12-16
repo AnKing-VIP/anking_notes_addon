@@ -1,5 +1,5 @@
-NOTETYPE_COPY_RE = r"{notetype_name}-[a-zA-Z0-9]{{5}}"
-ANKIHUB_NOTETYPE_RE = r"{notetype_name} \(.+ / .+\)"
+NOTETYPE_COPY_RE = r"{notetype_base_name}-[a-zA-Z0-9]{{5}}"
+ANKIHUB_NOTETYPE_RE = r"{notetype_base_name} \(.+ / .+\)"
 
 # has to be the same as in the ankihub addon
 ANKIHUB_NOTE_TYPE_MODIFICATION_STRING = "ANKIHUB MODFICATIONS"

@@ -12,23 +12,23 @@ from ..utils import adjust_field_ords, create_backup
 
 
 def handle_extra_notetype_versions() -> None:
-
     # mids of copies of the AnKing notetype identified by its name
-    copy_mids_by_notetype: Dict[str, List[int]] = dict()
-    for notetype_name in anking_notetype_names():
-
-        if mw.col.models.by_name(notetype_name) is None:
+    copy_mids_by_notetype_base_name: Dict[str, List[int]] = dict()
+    for notetype_base_name in anking_notetype_names():
+        if mw.col.models.by_name(notetype_base_name) is None:
             continue
 
         notetype_copy_mids = [
             x.id
             for x in mw.col.models.all_names_and_ids()
-            if re.match(NOTETYPE_COPY_RE.format(notetype_name=notetype_name), x.name)
+            if re.match(
+                NOTETYPE_COPY_RE.format(notetype_base_name=notetype_base_name), x.name
+            )
         ]
         if notetype_copy_mids:
-            copy_mids_by_notetype[notetype_name] = notetype_copy_mids
+            copy_mids_by_notetype_base_name[notetype_base_name] = notetype_copy_mids
 
-    if not copy_mids_by_notetype:
+    if not copy_mids_by_notetype_base_name:
         return
 
     if not askUser(
@@ -43,14 +43,16 @@ def handle_extra_notetype_versions() -> None:
 
     mw.taskman.with_progress(
         create_backup,
-        on_done=lambda future: convert_extra_notetypes(future, copy_mids_by_notetype),
+        on_done=lambda future: convert_extra_notetypes(
+            future, copy_mids_by_notetype_base_name
+        ),
         label="Creating Backup...",
         immediate=True,
     )
 
 
 def convert_extra_notetypes(
-    future: Future, copy_mids_by_notetype: Dict[str, List[int]]
+    future: Future, copy_mids_by_notetype_base_name: Dict[str, List[int]]
 ) -> None:
     """
     Change note type of notes that have copies of an AnKing note type as a type to the original note type.
@@ -59,14 +61,14 @@ def convert_extra_notetypes(
 
     future.result()  # throws an exception if there was an exception in the background task
 
-    for notetype_name, copy_mids in copy_mids_by_notetype.items():
-        notetype = mw.col.models.by_name(notetype_name)
+    for notetype_base_name, copy_mids in copy_mids_by_notetype_base_name.items():
+        model = mw.col.models.by_name(notetype_base_name)
         for copy_mid in copy_mids:
             notetype_copy = mw.col.models.get(copy_mid)  # type: ignore
 
             # First change the <notetype_copy> to be exactly like <notetype> to then be able to
             # change the note type of notes of type <notetype_copy> without problems
-            new_notetype = deepcopy(notetype)
+            new_notetype = deepcopy(model)
             new_notetype["id"] = notetype_copy["id"]
             new_notetype["name"] = notetype_copy["name"]  # to prevent duplicates
             new_notetype["usn"] = -1  # triggers full sync
@@ -80,8 +82,8 @@ def convert_extra_notetypes(
             mw.col.models.change(
                 notetype_copy,
                 nids_with_notetype_copy_type,  # type: ignore
-                notetype,
-                {i: i for i in range(len(notetype["flds"]))},
+                model,
+                {i: i for i in range(len(model["flds"]))},
                 None,
             )
 
