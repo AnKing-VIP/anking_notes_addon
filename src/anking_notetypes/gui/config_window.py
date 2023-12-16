@@ -31,7 +31,6 @@ except:
 
 
 def ntss_for_model(model: "NotetypeDict") -> List[NotetypeSetting]:
-
     # returns all nts that are present on the notetype
     result = []
     for setting_config in setting_configs.values():
@@ -50,11 +49,9 @@ def general_ntss() -> List[NotetypeSetting]:
 
 
 class NotetypesConfigWindow:
-
     window: Optional[ConfigWindow] = None
 
     def __init__(self, clayout_: CardLayout = None):
-
         # code in this class assumes that if bool(clayout) is true, clayout.model contains
         # an anking notetype model
         self.clayout = None
@@ -75,7 +72,6 @@ class NotetypesConfigWindow:
         self.last_general_ntss: Union[List[NotetypeSetting], None] = None
 
     def open(self):
-
         handle_extra_notetype_versions()
 
         # dont open another window if one is already open
@@ -175,21 +171,24 @@ class NotetypesConfigWindow:
     # tabs and NotetypeSettings (ntss)
     def _add_notetype_settings_tab(
         self,
-        notetype_name: str,
+        notetype_base_name: str,
         window: ConfigWindow,
         index: Optional[int] = None,
     ):
-        if self.clayout and self.clayout.model["name"] == notetype_name:
+        if (
+            self.clayout
+            and _model_base_name(self.clayout.model["name"]) == notetype_base_name
+        ):
             model = self.clayout.model
         else:
-            model = mw.col.models.by_name(notetype_name)  # type: ignore
+            model = _most_basic_notetype_version(notetype_base_name)
 
-        tab = window.add_tab(notetype_name, index=index)
+        tab = window.add_tab(notetype_base_name, index=index)
 
         if model:
             ntss = ntss_for_model(model)
             ordered_ntss = self._adjust_configurable_field_nts_order(
-                ntss, notetype_name
+                ntss=ntss, notetype_base_name=notetype_base_name
             )
             scroll = tab.scroll_layout()
             self._add_nts_widgets_to_layout(scroll, ordered_ntss, model)
@@ -207,7 +206,9 @@ class NotetypesConfigWindow:
 
             tab.button(
                 "Import",
-                on_click=lambda: self._import_notetype_and_reload_tab(notetype_name),
+                on_click=lambda: self._import_notetype_and_reload_tab(
+                    notetype_base_name
+                ),
             )
 
     def _add_general_tab(self, window: ConfigWindow):
@@ -252,7 +253,6 @@ class NotetypesConfigWindow:
         model: "NotetypeDict",
         general=False,
     ) -> None:
-
         if general:
             assert model is None
 
@@ -266,13 +266,16 @@ class NotetypesConfigWindow:
         for nts, section in nts_to_section.items():
             section_to_ntss[section].append(nts)
 
+        note_type_base_name = _model_base_name(model["name"]) if model else None
         for section_name, section_ntss in sorted(section_to_ntss.items()):
             section = layout.collapsible_section(section_name)
             for nts in section_ntss:
                 if general:
                     nts.add_widget_to_general_config_layout(section)
                 else:
-                    nts.add_widget_to_config_layout(section, model)
+                    nts.add_widget_to_config_layout(
+                        section, note_type_base_name=note_type_base_name, model=model
+                    )
                 section.space(7)
             layout.hseparator()
             layout.space(10)
@@ -284,11 +287,13 @@ class NotetypesConfigWindow:
             if general:
                 nts.add_widget_to_general_config_layout(layout)
             else:
-                nts.add_widget_to_config_layout(layout, model)
+                nts.add_widget_to_config_layout(
+                    layout, note_type_base_name=note_type_base_name, model=model
+                )
             layout.space(7)
 
     def _adjust_configurable_field_nts_order(
-        self, ntss: List[NotetypeSetting], notetype_name: str
+        self, ntss: List[NotetypeSetting], notetype_base_name: str
     ) -> List[NotetypeSetting]:
         # adjusts the order of the hint button settings to be the same as
         # on the original anking card
@@ -298,7 +303,7 @@ class NotetypesConfigWindow:
         field_ntss = [
             nts for nts in ntss if nts.config.get("configurable_field_name", False)
         ]
-        ordered_field_names = configurable_fields_for_notetype(notetype_name)
+        ordered_field_names = configurable_fields_for_notetype(notetype_base_name)
         ordered_field_ntss = sorted(
             field_ntss,
             key=lambda nts: (
@@ -436,34 +441,33 @@ class NotetypesConfigWindow:
     # (on the add-ons' dialog or in Anki's note type manager window)
     # this is done by _apply_setting_changes_for_all_notetypes
     def _read_in_settings(self):
-
         # read in settings from notetypes and general ones into config
         self._read_in_settings_from_notetypes()
         self._read_in_general_settings()
 
     def _read_in_settings_from_notetypes(self):
         error_msg = ""
-        for notetype_name in anking_notetype_names():
-
-            if self.clayout and notetype_name == self.clayout.model["name"]:
+        for notetype_base_name in anking_notetype_names():
+            if self.clayout and notetype_base_name == _model_base_name(
+                self.clayout.model["name"]
+            ):
                 # if in live preview mode read in current not confirmed settings
                 model = self.clayout.model
             else:
-                model = mw.col.models.by_name(notetype_name)
+                model = _most_basic_notetype_version(notetype_base_name)
 
             if not model:
                 continue
             for nts in ntss_for_model(model):
                 try:
-                    self.conf[nts.key(notetype_name)] = nts.setting_value(model)
+                    self.conf[nts.key(notetype_base_name)] = nts.setting_value(model)
                 except NotetypeSettingException as e:
-                    error_msg += f"failed parsing {notetype_name}:\n{str(e)}\n\n"
+                    error_msg += f"failed parsing {notetype_base_name}:\n{str(e)}\n\n"
 
         if error_msg:
             showInfo(error_msg)
 
     def _read_in_general_settings(self):
-
         # read in default values
         for setting_name, value in general_settings_defaults_dict().items():
             self.conf.set(f"general.{setting_name}", value, on_change_trigger=False)
@@ -585,6 +589,18 @@ def _note_type_versions(note_type_name: str) -> List["NotetypeDict"]:
         or re.match(NOTETYPE_COPY_RE.format(notetype_name=note_type_name), x.name)
     ]
     return models
+
+
+def _most_basic_notetype_version(notetype_base_name: str) -> Optional["NotetypeDict"]:
+    """Returns the most basic version of a note type, that is the version with the shortest name."""
+    model_versions = _note_type_versions(notetype_base_name)
+    result = min(
+        model_versions,
+        # sort by length of name and then alphabetically
+        key=lambda model: (len(model["name"]), model["name"]),
+        default=None,
+    )
+    return result
 
 
 def _model_base_name(model_name: str) -> str:
