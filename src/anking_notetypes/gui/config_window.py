@@ -386,7 +386,7 @@ class NotetypesConfigWindow:
                 # restore the values from before the update for the settings that exist in both versions
                 self._safe_update_model_settings(
                     model=model,
-                    model_base_name=model["name"],
+                    model_base_name=base_name,
                     ntss=ntss_for_model(model),
                     show_tooltip_on_exception=False,
                 )
