@@ -56,17 +56,8 @@ class NotetypesConfigWindow:
         # an anking notetype model
         self.clayout = None
         if clayout_:
-            if clayout_.model["name"] in anking_notetype_names():
+            if clayout_.model["name"] in _names_of_all_supported_note_types():
                 self.clayout = clayout_
-            elif (
-                clayout_.model["name"] in _names_of_all_supported_note_types()
-                and (base_name := _model_base_name(clayout_.model["name"])) is not None
-            ):
-                showInfo(
-                    "When you edit this note type here you won't see the changes in the preview.\n\n"
-                    f'You can edit "{base_name}" instead and the changes '
-                    "will be applied to this note type too."
-                )
 
         self.conf = None
         self.last_general_ntss: Union[List[NotetypeSetting], None] = None
@@ -111,14 +102,15 @@ class NotetypesConfigWindow:
 
         # setup live update of clayout model on changes
         def live_update_clayout_model(key: str, _: Any):
+            notetype_base_name_from_setting, setting_name = key.split(".")
             model = self.clayout.model
-            notetype_name, setting_name = key.split(".")
-            if notetype_name != self.clayout.model["name"]:
+            notetype_base_name_from_model = _model_base_name(model["name"])
+            if notetype_base_name_from_setting != notetype_base_name_from_model:
                 return
 
             nts = NotetypeSetting.from_config(setting_configs[setting_name])
             self._safe_update_model_settings(
-                model=model, model_base_name=model["name"], ntss=[nts]
+                model=model, model_base_name=notetype_base_name_from_model, ntss=[nts]
             )
 
             self._update_clayout_model(model)
@@ -150,7 +142,7 @@ class NotetypesConfigWindow:
         window.save_btn.clicked.connect(lambda: on_save(window))  # type: ignore
 
         if self.clayout:
-            self._set_active_tab(self.clayout.model["name"])
+            self._set_active_tab(_model_base_name(self.clayout.model["name"]))
 
         # add anking links layouts
         widget = QWidget()
@@ -368,7 +360,7 @@ class NotetypesConfigWindow:
         if self.clayout:
             self._update_clayout_model(model)
 
-        self._reload_tab(model["name"])
+        self._reload_tab(_model_base_name(model["name"]))
 
         tooltip("Notetype was reset", parent=self.window, period=1200)
 
@@ -413,7 +405,7 @@ class NotetypesConfigWindow:
                 m for m in updated_models if m["name"] == _model_base_name(m["name"])
             ]
             for model in sorted(updated_base_models, key=lambda m: m["name"]):
-                self._reload_tab(model["name"])
+                self._reload_tab(_model_base_name(model["name"]))
 
             self._set_active_tab("General")
 
@@ -427,9 +419,9 @@ class NotetypesConfigWindow:
             immediate=True,
         )
 
-    def _import_notetype_and_reload_tab(self, notetype_name: str) -> None:
-        self._import_notetype(notetype_name)
-        self._reload_tab(notetype_name)
+    def _import_notetype_and_reload_tab(self, notetype_base_name: str) -> None:
+        self._import_notetype(notetype_base_name)
+        self._reload_tab(notetype_base_name)
 
     def _import_notetype(self, notetype_name: str) -> None:
         model = anking_notetype_model(notetype_name)
