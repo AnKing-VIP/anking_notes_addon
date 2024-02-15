@@ -6,7 +6,7 @@ from pathlib import Path
 from aqt import mw
 from src.anking_notetypes.notetype_setting_definitions import anking_notetype_templates
 
-output_path = Path(__file__).parent / "models"
+output_path = Path(__file__).parent / "note_types"
 for notetype_name in anking_notetype_templates().keys():
     with open(output_path / f"{notetype_name}.json", "w") as f:
         model = mw.col.models.by_name(notetype_name)
