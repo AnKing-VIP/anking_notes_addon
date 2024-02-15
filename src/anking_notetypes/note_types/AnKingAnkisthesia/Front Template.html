@@ -1,8 +1,19 @@
 <!-- version 7934c78 -->
+<div id="text">{{cloze:Text}}</div>
+
+<!-- ##############  Text-to-speech  ##############
+replace the arrows/dashes from the statement below with double curly brackets-->
+
+<!--tts en_US voices=Apple_Samantha,Microsoft_Zira speed=1.4:cloze:Text-->
+
+
 <script>
 // ############## USER CONFIGURATION START ##############
-// Auto flip to back when One by one mode.
-var autoflip = false 
+
+// Timer config (timer length, timer finished message)
+var minutes = 0
+var seconds = 9
+var timeOverMsg = "<span style='color:#CC5B5B'>!<br/>!<br/>!<br/>!<br/>!<br/>!</span>"
 
 // ##############  TAG SHORTCUT  ##############
 var toggleTagsShortcut = "C";
@@ -17,20 +28,21 @@ var numTagLevelsToShow = 0;
 // ############## USER CONFIGURATION END ##############
 </script>
 
-<!-- AUTO FLIP FRONT -->
+<!-- NOT-PERSISTING EVENT LISTENER -->
 <script>
-   if (autoflip) {
-    // avoid flickering. Must unset this in the back.
-    document.getElementById("qa").style.display = "none";
-
-    if (window.pycmd) {
-        pycmd("ans")
-    } else if (window.showAnswer) {
-        showAnswer()
+  if (window.ankingEventListeners) {
+    for (const listener of ankingEventListeners) {
+      const type = listener[0]
+      const handler = listener[1]
+      document.removeEventListener(type, handler)
     }
-}
-// AnkiMobile JS API doesn't have one for show answer.
-// Best alternative is to use Taps/Swipes to show answer.
+  }
+  window.ankingEventListeners = []
+  
+  window.ankingAddEventListener = function(type, handler) {
+    document.addEventListener(type, handler)
+    window.ankingEventListeners.push([type, handler])
+  }
 </script>
 
 <!-- Shortcut Matcher Function -->
@@ -80,33 +92,42 @@ var numTagLevelsToShow = 0;
   }
 </script>
 
-<!-- NOT-PERSISTING EVENT LISTENER -->
+<!-- COUNTDOWN TIMER -->
+<div class="timer" id="s2"></div>
 <script>
-  if (window.ankingEventListeners) {
-    for (const listener of ankingEventListeners) {
-      const type = listener[0]
-      const handler = listener[1]
-      document.removeEventListener(type, handler)
+  function countdown(elementName, minutes, seconds) {
+    var element, endTime, mins, msLeft, time;
+    function twoDigits( n ) {
+      return (n <= 9 ? "0" + n : n); 
     }
+    function updateTimer() {
+      msLeft = endTime - (+new Date);
+      
+      if ( msLeft < 1000 ) {
+        element.innerHTML = timeOverMsg;
+      } else {
+        time = new Date( msLeft );
+        mins = time.getUTCMinutes();
+        element.innerHTML = mins + ':' + twoDigits(time.getUTCSeconds());
+        setTimeout( updateTimer, time.getUTCMilliseconds() + 500 );
+      }
+    }
+    element = document.getElementById(elementName);
+    endTime = (+new Date) + 1000 * (60*minutes + seconds) + 500;
+    updateTimer();
   }
-  window.ankingEventListeners = []
-  
-  window.ankingAddEventListener = function(type, handler) {
-    document.addEventListener(type, handler)
-    window.ankingEventListeners.push([type, handler])
-  }
+  countdown("s2", minutes, seconds ); //2nd value is the minute, 3rd is the seconds
 </script>
 
-<!-- IMAGE BLUR -->
-<script>
-    for (const image of document.querySelectorAll(".blur")) {
-        image.classList.add("tappable");
-        image.addEventListener("click", () => {
-            image.classList.toggle("blur");
-        });
-    }
-</script>
+<!-- ANKING HYPERLINK IMAGE -->
+<div id="pic"><a href="https://www.ankingmed.com">
+    <img src="_AnKingRound.png" alt="The AnKing" style="height:50px;border:0;position:fixed;bottom:10px;right:10px;">
+</a></div>
 
+<script>
+    //DONT FADE BETWEEN CARDS
+	qFade=0; if (typeof anki !== 'undefined') anki.qFade=qFade;
+</script>
 
 <!-- CLICKABLE COLORFUL TAGS -->
 {{#Tags}}
@@ -161,18 +182,3 @@ var numTagLevelsToShow = 0;
 
 </script>
 {{/Tags}}
-
-{{#I0}}
-{{#Image}}
-<div id="front-info">
-   <a href="https://www.ankingmed.com"><img src="_AnKingRound.png"></a>
-   <div>This is an Image Occlusion one by one card: Please flip to the backside.</div>
-   <div class="help">
-      <p>On the backside, your task is to incrementally reveal an image occlusion.
-         Click on the active rectangle to reveal it and activate the next.</p>
-   </div>
-</div>
-
-<div hidden>{{Image}}</div>
-{{/Image}}
-{{/I0}}
