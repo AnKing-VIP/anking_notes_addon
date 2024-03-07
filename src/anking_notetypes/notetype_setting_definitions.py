@@ -17,7 +17,7 @@ ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 # The surrounding "<!--" are needed because of the disable field setting.
 CONDITIONAL_FIELD_RE = r"(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?"
 CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = (
-    r'(class="hint"|id="extra"|id="dermnet"|id="ome")'
+    r'(class="hint"|id="extra"|id="dermnet"|id="ome"|id="ca1")'
 )
 CONFIGURABLE_FIELD_NAME_RE = r"\{\{#(.+?)\}\}"
 

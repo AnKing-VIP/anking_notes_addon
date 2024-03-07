@@ -705,6 +705,7 @@
             "Personal Notes",
             "Missed Questions",
             "Extra",
+            "CA-1",
             "Textbook",
             "Additional Resources"
         ],
@@ -713,6 +714,7 @@
         "disable_missed_questions": false,
         "disable_personal_notes": false,
         "disable_textbook": false,
+        "disable_ca-1": false,
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
