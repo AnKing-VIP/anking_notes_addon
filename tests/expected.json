@@ -643,7 +643,7 @@
         "cloze_color": "#0088FA",
         "one_by_one_cloze_color": "#009400",
         "one_by_one_cloze_hint_color": "#009400",
-        "cloze_hider": "\ud83d\udc51",
+        "cloze_hider": "\u2753",
         "disable_extra": false,
         "disable_missed_questions": false,
         "disable_personal_notes": false,
