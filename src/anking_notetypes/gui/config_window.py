@@ -234,6 +234,10 @@ class NotetypesConfigWindow:
             "Update notetypes",
             on_click=self._update_all_notetypes_to_newest_version_and_reload_ui,
         )
+        tab.button(
+            "Reset",
+            on_click=self._reset_general_settings_and_reload_ui,
+        )
 
         if models_with_available_updates():
             tab.text("New versions of notetypes are available!")
@@ -367,6 +371,27 @@ class NotetypesConfigWindow:
         self._reload_tab(notetype_base_name)
 
         tooltip("Notetype was reset", parent=self.window, period=1200)
+
+    def _reset_general_settings_and_reload_ui(self):
+        if not askUser(
+            "This will save changes and reset general settings to their default values in all note types. "
+            "Are you sure you want to continue?",
+            defaultno=True,
+        ):
+            return
+        for notetype_base_name in anking_notetype_names():
+            model = _most_basic_notetype_version(notetype_base_name)
+            if not model:
+                continue
+
+            settings_defaults = general_settings_defaults_dict()
+            for nts in general_ntss():
+                value = settings_defaults[nts.name()]
+                self.conf[nts.key(notetype_base_name)] = value
+                self.conf.set(f"general.{nts.name()}", value, on_change_trigger=False)
+
+        self._apply_setting_changes_for_all_notetypes()
+        self._reload_tab("General")
 
     def _update_all_notetypes_to_newest_version_and_reload_ui(self):
         if not askUser(
