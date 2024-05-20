@@ -93,7 +93,14 @@ class NotetypesConfigWindow:
         self.conf.add_config_tab(lambda window: self._add_general_tab(window))
 
         # setup tabs for all notetypes
-        for notetype_base_name in sorted(anking_notetype_names()):
+        notetype_base_names = sorted(anking_notetype_names())
+
+        # ... put AnKingOverhaul as the first tab after general
+        if "AnKingOverhaul" in notetype_base_names:
+            notetype_base_names.remove("AnKingOverhaul")
+            notetype_base_names.insert(0, "AnKingOverhaul")
+
+        for notetype_base_name in notetype_base_names:
             self.conf.add_config_tab(
                 lambda window, notetype_base_name=notetype_base_name: self._add_notetype_settings_tab(
                     notetype_base_name=notetype_base_name, window=window
