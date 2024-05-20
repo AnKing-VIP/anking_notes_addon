@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from aqt import mw
 from aqt.clayout import CardLayout
-from aqt.qt import QWidget
+from aqt.qt import QHBoxLayout, QLabel, QWidget
 from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
@@ -21,7 +21,7 @@ from ..notetype_setting_definitions import (
     setting_configs,
 )
 from ..utils import update_notetype_to_newest_version
-from .anking_widgets import AnkingIconsLayout, AnkiMasteryCourseLayout, GithubLinkLayout
+from .anking_widgets import AnkingIconsLayout, GithubLinkLayout
 from .extra_notetype_versions import handle_extra_notetype_versions
 
 try:
@@ -154,20 +154,34 @@ class NotetypesConfigWindow:
             self._set_active_tab(_notetype_base_name(self.clayout.model["name"]))
 
         # add anking links layouts
-        widget = QWidget()
-        window.main_layout.insertWidget(0, widget)
-        AnkingIconsLayout(widget)
+        self.anking_icons_widget = QWidget()
+        AnkingIconsLayout(self.anking_icons_widget)
+        window.main_layout.insertWidget(0, self.anking_icons_widget)
 
-        widget = QWidget()
-        window.main_layout.addWidget(widget)
-        AnkiMasteryCourseLayout(widget)
+        # add tutorial label with link to youtube video
+        self.tutorial_label = QLabel(
+            """
+                If you're unsure how this works, check out the <a href="https://youtu.be/NYUhNMyAZNs">tutorial video</a>.
+            """
+        )
+        self.tutorial_label.setOpenExternalLinks(True)
+
+        self.tutorial_label_layout = QHBoxLayout()
+        self.tutorial_label_layout.addStretch()
+        self.tutorial_label_layout.addWidget(self.tutorial_label)
+        self.tutorial_label_layout.addStretch()
+
+        window.main_layout.addLayout(self.tutorial_label_layout)
+
+        # add github link layout
+        self.github_links_widget = QWidget()
+        GithubLinkLayout(
+            self.github_links_widget,
+            href="https://github.com/AnKingMed/AnKing-Note-Types/issues",
+        )
+        window.main_layout.addWidget(self.github_links_widget)
 
         window.main_layout.addSpacing(10)
-        widget = QWidget()
-        window.main_layout.addWidget(widget)
-        GithubLinkLayout(
-            widget, href="https://github.com/AnKingMed/AnKing-Note-Types/issues"
-        )
 
     # tabs and NotetypeSettings (ntss)
     def _add_notetype_settings_tab(
