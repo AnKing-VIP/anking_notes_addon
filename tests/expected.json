@@ -158,10 +158,10 @@
             "DermPath",
             "Dermoscopy",
             "VisualDx",
+            "Additional Resources",
             "Extra",
             "DermNet",
-            "Textbook",
-            "Additional Resources"
+            "Textbook"
         ],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
