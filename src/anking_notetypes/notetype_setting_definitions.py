@@ -664,9 +664,18 @@ def anking_notetype_models() -> List["NotetypeDict"]:
 def all_btns_setting_configs():
     result = OrderedDict()
     for notetype_name in anking_notetype_templates().keys():
-        for field_name in configurable_fields_for_notetype(notetype_name):
+        fields = configurable_fields_for_notetype(notetype_name)
+        for field_name in fields:
             shortcut = btn_name_to_shortcut_odict(notetype_name).get(field_name, None)
             result.update(configurable_field_configs(field_name, shortcut))
+        if "OME" in fields:
+            result.update(
+                {
+                    "disable_ome_mobile": disable_mobile_ome_field_setting_config(
+                        False
+                    ),
+                }
+            )
     return result
 
 
@@ -752,6 +761,19 @@ def disable_field_setting_config(field_name, default):
         "type": "wrap_checkbox",
         "file": "back",
         "regex": rf"(<!--)?{{{{#{field_name}}}}}[\w\W]+?{{{{/{field_name}}}}}(-->)?",
+        "wrap_into": ("<!--", "-->"),
+        "section": "Fields",
+        "default": default,
+    }
+
+
+def disable_mobile_ome_field_setting_config(default):
+    return {
+        "text": "Disable OME Field (mobile)",
+        "tooltip": "",
+        "type": "wrap_checkbox",
+        "file": "back",
+        "regex": r"(<!--)?{{#OME}}\s*<span id=\"hint-ome[\w\W]+?{{/OME}}(-->)?",
         "wrap_into": ("<!--", "-->"),
         "section": "Fields",
         "default": default,

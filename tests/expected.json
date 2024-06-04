@@ -335,6 +335,7 @@
         "disable_lecture_notes": false,
         "disable_missed_questions": false,
         "disable_ome": false,
+        "disable_ome_mobile": false,
         "disable_pathoma": false,
         "disable_physeo": false,
         "disable_picmonic": false,
