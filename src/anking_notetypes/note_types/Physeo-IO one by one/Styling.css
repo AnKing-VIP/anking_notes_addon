@@ -174,6 +174,7 @@ margin-right: auto;
 border-collapse: collapse;
 overflow: scroll;
 white-space: normal;
+font-style: normal;
 font-size: clamp(0.1rem, 1.7vw, 0.9rem) !important;
 max-width: 95vw;
 }
@@ -236,7 +237,7 @@ background-color: #ffffff;
 /* ~~~~~~~MNEMONICS LEFT JUSTIFIED~~~~~~~ */
 .mnemonics {
   display: inline-block;
-  text-align: left;
+  text-align: center;
   /* can change to center to 'turn off' this feature */
 }
 
