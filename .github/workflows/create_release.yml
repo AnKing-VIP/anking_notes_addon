@@ -1,4 +1,4 @@
-name: Create Add-on Release
+name: Create Release
 
 on:
   workflow_dispatch:
@@ -7,19 +7,22 @@ on:
         description: version string (eg. 6.1)
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   create-release:
     name: Version ${{ github.event.inputs.version }}
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v2.2.1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
 
@@ -48,9 +51,9 @@ jobs:
         id: vars
         shell: bash
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
-          echo "::set-output name=module_name::$(ls src)"
-          echo "::set-output name=build_name::$(ls build | grep --color=never .ankiaddon)"
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "module_name=$(ls src)" >> $GITHUB_OUTPUT
+          echo "build_name=$(ls build | grep --color=never .ankiaddon)" >> $GITHUB_OUTPUT
 
       - name: Create github release and upload ankiaddon file
         uses: svenstaro/upload-release-action@2.2.1
