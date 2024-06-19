@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
 
@@ -56,9 +56,9 @@ jobs:
           echo "build_name=$(ls build | grep --color=never .ankiaddon)" >> $GITHUB_OUTPUT
 
       - name: Create github release and upload ankiaddon file
-        uses: svenstaro/upload-release-action@2.2.1
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ github.token }}
-          file: build/${{ steps.vars.outputs.build_name }}
-          tag: ${{ github.event.inputs.version }}
-          release_name: ${{ steps.vars.outputs.module_name }} v${{ github.event.inputs.version }}
+          token: ${{ github.token }}
+          files: build/${{ steps.vars.outputs.build_name }}
+          tag_name: ${{ github.event.inputs.version }}
+          name: ${{ steps.vars.outputs.module_name }} v${{ github.event.inputs.version }}
