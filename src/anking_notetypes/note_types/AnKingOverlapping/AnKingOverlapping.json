@@ -1,22 +1,23 @@
 {
-    "id": 1633970242302,
-    "name": "Physeo-Cloze",
+    "id": 1606536512075,
+    "name": "AnKingOverlapping",
     "type": 1,
-    "mod": 1638144691,
+    "mod": 1638144713,
     "usn": -1,
     "sortf": 0,
-    "did": 1570051884460,
+    "did": 1542938001933,
     "tmpls": [
         {
             "name": "Cloze",
             "ord": 0,
             "qfmt": "",
             "afmt": "",
-            "bqfmt": "",
-            "bafmt": "",
+            "bqfmt": "{{cloze:Text}}",
+            "bafmt": "{{cloze:Text}}",
             "did": null,
             "bfont": "Arial",
-            "bsize": 12
+            "bsize": 12,
+            "scratchPad": false
         }
     ],
     "flds": [
@@ -26,10 +27,10 @@
             "sticky": false,
             "rtl": false,
             "font": "Arial",
-            "size": 18,
+            "size": 16,
+            "collapsibleFieldsCollapseByDefault": false,
             "meta": null,
-            "media": [],
-            "collapsibleFieldsCollapseByDefault": false
+            "media": []
         },
         {
             "name": "Extra",
@@ -37,53 +38,41 @@
             "sticky": false,
             "rtl": false,
             "font": "Arial",
-            "size": 18,
-            "meta": null,
-            "collapsibleFieldsCollapseByDefault": false,
+            "size": 16,
             "media": []
         },
         {
-            "name": "Images",
+            "name": "Personal Notes",
             "ord": 2,
             "sticky": false,
             "rtl": false,
             "font": "Arial",
             "size": 18,
             "collapsibleFieldsCollapseByDefault": false,
-            "meta": null
+            "meta": null,
+            "media": []
         },
         {
-            "name": "Personal Notes",
+            "name": "Missed Questions",
             "ord": 3,
             "sticky": false,
             "rtl": false,
             "font": "Arial",
             "size": 18,
-            "meta": null,
             "collapsibleFieldsCollapseByDefault": false,
-            "media": []
+            "media": [],
+            "meta": null
         },
         {
-            "name": "Missed Questions",
+            "name": "Overlapping",
             "ord": 4,
             "sticky": false,
             "rtl": false,
             "font": "Arial",
-            "size": 18,
+            "size": 16,
             "meta": null,
-            "media": [],
-            "collapsibleFieldsCollapseByDefault": false
-        },
-        {
-            "name": "One by one",
-            "ord": 5,
-            "sticky": false,
-            "rtl": false,
-            "font": "Arial",
-            "size": 8,
             "collapsibleFieldsCollapseByDefault": false,
-            "meta": null,
-            "description": "Type anything here to enable one by one clozes"
+            "description": "(number of leading clozes - #), (number of following clozes - #), (show all clozes - true/false)"
         }
     ],
     "css": "",
@@ -96,12 +85,10 @@
             "any",
             [
                 0,
-                5
+                12
             ]
         ]
     ],
-    "tags": [
-        "%MissedQs::Step2::UWorld"
-    ],
+    "tags": [],
     "vers": []
 }

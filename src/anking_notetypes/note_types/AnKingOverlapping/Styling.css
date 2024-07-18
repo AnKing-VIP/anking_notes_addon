@@ -1,14 +1,13 @@
-/*    ANKINGDERM   */
-
 /* The AnKing wishes you the best of luck! Be sure to check out our YouTube channel and Instagram
- for all things Anki and Med School related (including how to customize this card type and use these decks):  
+ for all things Anki and Med School related (including how to customize this card type and use these decks):
 		www.AnKingMed.com
-			@ankingmed    			
+			@ankingmed
 */
 
 /*#########################################################
 ################  USER CUSTOMIZATION START  ##############*/
 /* You can choose colors at www.htmlcolorcodes.com */
+
 
 /* TIMER ON/OFF */
 .timer {
@@ -35,7 +34,7 @@
 
 
 /*~~~~~~~~~FONT SIZE~~~~~~~~~*/
-/*NOTE: anything with 'px' will keep a font that size indefinitely, 
+/*NOTE: anything with 'px' will keep a font that size indefinitely,
 'rem' is a fraction of this size above and allows all text to change size with the above setting */
 /* Desktop */
 html {
@@ -47,30 +46,9 @@ html {
   font-size: 28px;
 }
 
-/*IPAD ADJUSTMENTS (currently not applied)
-.ipad .card {
-  font-size: 28px;
-}
-.ipad .hints {
-  font-size: 24px;
-}
-*/
-
 /*Revealed Hints Font Size*/
 .hints {
   font-size: .85rem;
-}
-
-/*Other Fields Font Size*/
-#textbook,
-#additional {
-  font-size: .6rem !important;
-}
-
-/*Other Fields Font Size on Mobile*/
-.mobile #textbook,
-.mobile #additional {
-  font-size: 20px !important;
 }
 
 
@@ -100,19 +78,14 @@ img {
   background-color: #D1CFCE;
 }
 
+/* Back side Text Color */
+#back {
+  color: black;
+}
+
 /* Cloze Color */
-.cloze {
+.cloze, .cloze b, .cloze u, .cloze i {
   color: blue;
-}
-
-/* One by One Cloze Color */
-.cloze.one-by-one {
-  color: #009400;
-}
-
-/* One by One Cloze Hint Color */
-.cloze-hint {
-  color: #009400;
 }
 
 /* "Extra" Field Color */
@@ -156,22 +129,10 @@ a[href^="javascript:"] {
   background-color: #272828 !important;
 }
 
-/* NM Cloze Color */
-.nightMode .cloze,
-.night_mode .cloze {
-  color: #4297F9 !important;
-}
-
-/* NM One by One Cloze Color */
-.nightMode .cloze.one-by-one,
-.night_mode .cloze.one-by-one {
-    color: #009400 !important;
-}
-
-/* NM One by One Cloze Hint Color */
-.nightMode .cloze-hint,
-.night_mode .cloze-hint {
-    color: #009400 !important;
+/* NM Back Side Text Color */
+.nightMode #back,
+.night_mode #back {
+  color: #FFFAFA !important;
 }
 
 /* NM "Extra" Field Color */
@@ -186,6 +147,11 @@ a[href^="javascript:"] {
   color: cyan;
 }
 
+/* NM Cloze Color */
+.nightMode .cloze, .nightMode .cloze b, .nightMode .cloze u, .nightMode .cloze i,
+.night_mode .cloze, .night_mode .cloze b, .night_mode .cloze u, .night_mode .cloze i {
+  color: #4297F9 !important;
+}
 
 /* ~~~~~COLOR ACCENTS FOR BOLD-ITALICS-UNDERLINE~~~~~~*/
 b {
@@ -233,6 +199,17 @@ hr {
 
 
 /* ~~~~~~~~~ FIELDS ~~~~~~~~~ */
+
+/* Text When Hint Is Shown*/
+.hints {
+  font-style: italic;
+}
+
+/* EXTRA FIELDS */
+#back {
+  font-size: 1rem;
+}
+
 /* Cloze format */
 .cloze {
   font-weight: bold;
@@ -248,23 +225,6 @@ hr {
 .mobile .clozefield {
   display: block;
 }
-
-/* Text When Hint Is Shown*/
-.hints {
-  font-style: italic;
-}
-
-/*add spacing between hints and extra field*/
-.hints+#extra {
-  margin-top: 1rem;
-}
-
-/* Extra Field */
-#extra {
-  font-style: italic;
-  font-size: 1rem;
-}
-
 
 /* ~~~~~~~~~TABLE STYLES~~~~~~~~~ */
 
@@ -302,7 +262,7 @@ table span {
 font-size: clamp(0.1rem, 1.7vw, 0.9rem) !important;
 }
 
-/* Horizontal Header Style, applies to any row that spans all columns */ 
+/* Horizontal Header Style, applies to any row that spans all columns */
 table tr td:first-child[colspan]:last-child[colspan] {
 background-color: #ffffff;
 color: #367390;
@@ -335,42 +295,15 @@ border: 1px solid #a4cde0;
 background-color: #ffffff;
 }
 
+
 /* ~~~~~~~~~DETAILS FOR IMAGES~~~~~~~~~ */
 .mobile .card img {
   max-width: 100% !important;
 }
 
-.ipad .card img {
-  max-width: 75% !important;
-}
-
-#extra img {
-  min-width: 30%;
-}
-
-#dermnet img {
-  max-width: 50%;
-}
-
-.ipad #dermnet img {
-  max-width: 40%!important;
-}
-
-.ipad #additional img, .ipad #visualdx img {
-  max-width: 60%!important;
-}
-
-#fullspectrum img {
-  max-width: 40%;
-}
-
-#textbook img {
-  max-width: 60%!important;
-}
-
 /*Image hover zoom*/
 img:active {
-  transform: scale(1.4);
+  transform: scale(1.2);
 }
 
 .mobile img:active {
@@ -492,6 +425,7 @@ ol ol {
   width: 100%;
   line-height: .45rem;
   margin-left: -15px;
+  background-color: transparent;
 }
 
 /* Clickable Tags (need to download the add-on) */
@@ -621,28 +555,15 @@ kbd:nth-of-type(10n+0) {
   color: #c26165 !important;
 }
 
-
-html:not(.mobile) .button-general:hover {
-  cursor: default;
-  background-color: #E9E9E9 !important;
-  color: #363638 !important;
-}
-
 html:not(.mobile) #button-mq:hover {
   background-color: #FA8072 !important;
   color: black !important;
 }
 
-html:not(.mobile) #button-tx:hover {
-  background-color: #ea8eed !important;
-}
-
-html:not(.mobile) #button-ar:hover {
-  background-color: #FFF1B8 !important;
-}
-
-html:not(.mobile) #button-vd:hover {
-  background-color: #3c76fd !important;
+html:not(.mobile) .button-general:hover {
+  cursor: default;
+  background-color: #E9E9E9 !important;
+  color: #363638 !important;
 }
 
 /* Blur styles */
