@@ -100,6 +100,15 @@ class NotetypesConfigWindow:
             notetype_base_names.remove("AnKingOverhaul")
             notetype_base_names.insert(0, "AnKingOverhaul")
 
+        # ... put AnKingOverlapping after IO-one by one
+        if (
+            "AnKingOverlapping" in notetype_base_names
+            and "IO-one by one" in notetype_base_names
+        ):
+            notetype_base_names.remove("AnKingOverlapping")
+            new_idx = notetype_base_names.index("IO-one by one") + 1
+            notetype_base_names.insert(new_idx, "AnKingOverlapping")
+
         for notetype_base_name in notetype_base_names:
             self.conf.add_config_tab(
                 lambda window, notetype_base_name=notetype_base_name: self._add_notetype_settings_tab(
