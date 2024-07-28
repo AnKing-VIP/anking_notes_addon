@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import Any, Callable, Dict, OrderedDict, Union
+from typing import Any, Callable, Dict, OrderedDict, Union, List
 
 from .ankiaddonconfig import ConfigLayout, ConfigManager
 from .notetype_setting_definitions import anking_notetype_names
@@ -80,13 +80,15 @@ class NotetypeSetting(ABC):
 
     def is_present(self, model: "NotetypeDict") -> bool:
         # returns True if the section related to the setting is present on the model
-        relevant_template_text = self._relevant_template_text(model)
-        return bool(re.search(self.config["regex"], relevant_template_text))
+        return all(
+            bool(re.search(self.config["regex"], relevant_template_text))
+            for relevant_template_text in self._relevant_templates_text(model)
+        )
 
     # can raise NotetypeSettingException
     def setting_value(self, model: "NotetypeDict") -> Any:
         try:
-            section = self._relevant_template_section(model)
+            section = self._relevant_template_sections(model)[0]
             result = self._extract_setting_value(section)
         except NotetypeSettingException as e:
             raise e
@@ -99,7 +101,6 @@ class NotetypeSetting(ABC):
         self, model: "NotetypeDict", notetype_base_name: str, conf: ConfigManager
     ) -> "NotetypeDict":
         result = deepcopy(model)
-        section = self._relevant_template_section(result)
         key = self.key(notetype_base_name)
 
         # if the setting is not in the config,
@@ -108,29 +109,30 @@ class NotetypeSetting(ABC):
         setting_value = conf.get(key, self.config.get("default", no_value))
         if setting_value is no_value:
             return result
-
-        try:
-            processed_section = self._set_setting_value(section, setting_value)
-
-            updated_text = self._relevant_template_text(result).replace(
-                section, processed_section, 1
-            )
-        except NotetypeSettingException as e:
-            raise e
-        except Exception as e:
-            raise NotetypeSettingException(e)
-
         templates = result["tmpls"]
         assert len(templates) == 1
         template = templates[0]
 
-        if self.config["file"] == "front":
-            template["qfmt"] = updated_text
-        elif self.config["file"] == "back":
-            template["afmt"] = updated_text
-        else:
-            result["css"] = updated_text
+        files = self._files()
+        relevant_template_texts = self._relevant_templates_text(result)
+        for i, section in enumerate(self._relevant_template_sections(result)):
+            try:
+                processed_section = self._set_setting_value(section, setting_value)
+                updated_text = relevant_template_texts[i].replace(
+                    section, processed_section, 1
+                )
+            except NotetypeSettingException as e:
+                raise e
+            except Exception as e:
+                raise NotetypeSettingException(e)
 
+            file = files[i]
+            if file == "front":
+                template["qfmt"] = updated_text
+            elif file == "back":
+                template["afmt"] = updated_text
+            else:
+                result["css"] = updated_text
         return result
 
     def name(self):
@@ -140,16 +142,19 @@ class NotetypeSetting(ABC):
         # returns the config key of this setting for the notetype in the config
         return f"{notetype_base_name}.{self.name()}"
 
-    def _relevant_template_section(self, model: "NotetypeDict"):
-        template_text = self._relevant_template_text(model)
-        section_match = re.search(self.config["regex"], template_text)
-        if not section_match:
-            raise NotetypeSettingException(
-                f"could not find '{self.config['text']}' in {self.config['file']}"
-                "template of notetype '{model['name']}'"
-            )
-        result = section_match.group(0)
-        return result
+    def _relevant_template_sections(self, model: "NotetypeDict") -> List[str]:
+        template_texts = self._relevant_templates_text(model)
+        results = []
+        for i, file in enumerate(self._files()):
+            section_match = re.search(self.config["regex"], template_texts[i])
+            if not section_match:
+                raise NotetypeSettingException(
+                    f"could not find '{self.config['text']}' in {file}"
+                    "template of notetype '{model['name']}'"
+                )
+            results.append(section_match.group(0))
+
+        return results
 
     # raises NotetypeSettingException if the current setting value is
     # not of the expected form and has to be changed for the notetype to work
@@ -162,20 +167,29 @@ class NotetypeSetting(ABC):
     def _set_setting_value(self, section: str, setting_value: Any):
         pass
 
-    def _relevant_template_text(self, model: "NotetypeDict") -> str:
+    def _files(self) -> List[str]:
+        return (
+            [self.config["file"]]
+            if isinstance(self.config["file"], str)
+            else self.config["file"]
+        )
+
+    def _relevant_templates_text(self, model: "NotetypeDict") -> List[str]:
         templates = model["tmpls"]
 
         # all the AnKing notetypes have one template each
         assert len(templates) == 1
         template = templates[0]
-
-        if self.config["file"] == "front":
-            result = template["qfmt"]
-        elif self.config["file"] == "back":
-            result = template["afmt"]
-        else:
-            result = model["css"]
-        return result
+        results = []
+        for file in self._files():
+            if file == "front":
+                result = template["qfmt"]
+            elif file == "back":
+                result = template["afmt"]
+            else:
+                result = model["css"]
+            results.append(result)
+        return results
 
     def _replace_first_capture_group(self, section: str, new_value_str: Any) -> str:
         m = re.search(self.config["regex"], section)
@@ -430,7 +444,9 @@ class ElementOrderSetting(NotetypeSetting):
         layout.order_widget(
             key=self.key(notetype_base_name),
             items=list(
-                self._name_to_match_odict(self._relevant_template_section(model)).keys()
+                self._name_to_match_odict(
+                    self._relevant_template_sections(model)[0]
+                ).keys()
             ),
             description=self.config["text"],
             tooltip=self.config.get("tooltip", None),
