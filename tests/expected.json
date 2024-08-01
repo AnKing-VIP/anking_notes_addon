@@ -93,6 +93,10 @@
             "Textbook",
             "Additional Resources"
         ],
+        "autoreveal_additional_resources": false,
+        "autoreveal_missed_questions": false,
+        "autoreveal_personal_notes": false,
+        "autoreveal_textbook": false,
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
         "font_size_mobile": 28,
