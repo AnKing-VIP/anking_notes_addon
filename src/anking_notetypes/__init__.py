@@ -95,10 +95,6 @@ def maybe_show_notetypes_update_notice():
     ):
         return
 
-    conf["latest_notified_note_type_version"] = note_type_version(
-        models_with_updates[0]
-    )
-
     answer = askUserDialog(
         title="AnKing note types update",
         text="New versions of the AnKing note types are available! \nYou can choose to update them in the "
@@ -106,9 +102,15 @@ def maybe_show_notetypes_update_notice():
         buttons=reversed(["Yes", "No", "Remind me later"]),
     ).run()
     if answer == "Yes":
+        conf["latest_notified_note_type_version"] = note_type_version(
+            models_with_updates[0]
+        )
         mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
         open_window()
     elif answer == "No":
+        conf["latest_notified_note_type_version"] = note_type_version(
+            anking_notetype_models()[0]
+        )
         mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
     elif answer == "Remind me later":
         pass
