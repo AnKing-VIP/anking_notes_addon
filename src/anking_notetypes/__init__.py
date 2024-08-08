@@ -87,12 +87,10 @@ def maybe_show_notetypes_update_notice():
     if not models_with_updates:
         return
 
+    # Return early if user was already notified about this version (and didn't choose "Remind me later")
+    latest_version = note_type_version(anking_notetype_models()[0])
     conf = mw.addonManager.getConfig(ADDON_DIR_NAME)
-    latest_notice_version = conf.get("latest_notified_note_type_version")
-    if all(
-        note_type_version(model) == latest_notice_version
-        for model in anking_notetype_models()
-    ):
+    if latest_version == conf.get("latest_notified_note_type_version"):
         return
 
     answer = askUserDialog(
@@ -102,17 +100,14 @@ def maybe_show_notetypes_update_notice():
         buttons=reversed(["Yes", "No", "Remind me later"]),
     ).run()
     if answer == "Yes":
-        conf["latest_notified_note_type_version"] = note_type_version(
-            models_with_updates[0]
-        )
+        conf["latest_notified_note_type_version"] = latest_version
         mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
         open_window()
     elif answer == "No":
-        conf["latest_notified_note_type_version"] = note_type_version(
-            anking_notetype_models()[0]
-        )
+        conf["latest_notified_note_type_version"] = latest_version
         mw.addonManager.writeConfig(ADDON_DIR_NAME, conf)
     elif answer == "Remind me later":
+        # Don't update the config, so the user will be asked again next time
         pass
 
 
