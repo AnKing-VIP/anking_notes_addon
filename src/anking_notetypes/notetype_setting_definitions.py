@@ -189,10 +189,10 @@ setting_configs: Dict[str, Any] = OrderedDict(
         },
         "selective_one_by_one": {
             "text": "Selective one-by-one",
-            "tooltip": "Allows you to selectively enable one-by-one for some cards"
+            "tooltip": "Allows you to selectively enable one-by-one for some cards "
             "by adding their number to the one-by-one field (separated by commas)",
             "type": "checkbox",
-            "file": "back",
+            "file": ["front", "back"],
             "regex": r"var +selectiveOneByOne += +(false|true)",
             "section": "Clozes",
             "default": False,
@@ -201,7 +201,7 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "text": "Minimum number of clozes for one-by-one (if 0, then no limit)",
             "tooltip": "",
             "type": "number",
-            "file": "back",
+            "file": ["front", "back"],
             "regex": r"var +minNumberOfClozes += +([^ /\n]*);",
             "min": 0,
             "section": "Clozes",
@@ -238,7 +238,7 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "default": 0,
         },
         "autoflip": {
-            "text": "flip to back of card automatically\n(doesn't work on AnkiMobile)",
+            "text": "flip to back of card automatically when one by one is enabled\n(doesn't work on AnkiMobile)",
             "tooltip": "",
             "type": "checkbox",
             "file": "front",
