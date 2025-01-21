@@ -480,10 +480,14 @@ class ElementOrderSetting(NotetypeSetting):
             and "OME"
             not in m.group(0)  # OME banner has to be excluded from the order setting
         ]
-        result = OrderedDict(
-            [
-                (re.search(self.config["name_re"], m.group(0)).group(1), m)
-                for m in matches
-            ]
-        )
+        result = OrderedDict([(self._get_element_name(m.group(0)), m) for m in matches])
         return result
+
+    def _get_element_name(self, element_string: str) -> str:
+        patterns = self.config["name_res"]
+        for pattern in patterns:
+            m = re.search(pattern, element_string)
+            if m:
+                return m.group(1)
+
+        raise NotetypeSettingException(f"Could not find name in {element_string}")

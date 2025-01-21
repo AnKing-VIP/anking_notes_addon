@@ -19,7 +19,9 @@ CONDITIONAL_FIELD_RE = r"(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?"
 CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = (
     r'(class="hint"|id="extra"|id="dermnet"|id="ome"|id="ca1")'
 )
-CONFIGURABLE_FIELD_NAME_RE = r"\{\{#(.+?)\}\}"
+
+CONFIGURABLE_FIELD_NAME_RE = r'data-name="([\w\W]+?)"'
+CONFIGURABLE_FIELD_FALLBACK_NAME_RE = r"\{\{#(.+?)\}\}"
 
 
 # for matching text between double quotes which can contain escaped quotes
@@ -83,7 +85,10 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "file": "back",
             "regex": r"[\w\W]*",
             "elem_re": CONDITIONAL_FIELD_RE,
-            "name_re": CONFIGURABLE_FIELD_NAME_RE,
+            "name_res": (
+                CONFIGURABLE_FIELD_NAME_RE,
+                CONFIGURABLE_FIELD_FALLBACK_NAME_RE,
+            ),
             "has_to_contain": CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE,
             "section": "Fields",
         },
@@ -711,11 +716,22 @@ def all_btns_setting_configs():
 def configurable_fields_for_notetype(notetype_name: str) -> List[str]:
     _, back, _ = anking_notetype_templates()[notetype_name]
 
-    return [
-        re.search(CONFIGURABLE_FIELD_NAME_RE, field).group(1)
-        for field in re.findall(CONDITIONAL_FIELD_RE, back)
-        if re.search(CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE, field)
-    ]
+    result = []
+    for field in re.findall(CONDITIONAL_FIELD_RE, back):
+        if not re.search(CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE, field):
+            continue
+
+        name_patterns = [
+            CONFIGURABLE_FIELD_NAME_RE,
+            CONFIGURABLE_FIELD_FALLBACK_NAME_RE,
+        ]
+        for pattern in name_patterns:
+            m = re.search(pattern, field)
+            if m:
+                result.append(m.group(1))
+                break
+
+    return result
 
 
 def btn_name_to_shortcut_odict(notetype_name):
