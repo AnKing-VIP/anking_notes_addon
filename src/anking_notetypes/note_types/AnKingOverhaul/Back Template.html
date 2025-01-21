@@ -1,4 +1,4 @@
-<!-- version 767c732 -->
+<!-- version 60c5d0b -->
 <script>
 // ##############  HINT REVEAL SHORTCUTS  ##############
 // All shortcuts will also open with "H" if using the Hint Hotkeys add-on 
@@ -171,7 +171,7 @@ replace the arrows/dashes from the statement below with double curly brackets-->
 
 <span id="hint-bb-links" class="hintBtn tagBasedHintBtn hidden" 
   data-name="Boards and Beyond Links" data-resource-type-tag-part="#b&b" data-resource-slug="bb"
-  data-link-prefix="B&B - "
+  data-link-prefix="B&B"
 >
   <a href="#" class="hint" onclick="toggleHintBtn('hint-bb-links')"></a>
   <button id="button-bb-links" class="button-general" onclick="toggleHintBtn('hint-bb-links')">
@@ -200,7 +200,7 @@ replace the arrows/dashes from the statement below with double curly brackets-->
 
 <span id="hint-fa-links" class="hintBtn tagBasedHintBtn hidden" 
   data-name="First Aid Links" data-resource-type-tag-part="#firstaid" data-resource-slug="fa"
-  data-link-prefix="FA4 - "
+  data-link-prefix="FA4"
 >
   <a href="#" class="hint" onclick="toggleHintBtn('hint-fa-links')"></a>
   <button id="button-fa-links" class="button-general" onclick="toggleHintBtn('hint-fa-links')">
@@ -459,26 +459,32 @@ replace the arrows/dashes from the statement below with double curly brackets-->
                 if (pathParts[pathParts.length - 1] === "extra") {
                     pathParts = pathParts.slice(0, -1);
                 }
+                
+                // Create slug
+                const contentNumbers = pathParts
+                    .map(part => part.match(/\d+/))
+                    .map(matchArray => parseInt(matchArray[0], 10));
 
-                // Clean path parts (remove number prefixes)
-                const cleanedPathParts = pathParts.map(part => part.replace(/^\d+_/g, ''));
+                const slug = `step${step}-${resourceSlug}-${contentNumbers.join('-')}`;
 
-                // Create slug and title
-                const slug = `step${step}-${resourceSlug}-${cleanedPathParts.join('-')}`;
-                const title = cleanedPathParts[cleanedPathParts.length - 1]
+                // Create title
+                const title = pathParts[pathParts.length - 1]
+                    .replace(/^\d+_/g, '')
                     .replace(/_/g, ' ')
                     .split(' ')
                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                     .join(' ');
 
-                return { title, slug };
+                const titleWithStep = `Step ${step} - ${title}`;
+
+                return { "title": titleWithStep, slug };
             } catch (error) {
                 return null;
             }
         }
 
         function createResourceUrl(slug) {
-            return `https://app.ankihub.net/integrations/mcgraw-hill/preview/${slug}`;
+            return `https://app.ankihub.net/integrations/mcgraw-hill/${slug}`;
         }
 
         function getResourceTags(tags, resourceTypeTagPart) {
@@ -501,7 +507,7 @@ replace the arrows/dashes from the statement below with double curly brackets-->
                     const resource = tagToResourceTitleAndSlug(tag, hintButton.dataset.resourceSlug);
                     if (resource) {
                         const url = createResourceUrl(resource.slug);
-                        return `<a href="${url}" target="_blank">${hintButton.dataset.linkPrefix}${resource.title}</a>`;
+                        return `<a href="${url}" target="_blank">${hintButton.dataset.linkPrefix} ${resource.title}</a>`;
                     }
                     return null;
                 })
