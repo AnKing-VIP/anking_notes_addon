@@ -42,7 +42,7 @@ class NotetypeSetting(ABC):
         if config["type"] == "order":
             return ElementOrderSetting(config)
         else:
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 f"unkown NotetypeSetting type: {config.get('type', 'None')}"
             )
 
