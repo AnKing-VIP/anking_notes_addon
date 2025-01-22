@@ -1,4 +1,4 @@
-<!-- version 05a3422 -->
+<!-- version 25cee5d -->
 <script>
 // ############## USER CONFIGURATION START ##############
 // Auto flip to back when One by one mode.
@@ -20,8 +20,11 @@ var numTagLevelsToShow = 0;
 <!-- AUTO FLIP FRONT -->
 <script>
    if (autoflip && clozeOneByOneEnabled) {
-    // avoid flickering. Must unset this in the back.
-    document.getElementById("qa").style.display = "none";
+
+    if(window.pycmd || window.showAnswer) {
+        // avoid flickering. Must unset this in the back.
+        document.getElementById("qa").style.display = "none";
+    }
 
     if (window.pycmd) {
         pycmd("ans")
@@ -165,7 +168,7 @@ var numTagLevelsToShow = 0;
 {{#I0}}
 {{#Image}}
 <div id="front-info">
-   <a href="https://www.ankingmed.com"><img src="_AnKingRound.png"></a>
+   <a href="https://www.ankingmed.com"><img src="_AnKingIcon.png"></a>
    <div>This is an Image Occlusion one by one card: Please flip to the backside.</div>
    <div class="help">
       <p>On the backside, your task is to incrementally reveal an image occlusion.
