@@ -73,6 +73,11 @@ class ConfigWindow(QDialog):
         self.main_tab = QTabWidget()
         main_tab = self.main_tab
         main_tab.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        # Change the default for macOS
+        main_tab.setElideMode(Qt.TextElideMode.ElideNone)
+        main_tab.setUsesScrollButtons(True)
+
         self.main_layout.addWidget(main_tab)
         self.setup_buttons(self.btn_layout)
 
