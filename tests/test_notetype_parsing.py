@@ -25,6 +25,6 @@ class TestNotetypeSettingParsing(unittest.TestCase):
             expected = json.load(f)
 
         with open("tests/current.json", "w") as f:
-            json.dump(current, f, sort_keys=True)
+            json.dump(current, f, sort_keys=True, indent=4)
 
         self.assertDictEqual(dict(current), dict(expected))

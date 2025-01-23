@@ -283,9 +283,11 @@ class ConfigLayout(QBoxLayout):
                 table.setItem(rIdx, 0, item)
             table.resizeColumnsToContents()
             table.resizeRowsToContents()
-            table.setFixedSize(
+            table.setMinimumHeight(
+                table.rowHeight(0) * table.rowCount() + table.rowCount()
+            )
+            table.setFixedWidth(
                 table.columnWidth(0) + table.verticalHeader().width() + 17,
-                table.rowHeight(0) * table.rowCount() + table.rowCount(),
             )
 
         load_table(items)
@@ -689,9 +691,11 @@ class ConfigLayout(QBoxLayout):
         return self._scroll_layout(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Minimum,
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOn
-            if always
-            else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
+            (
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+                if always
+                else Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            ),
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
         )
 
@@ -701,9 +705,11 @@ class ConfigLayout(QBoxLayout):
             QSizePolicy.Policy.Minimum,
             QSizePolicy.Policy.Expanding,
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOn
-            if always
-            else Qt.ScrollBarPolicy.ScrollBarAsNeeded,
+            (
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+                if always
+                else Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            ),
         )
 
     def scroll_layout(

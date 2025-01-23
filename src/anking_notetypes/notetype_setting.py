@@ -42,7 +42,7 @@ class NotetypeSetting(ABC):
         if config["type"] == "order":
             return ElementOrderSetting(config)
         else:
-            raise Exception(
+            raise Exception(  # pylint: disable=broad-exception-raised
                 f"unkown NotetypeSetting type: {config.get('type', 'None')}"
             )
 
@@ -460,8 +460,9 @@ class ElementOrderSetting(NotetypeSetting):
         offset = 0
         name_to_match = self._name_to_match_odict(section)
         if set(setting_value) != set(name_to_match.keys()):
-            raise NotetypeSettingException(
-                f"invalid value: {setting_value}\nexpected elements: {list(name_to_match.keys())}"
+            setting_value = order_names(
+                new_names=list(name_to_match.keys()),
+                current_names=setting_value,
             )
 
         for i, name in enumerate(setting_value):
@@ -480,10 +481,57 @@ class ElementOrderSetting(NotetypeSetting):
             and "OME"
             not in m.group(0)  # OME banner has to be excluded from the order setting
         ]
-        result = OrderedDict(
-            [
-                (re.search(self.config["name_re"], m.group(0)).group(1), m)
-                for m in matches
-            ]
-        )
+        result = OrderedDict([(self._get_element_name(m.group(0)), m) for m in matches])
         return result
+
+    def _get_element_name(self, element_string: str) -> str:
+        patterns = self.config["name_res"]
+        for pattern in patterns:
+            m = re.search(pattern, element_string)
+            if m:
+                return m.group(1)
+
+        raise NotetypeSettingException(f"Could not find name in {element_string}")
+
+
+def order_names(
+    new_names: List[str],
+    current_names: List[str],
+) -> List[str]:
+    """Order new names based on the order of current names.
+    All new_names will be included in output, ordered based on the current_names,
+    and if they are not in current names, this tries to put it next to names with the same first word,
+    or otherwise puts them at the end.
+
+    Args:
+        current_names: List defining preferred ordering
+        new_names: List of names to be reordered
+
+    Returns:
+        List[str]: Reordered new_names list
+    """
+    if not current_names:
+        return new_names
+
+    result = [name for name in current_names if name in new_names]
+
+    def get_first_word(name: str) -> str:
+        return name.split()[0] if name else ""
+
+    missing_names = [name for name in new_names if name not in current_names]
+    for name in missing_names:
+        insert_position = None
+        for i, setting_name in enumerate(result):
+            if (
+                setting_name
+                and name
+                and get_first_word(setting_name).lower() == get_first_word(name).lower()
+            ):
+                insert_position = i + 1
+
+        if insert_position is None:
+            insert_position = len(result)
+
+        result.insert(insert_position, name)
+
+    return result

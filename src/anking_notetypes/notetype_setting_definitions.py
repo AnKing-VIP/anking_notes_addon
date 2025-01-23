@@ -10,16 +10,27 @@ except:
 
 ANKING_NOTETYPES_PATH = Path(__file__).parent / "note_types"
 
+FIELD_BOUNDARY_RE = (  # noqa: E731
+    lambda ch, field_name_re: rf"(?:\{{\{{{ch}{field_name_re}\}}\}}|<span.+?PSEUDO-FIELD {ch}{field_name_re}</span>)"
+)
+
 # Regular expression for fields for which the add-on offers settings aka configurable fields.
 # Most of these fields are represented as hint buttons, but not all of them.
-# To be recognized by the add-on the field html needs to contain text matching the FIELD_HAS_TO_CONTAIN_RE.
-# If something is a hint button or not is determined by its presence in the ButtonShortcuts dict.
+# To be recognized by the add-on the field html needs to contain text matching
+# CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE.
+# Whether something is a hint button or not is determined by its presence in the ButtonShortcuts dict.
 # The surrounding "<!--" are needed because of the disable field setting.
-CONDITIONAL_FIELD_RE = r"(?:<!-- ?)?\{\{#.+?\}\}[\w\W]+?\{\{/.+?\}\}(?: ?-->)?"
+# With the default argument, the regex matches all conditional fields.
+CONDITIONAL_FIELD_RE = lambda field_name_re=".+?": (  # noqa: E731
+    rf"(?:<!-- ?)?{FIELD_BOUNDARY_RE('#', field_name_re)}[\w\W]+?{FIELD_BOUNDARY_RE('/', field_name_re)}(?: ?-->)?"
+)
+
 CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE = (
     r'(class="hint"|id="extra"|id="dermnet"|id="ome"|id="ca1")'
 )
-CONFIGURABLE_FIELD_NAME_RE = r"\{\{#(.+?)\}\}"
+
+CONFIGURABLE_FIELD_NAME_RE = r'data-name="([\w\W]+?)"'
+CONFIGURABLE_FIELD_FALLBACK_NAME_RE = r"\{\{#(.+?)\}\}"
 
 
 # for matching text between double quotes which can contain escaped quotes
@@ -82,8 +93,11 @@ setting_configs: Dict[str, Any] = OrderedDict(
             "type": "order",
             "file": "back",
             "regex": r"[\w\W]*",
-            "elem_re": CONDITIONAL_FIELD_RE,
-            "name_re": CONFIGURABLE_FIELD_NAME_RE,
+            "elem_re": CONDITIONAL_FIELD_RE(),
+            "name_res": (
+                CONFIGURABLE_FIELD_NAME_RE,
+                CONFIGURABLE_FIELD_FALLBACK_NAME_RE,
+            ),
             "has_to_contain": CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE,
             "section": "Fields",
         },
@@ -711,11 +725,22 @@ def all_btns_setting_configs():
 def configurable_fields_for_notetype(notetype_name: str) -> List[str]:
     _, back, _ = anking_notetype_templates()[notetype_name]
 
-    return [
-        re.search(CONFIGURABLE_FIELD_NAME_RE, field).group(1)
-        for field in re.findall(CONDITIONAL_FIELD_RE, back)
-        if re.search(CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE, field)
-    ]
+    result = []
+    for field in re.findall(CONDITIONAL_FIELD_RE(), back):
+        if not re.search(CONFIGURABLE_FIELD_HAS_TO_CONTAIN_RE, field):
+            continue
+
+        name_patterns = [
+            CONFIGURABLE_FIELD_NAME_RE,
+            CONFIGURABLE_FIELD_FALLBACK_NAME_RE,
+        ]
+        for pattern in name_patterns:
+            m = re.search(pattern, field)
+            if m:
+                result.append(m.group(1))
+                break
+
+    return result
 
 
 def btn_name_to_shortcut_odict(notetype_name):
@@ -789,7 +814,7 @@ def disable_field_setting_config(field_name, default):
         "tooltip": "",
         "type": "wrap_checkbox",
         "file": "back",
-        "regex": rf"(<!--)?{{{{#{field_name}}}}}[\w\W]+?{{{{/{field_name}}}}}(-->)?",
+        "regex": CONDITIONAL_FIELD_RE(field_name),
         "wrap_into": ("<!--", "-->"),
         "section": "Fields",
         "default": default,
