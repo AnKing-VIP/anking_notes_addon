@@ -368,10 +368,8 @@
             "Lecture Notes",
             "Missed Questions",
             "Pathoma",
-            "Boards and Beyond Links",
             "Boards and Beyond",
             "Extra",
-            "First Aid Links",
             "First Aid",
             "Sketchy",
             "Sketchy 2",
@@ -380,7 +378,9 @@
             "Pixorize",
             "Physeo",
             "Bootcamp",
-            "Additional Resources"
+            "Additional Resources",
+            "Boards and Beyond Links",
+            "First Aid Links"
         ],
         "font_family": "Arial Greek, Arial",
         "font_size": 28,
