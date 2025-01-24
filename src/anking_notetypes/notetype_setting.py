@@ -500,8 +500,7 @@ def order_names(
 ) -> List[str]:
     """Order new names based on the order of current names.
     All new_names will be included in output, ordered based on the current_names,
-    and if they are not in current names, this tries to put it next to names with the same first word,
-    or otherwise puts them at the end.
+    and if they are not in current names, they are appended to the end.
 
     Args:
         current_names: List defining preferred ordering
@@ -513,25 +512,6 @@ def order_names(
     if not current_names:
         return new_names
 
-    result = [name for name in current_names if name in new_names]
-
-    def get_first_word(name: str) -> str:
-        return name.split()[0] if name else ""
-
+    existing_names = [name for name in current_names if name in new_names]
     missing_names = [name for name in new_names if name not in current_names]
-    for name in missing_names:
-        insert_position = None
-        for i, setting_name in enumerate(result):
-            if (
-                setting_name
-                and name
-                and get_first_word(setting_name).lower() == get_first_word(name).lower()
-            ):
-                insert_position = i + 1
-
-        if insert_position is None:
-            insert_position = len(result)
-
-        result.insert(insert_position, name)
-
-    return result
+    return existing_names + missing_names
