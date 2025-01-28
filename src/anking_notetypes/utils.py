@@ -1,9 +1,16 @@
 import re
 import time
+from copy import deepcopy
 
 from aqt import mw
 
-from .constants import ANKIHUB_TEMPLATE_END_COMMENT, ANKIHUB_TEMPLATE_SNIPPET_RE
+from .constants import (
+    ANKIHUB_CSS_END_COMMENT,
+    ANKIHUB_CSS_END_COMMENT_RE,
+    ANKIHUB_HTML_END_COMMENT,
+    ANKIHUB_HTML_END_COMMENT_RE,
+    ANKIHUB_TEMPLATE_SNIPPET_RE,
+)
 from .notetype_setting_definitions import anking_notetype_model
 
 try:
@@ -28,53 +35,78 @@ def update_notetype_to_newest_version(
 
     new_model = adjust_field_ords(model, new_model)
 
-    # the order is important here
-    # the end comment must be added after the ankihub snippet
-    retain_ankihub_modifications_to_templates(model, new_model)
-    retain_content_below_ankihub_end_comment_or_add_end_comment(model, new_model)
+    new_model = _retain_content_below_ankihub_end_comment_or_add_end_comment(
+        model, new_model
+    )
 
     model.update(new_model)
 
 
-def retain_ankihub_modifications_to_templates(
+def _retain_content_below_ankihub_end_comment_or_add_end_comment(
     old_model: "NotetypeDict", new_model: "NotetypeDict"
 ) -> "NotetypeDict":
+    updated_templates = []
     for old_template, new_template in zip(old_model["tmpls"], new_model["tmpls"]):
-        for template_type in ["qfmt", "afmt"]:
-            m = re.search(ANKIHUB_TEMPLATE_SNIPPET_RE, old_template[template_type])
-            if not m:
-                continue
-
-            new_template[template_type] = (
-                new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
+        updated_template = deepcopy(new_template)
+        for template_side in ["qfmt", "afmt"]:
+            updated_template[template_side] = _updated_note_type_content(
+                old_template[template_side],
+                new_template[template_side],
+                content_type="html",
             )
+        updated_templates.append(updated_template)
 
-    return new_model
+    result = deepcopy(new_model)
+    result["tmpls"] = updated_templates
+
+    result["css"] = _updated_note_type_content(
+        old_content=old_model["css"],
+        new_content=new_model["css"],
+        content_type="css",
+    )
+
+    return result
 
 
-def retain_content_below_ankihub_end_comment_or_add_end_comment(
-    old_model: "NotetypeDict", new_model: "NotetypeDict"
-) -> "NotetypeDict":
-    # will add the end comment if it doesn't exist
-    for old_template, new_template in zip(old_model["tmpls"], new_model["tmpls"]):
-        for template_type in ["qfmt", "afmt"]:
-            m = re.search(
-                rf"{ANKIHUB_TEMPLATE_END_COMMENT}[\w\W]*",
-                old_template[template_type],
-            )
-            if m:
-                new_template[template_type] = (
-                    new_template[template_type].rstrip("\n ") + "\n\n" + m.group(0)
-                )
-            else:
-                new_template[template_type] = (
-                    new_template[template_type].rstrip("\n ")
-                    + "\n\n"
-                    + ANKIHUB_TEMPLATE_END_COMMENT
-                    + "\n\n"
-                )
+def _updated_note_type_content(
+    old_content: str,
+    new_content: str,
+    content_type: str,
+) -> str:
+    """Returns updated content with preserved content below ankihub end comment.
 
-    return new_model
+    Args:
+      old_content: Original content to preserve custom additions from
+      new_content: New base content to use
+      content_type: Either "html" or "css" to determine comment style
+    """
+    if content_type == "html":
+        end_comment = ANKIHUB_HTML_END_COMMENT
+        end_comment_pattern = ANKIHUB_HTML_END_COMMENT_RE
+    else:
+        end_comment = ANKIHUB_CSS_END_COMMENT
+        end_comment_pattern = ANKIHUB_CSS_END_COMMENT_RE
+
+    snippet_match = re.search(ANKIHUB_TEMPLATE_SNIPPET_RE, old_content)
+    snippet_to_migrate = snippet_match.group() if snippet_match else ""
+
+    text_to_migrate_match = re.search(end_comment_pattern, old_content)
+    text_to_migrate = (
+        text_to_migrate_match.group("text_to_migrate") if text_to_migrate_match else ""
+    )
+
+    # Remove end comment and content below it.
+    # It will be added back below.
+    result = re.sub(end_comment_pattern, "", new_content)
+
+    return (
+        result.rstrip("\n ")
+        + (f"\n{snippet_to_migrate}" if snippet_to_migrate else "")
+        + "\n\n"
+        + end_comment
+        + "\n"
+        + text_to_migrate.strip("\n ")
+    )
 
 
 def adjust_field_ords(
