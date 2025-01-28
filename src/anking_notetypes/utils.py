@@ -35,14 +35,12 @@ def update_notetype_to_newest_version(
 
     new_model = adjust_field_ords(model, new_model)
 
-    new_model = _retain_content_below_ankihub_end_comment_or_add_end_comment(
-        model, new_model
-    )
+    new_model = _retain_ankihub_modifications(model, new_model)
 
     model.update(new_model)
 
 
-def _retain_content_below_ankihub_end_comment_or_add_end_comment(
+def _retain_ankihub_modifications(
     old_model: "NotetypeDict", new_model: "NotetypeDict"
 ) -> "NotetypeDict":
     updated_templates = []
@@ -73,10 +71,11 @@ def _updated_note_type_content(
     new_content: str,
     content_type: str,
 ) -> str:
-    """Returns updated content with preserved content below ankihub end comment.
+    """Returns new_content with preserved ankihub modifications and
+    preserved content below the ankihub end comment.
 
     Args:
-      old_content: Original content to preserve custom additions from
+      old_content: Original content to preserve ankihub modifications and custom additions from
       new_content: New base content to use
       content_type: Either "html" or "css" to determine comment style
     """
