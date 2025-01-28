@@ -87,7 +87,7 @@ def _updated_note_type_content(
         end_comment_pattern = ANKIHUB_CSS_END_COMMENT_RE
 
     snippet_match = re.search(ANKIHUB_TEMPLATE_SNIPPET_RE, old_content)
-    snippet_to_migrate = snippet_match.group() if snippet_match else ""
+    ankihub_snippet = snippet_match.group() if snippet_match else ""
 
     text_to_migrate_match = re.search(end_comment_pattern, old_content)
     text_to_migrate = (
@@ -100,7 +100,7 @@ def _updated_note_type_content(
 
     return (
         result.rstrip("\n ")
-        + (f"\n{snippet_to_migrate}" if snippet_to_migrate else "")
+        + (f"\n{ankihub_snippet}" if ankihub_snippet else "")
         + "\n\n"
         + end_comment
         + "\n"
