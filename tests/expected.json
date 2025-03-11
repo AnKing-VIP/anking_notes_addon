@@ -672,7 +672,7 @@
         "autoreveal_personal_notes": false,
         "autoscroll_to_button": true,
         "back_signal_tag": "XXXYYYZZZ",
-        "back_tts": true,
+        "back_tts": false,
         "back_tts_speed": 1.4,
         "background_color": "#f8f9fd",
         "bold_text_color": "inherit",

@@ -8,7 +8,7 @@ from aqt.utils import askUser, tooltip
 
 from ..constants import NOTETYPE_COPY_RE
 from ..notetype_setting_definitions import anking_notetype_names
-from ..utils import adjust_field_ords, create_backup
+from ..utils import adjust_fields, create_backup
 
 
 def handle_extra_notetype_versions() -> None:
@@ -72,7 +72,7 @@ def convert_extra_notetypes(
             new_model["id"] = model_copy["id"]
             new_model["name"] = model_copy["name"]  # to prevent duplicates
             new_model["usn"] = -1  # triggers full sync
-            new_model = adjust_field_ords(model_copy, new_model)
+            new_model["flds"] = adjust_fields(model_copy["flds"], new_model["flds"])
             mw.col.models.update_dict(new_model)
 
             # change the notes of type <notetype_copy> to type <notetype>

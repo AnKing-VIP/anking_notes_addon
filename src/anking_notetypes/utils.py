@@ -1,6 +1,7 @@
 import re
 import time
 from copy import deepcopy
+from typing import Dict, List
 
 from aqt import mw
 
@@ -33,7 +34,7 @@ def update_notetype_to_newest_version(
     if ankihub_field:
         new_model["flds"].append(ankihub_field)
 
-    new_model = adjust_field_ords(model, new_model)
+    new_model["flds"] = adjust_fields(model["flds"], new_model["flds"])
 
     new_model = _retain_ankihub_modifications(model, new_model)
 
@@ -108,29 +109,59 @@ def _updated_note_type_content(
     )
 
 
-def adjust_field_ords(
-    cur_model: "NotetypeDict", new_model: "NotetypeDict"
-) -> "NotetypeDict":
-    # this makes sure that when fields get added or are moved
-    # field contents end up in the field with the same name as before
-    # note that the resulting model will have exactly the same set of fields as the new_model
-    for fld in new_model["flds"]:
-        if (
-            cur_ord := next(
-                (
-                    _fld["ord"]
-                    for _fld in cur_model["flds"]
-                    if _fld["name"] == fld["name"]
-                ),
-                None,
-            )
-        ) is not None:
-            fld["ord"] = cur_ord
+def adjust_fields(
+    cur_model_fields: List[Dict], new_model_fields: List[Dict]
+) -> List[Dict]:
+    """
+    Prepares note type fields for updates by merging fields from the current and new models.
+
+    This function handles several operations when updating note types:
+    1. Maintains field content mapping by assigning appropriate 'ord' values to matching fields
+    2. Assigns high 'ord' values to new fields so they start empty
+    3. Appends fields that only exist locally to the new model
+    4. Ensures the ankihub_id field remains at the end if it exists
+
+    Returns:
+        Updated note type fields
+    """
+    new_model_fields = deepcopy(new_model_fields)
+
+    cur_model_field_map = {
+        field["name"].lower(): field["ord"] for field in cur_model_fields
+    }
+
+    # Set appropriate ord values for each new field
+    for new_model_field in new_model_fields:
+        field_name_lower = new_model_field["name"].lower()
+        if field_name_lower in cur_model_field_map:
+            # If field exists in current model, preserve its ord value
+            new_model_field["ord"] = cur_model_field_map[field_name_lower]
         else:
-            # it's okay to assign this to multiple fields because the
-            # backend assigns new ords equal to the fields index
-            fld["ord"] = len(new_model["flds"]) - 1
-    return new_model
+            # For new fields, set ord to a value outside the range of current fields
+            new_model_field["ord"] = len(cur_model_fields) + 1
+
+    # Append fields that only exist locally to the new model, while keeping the ankihub_id field at the end
+    new_model_field_names = {field["name"].lower() for field in new_model_fields}
+    only_local_fields = [
+        field
+        for field in cur_model_fields
+        if field["name"].lower() not in new_model_field_names
+    ]
+
+    ankihub_id_field = next(
+        (field for field in new_model_fields if field["name"] == "ankihub_id"), None
+    )
+    if ankihub_id_field:
+        new_model_fields_without_ankihub = [
+            field for field in new_model_fields if field["name"] != "ankihub_id"
+        ]
+        final_fields = (
+            new_model_fields_without_ankihub + only_local_fields + [ankihub_id_field]
+        )
+    else:
+        final_fields = new_model_fields + only_local_fields
+
+    return final_fields
 
 
 def create_backup() -> None:
