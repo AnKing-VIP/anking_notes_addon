@@ -72,7 +72,7 @@ def convert_extra_notetypes(
             new_model["id"] = model_copy["id"]
             new_model["name"] = model_copy["name"]  # to prevent duplicates
             new_model["usn"] = -1  # triggers full sync
-            new_model = adjust_field_ords(model_copy, new_model)
+            new_model["flds"] = adjust_field_ords(model_copy["flds"], new_model["flds"])
             mw.col.models.update_dict(new_model)
 
             # change the notes of type <notetype_copy> to type <notetype>
