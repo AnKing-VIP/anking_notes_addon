@@ -34,7 +34,7 @@ def update_notetype_to_newest_version(
     if ankihub_field:
         new_model["flds"].append(ankihub_field)
 
-    new_model["flds"] = adjust_field_ords(model["flds"], new_model["flds"])
+    new_model["flds"] = adjust_fields(model["flds"], new_model["flds"])
 
     new_model = _retain_ankihub_modifications(model, new_model)
 
@@ -109,7 +109,7 @@ def _updated_note_type_content(
     )
 
 
-def adjust_field_ords(
+def adjust_fields(
     cur_model_fields: List[Dict], new_model_fields: List[Dict]
 ) -> List[Dict]:
     """
