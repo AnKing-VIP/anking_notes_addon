@@ -147,9 +147,16 @@ def adjust_field_ords(
         for field in cur_model_fields
         if field["name"].lower() not in new_model_field_names
     ]
-    if new_model_fields[-1]["name"] == "ankihub_id":
+
+    ankihub_id_field = next(
+        (field for field in new_model_fields if field["name"] == "ankihub_id"), None
+    )
+    if ankihub_id_field:
+        new_model_fields_without_ankihub = [
+            field for field in new_model_fields if field["name"] != "ankihub_id"
+        ]
         final_fields = (
-            new_model_fields[:-1] + only_local_fields + [new_model_fields[-1]]
+            new_model_fields_without_ankihub + only_local_fields + [ankihub_id_field]
         )
     else:
         final_fields = new_model_fields + only_local_fields
