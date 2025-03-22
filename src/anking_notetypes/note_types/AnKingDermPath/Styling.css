@@ -1,10 +1,20 @@
-@import url("__closet-0.6.1.css");
+/*    ANKINGDERMPATH   */
 
+/* The AnKing wishes you the best of luck! Be sure to check out our YouTube channel and Instagram
+ for all things Anki and Med School related (including how to customize this card type and use these decks):  
+		www.TheAnKing.com
+			@ankingmed    			
+*/
 
 /*#########################################################
 ################  USER CUSTOMIZATION START  ##############*/
 /* You can choose colors at www.htmlcolorcodes.com */
 
+/* TIMER ON/OFF */
+.timer {
+  display: block;
+  /* ‘none’ or ‘block’ */
+}
 
 /* TAGS ON/OFF DESKTOP & MOBILE*/
 #tags-container {
@@ -23,31 +33,39 @@
   /* 0 normal, 55 to move up */
 }
 
+
 /*~~~~~~~~~FONT SIZE~~~~~~~~~*/
 /*NOTE: anything with 'px' will keep a font that size indefinitely, 
 'rem' is a fraction of this size above and allows all text to change size with the above setting */
 /* Desktop */
 html {
-  font-size: 28px;
+  font-size: 20px;
 }
 
 /* Mobile */
 .mobile {
-  font-size: 28px;
+  font-size: 16px;
 }
 
-/*IPAD ADJUSTMENTS (currently not applied)
-.ipad .card {
-  font-size: 28px;
+.ipad .mobile {
+  font-size: 20px !important;
 }
-.ipad .hints {
-  font-size: 24px;
-}
-*/
 
 /*Revealed Hints Font Size*/
 .hints {
   font-size: .85rem;
+}
+
+/*Other Fields Font Size*/
+#textbook,
+#additional {
+  font-size: .6rem !important;
+}
+
+/*Other Fields Font Size on Mobile*/
+.mobile #textbook,
+.mobile #additional {
+  font-size: 16px !important;
 }
 
 
@@ -58,41 +76,43 @@ kbd {
   /*Step exam's font is Arial Greek*/
 }
 
+
 /*~~~~~~~MAX IMAGE HEIGHT/WIDTH~~~~~~~*/
 img {
-  max-width: 100%;
-  /* note: changing this may impact the occlusions */
-  max-height: 100%;
+  max-width: 70%;
+  max-height: 320px !important;
 }
 
 
-/*~~~~~~~~~COLORS~~~~~~~~~*/
-.card {
-  /* OCCLUSION RECTANGLE COLORS */
-  --rect-bg: moccasin;
-  --rect-border: olive;
-  --active-rect-bg: salmon;
-  --active-rect-border: yellow;
-}
-
+/*~~~~~~~~~COLORS~~~~~~~~~/
 /* Default Text Color */
 .card {
-  color: #56868a;
+  color: black;
 }
 
 /* Background Color */
 .card {
-  background-color: #f8f9fd;
+  background-color: #D1CFCE;
+}
+
+/* Back side Text Color */
+#back {
+  color: black;
 }
 
 /* Hint Reveal Color */
 .hints {
-  color: #56868a;
+  color: #4297F9;
 }
 
 /* Missed Questions Hint Reveal Color */
 #missed {
-  color: #ff684d;
+  color: red;
+}
+
+/* Timer Countdown Color */
+.timer {
+  color: transparent;
 }
 
 /* Empty Link Color */
@@ -116,14 +136,20 @@ a[href^="javascript:"] {
   background-color: #272828 !important;
 }
 
+/* NM Back Side Text Color */
+.nightMode #back,
+.night_mode #back {
+  color: #FFFAFA !important;
+}
+
 /* NM Hint Reveal Color */
 .nightMode .hints,
 .night_mode .hints {
-  color: #78c0ca;
+  color: cyan;
 }
 
 
-/* COLOR ACCENTS FOR BOLD-ITALICS-UNDERLINE*/
+/* ~~~~~COLOR ACCENTS FOR BOLD-ITALICS-UNDERLINE~~~~~~*/
 b {
   color: inherit;
 }
@@ -156,8 +182,20 @@ i {
   margin: 1ex .3px;
 }
 
+/* Style the horizontal line */
+hr {
+  opacity: .7
+}
+
+/* Formatting For Timer */
+.timer {
+  font-size: 20px;
+  margin: 12em auto auto auto;
+}
+
 
 /* ~~~~~~~~~ FIELDS ~~~~~~~~~ */
+
 /* Text When Hint Is Shown*/
 .hints {
   font-style: italic;
@@ -233,12 +271,50 @@ border: 1px solid #a4cde0;
 background-color: #ffffff;
 }
 
+/* ~~~~~~~~~DETAILS FOR IMAGES~~~~~~~~~ */
+.mobile .card img {
+  max-width: 100% !important;
+}
+
+.ipad .card img {
+  max-width: 50% !important;
+}
+
+#clinical img, #dermoscopy img, #dermnet img {
+  max-width: 45%;
+}
+
+.ipad #dermnet img {
+  max-width: 40%!important;
+}
+
+#fullspectrum img {
+  max-width: 30%;
+}
+
+#textbook img {
+  max-width: 60%!important;
+}
+
+.ipad #additional img, .ipad #visualdx img, .ipad #dermnemonics img, .ipad #dermatographix img {
+  max-width: 60%!important;
+}
+
+/*Image hover zoom*/
+img:active {
+  transform: scale(1.4);
+}
+
+.mobile img:active {
+  transform: scale(1.0) !important;
+}
+
 
 /* ~~~~~~~MNEMONICS LEFT JUSTIFIED~~~~~~~ */
 .mnemonics {
   display: inline-block;
   max-width: 50%;
-  text-align: left;
+  text-align: left; /* can change to center to 'turn off' this feature */
 }
 
 .mobile .mnemonics {
@@ -307,13 +383,13 @@ ul ul, table ul, ol ol, table ol {
 }
 
 
-/* ~~~~~~PHYSEO HYPERLINK IMAGE~~~~~~ */
+/* ~~~~~~ANKING HYPERLINK IMAGE~~~~~~ */
 #pic {
-  opacity: 0.6;
+  opacity: 0.0;
   font-size: 16px;
   font-family: Comic Sans !important;
   font-style: bold;
-  height: 100px;
+  height: 50px;
   border: 0;
   position: fixed;
   bottom: 10px;
@@ -331,132 +407,6 @@ ul ul, table ul, ol ol, table ol {
 }
 
 
-/* ~~~~~~~ FRONT FORMATTING ~~~~~~~ */
-.header {
-  font-size: 1rem;
-  margin-bottom: 1em;
-}
-
-#front-info {
-  position: fixed;
-  top: 20vh;
-  width: 100%;
-  font-size: 20px;
-  text-align: center;
-}
-
-.mobile #front-info {
-  width: 90vw;
-  font-size: 4.5vw;
-}
-
-#front-info img {
-  margin-bottom: 2em;
-  max-width: 150px !important;
-}
-
-
-/* ~~~~~~~ FRONT TOOLTIP ~~~~~~~ */
-.help {
-  position: fixed;
-  top: 18px;
-  right: 18px;
-  text-align: center;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  font-size: 0.8rem;
-  line-height: 26px;
-  cursor: default;
-}
-
-.help:before {
-  content: '?';
-  font-weight: bold;
-}
-
-.help:hover p {
-  display: block;
-  transform-origin: 100% 0%;
-  -webkit-animation: fadeIn 0.3s ease-in-out;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-.help p {
-  display: none;
-  text-align: left;
-  background-color: #1E2021;
-  padding: 20px;
-  width: 300px;
-  position: absolute;
-  border-radius: 3px;
-  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
-  right: -4px;
-  color: #FFF;
-  font-size: 16px;
-  line-height: 1.4;
-}
-
-.help p:before {
-  position: absolute;
-  content: '';
-  width: 0;
-  height: 0;
-  border: 6px solid transparent;
-  border-bottom-color: #1E2021;
-  right: 10px;
-  top: -12px;
-}
-
-.help-tip p:after {
-  width: 100%;
-  height: 40px;
-  content: '';
-  position: absolute;
-  top: -40px;
-  left: 0;
-}
-
-@-webkit-keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-
-  100% {
-    opacity: 100%;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 100%;
-  }
-}
-
-
-/* ~~~~~~INCREMENTAL REVEAL: Closet rects~~~~~~ */
-.closet-rect.is-active.is-back rect {
-  fill: var(--rect-bg);
-  stroke: var(--rect-border);
-  cursor: pointer;
-}
-
-.closet-rect.is-active.is-back.is-highlighted rect {
-  fill: var(--active-rect-bg);
-  stroke: var(--active-rect-border);
-}
-
-.closet-rect.revealed rect {
-  visibility: hidden;
-}
-
-
 /* ~~~~~~~~~ TAGS ~~~~~~~~~ */
 /* Container To Fix Tags At Bottom Of Screen */
 #tags-container {
@@ -465,15 +415,14 @@ ul ul, table ul, ol ol, table ol {
   width: 100%;
   line-height: .45rem;
   margin-left: -15px;
-  background-color: transparent;
 }
 
 /* Clickable Tags (need to download the add-on) */
 kbd {
   display: inline-block;
-  letter-spacing: .2px;
+  letter-spacing: .1px;
   font-weight: bold;
-  font-size: 12px !important;
+  font-size: 10px !important;
   text-shadow: none !important;
   padding: 0.05rem 0.1rem !important;
   margin: 1px !important;
@@ -483,7 +432,7 @@ kbd {
   background-color: transparent !important;
   box-shadow: none !important;
   opacity: 0.5;
-  vertical-align: middle;
+  vertical-align: middle !important;
   line-height: auto !important;
   height: auto !important;
 }
@@ -496,53 +445,53 @@ kbd:hover {
 
 /* Tag Colors */
 kbd:nth-of-type(1n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #F44336;
+  color: #F44336 !important;
 }
 
 kbd:nth-of-type(2n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #9C27B0;
+  color: #9C27B0 !important;
 }
 
 kbd:nth-of-type(3n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #3F51B5;
+  color: #3F51B5 !important;
 }
 
 kbd:nth-of-type(4n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #03A9F4;
+  color: #03A9F4 !important;
 }
 
 kbd:nth-of-type(5n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #009688;
+  color: #009688 !important;
 }
 
 kbd:nth-of-type(6n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #C0CA33;
+  color: #C0CA33 !important;
 }
 
 kbd:nth-of-type(7n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #FF9800;
+  color: #FF9800 !important;
 }
 
 kbd:nth-of-type(8n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #FF5722;
+  color: #FF5722 !important;
 }
 
 kbd:nth-of-type(9n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #9E9E9E;
+  color: #9E9E9E !important;
 }
 
 kbd:nth-of-type(10n+0) {
-  border-color: #78c0ca;
-  color: #588f96 !important;
+  border-color: #607D8B;
+  color: #607D8B !important;
 }
 
 /* Tag Mobile Adjustments */
@@ -590,28 +539,16 @@ kbd:nth-of-type(10n+0) {
   width: 50% !important;
 }
 
-.mobile .btn-spacer {
-  display: block;
-  height: 10px;
+
+#button-mq:not(.expanded-button) {
+  color: #c26165 !important;
 }
 
 
 html:not(.mobile) .button-general:hover {
   cursor: default;
-  background-color: #588f96 !important;
+  background-color: #E9E9E9 !important;
   color: #363638 !important;
-}
-
-html:not(.mobile) #button-ex:hover {
-  background-color: #588f96 !important;
-}
-
-html:not(.mobile) #button-ln:hover {
-  background-color: #588f96 !important;
-}
-
-#button-mq:not(.expanded-button) {
-  color: #c26165 !important;
 }
 
 html:not(.mobile) #button-mq:hover {
@@ -619,16 +556,16 @@ html:not(.mobile) #button-mq:hover {
   color: black !important;
 }
 
-/* Make it so tapping buttons doesn't trigger answering the card on mobile */
-.dummy-btn {
-  background: none !important;
-  color: inherit !important;
-  border: none !important;
-  padding: 0 !important;
-  font: inherit !important;
-  cursor: inherit !important;
-  outline: inherit !important;
-  filter: none !important;
+html:not(.mobile) #button-tx:hover {
+  background-color: #ea8eed !important;
+}
+
+html:not(.mobile) #button-ar:hover {
+  background-color: #FFF1B8 !important;
+}
+
+html:not(.mobile) #button-vd:hover {
+  background-color: #3c76fd !important;
 }
 
 /* Blur styles */
@@ -638,4 +575,10 @@ img {
 
 .blur {
   filter: blur(15px);
+}
+
+/* Remove padding around headers */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0; /* Removes default margins */
+  padding: 0; /* Removes default padding */
 }
