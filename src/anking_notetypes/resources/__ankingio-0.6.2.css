@@ -1,0 +1,172 @@
+@charset "UTF-8";
+.android .card:not(.mathjax-rendered) {
+  visibility: hidden;
+}
+
+.anking-delay {
+  visibility: hidden;
+}
+
+.anking-log {
+  color: black;
+  background-color: rgb(255, 147, 40);
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.anking-shuffle__separator::before {
+  content: ", ";
+}
+
+.anking-cloze::before {
+  content: "[";
+}
+.anking-cloze::after {
+  content: "]";
+}
+.anking-cloze.is-active {
+  color: #1560bd;
+}
+.anking-cloze.is-back::before, .anking-cloze.is-inactive::before {
+  content: normal;
+}
+.anking-cloze.is-back::after, .anking-cloze.is-inactive::after {
+  content: normal;
+}
+
+.anking-cloze__hint:empty::before {
+  content: "...";
+}
+
+.anking-cloze__ellipsis::before {
+  content: "...";
+}
+
+.anking-multiple-choice::before {
+  content: "( ";
+}
+.anking-multiple-choice::after {
+  content: " )";
+}
+.anking-multiple-choice.is-inactive::before {
+  content: normal;
+}
+.anking-multiple-choice.is-inactive::after {
+  content: normal;
+}
+
+.anking-multiple-choice__separator::before {
+  content: ", ";
+}
+
+.anking-multiple-choice__option {
+  color: orange;
+}
+
+.anking-multiple-choice__correct {
+  color: lime;
+}
+
+.anking-multiple-choice__wrong {
+  color: red;
+}
+
+.anking-multiple-choice__ellipsis::before {
+  content: "...";
+}
+
+.anking-mingle::before {
+  content: "«";
+}
+.anking-mingle::after {
+  content: "»";
+}
+.anking-mingle.is-active anking-mingle__item {
+  color: mediumpurple;
+}
+.anking-mingle.is-inactive::before {
+  content: normal;
+}
+.anking-mingle.is-inactive::after {
+  content: normal;
+}
+
+.anking-mingle__separator::before {
+  content: ", ";
+}
+
+.anking-mingle__ellipsis::before {
+  content: "...";
+}
+
+.anking-jumble::before {
+  content: "«";
+}
+.anking-jumble::after {
+  content: "»";
+}
+.anking-jumble.is-active anking-jumble__item {
+  color: mediumpurple;
+}
+.anking-jumble.is-inactive::before {
+  content: normal;
+}
+.anking-jumble.is-inactive::after {
+  content: normal;
+}
+
+.anking-jumble__separator::before {
+  content: ", ";
+}
+
+.anking-jumble__ellipsis::before {
+  content: "...";
+}
+
+.anking-sort::before {
+  content: "«";
+}
+.anking-sort::after {
+  content: "»";
+}
+.anking-sort.is-active anking-sort__item {
+  color: mediumpurple;
+}
+.anking-sort.is-inactive::before {
+  content: normal;
+}
+.anking-sort.is-inactive::after {
+  content: normal;
+}
+
+.anking-sort__separator::before {
+  content: ", ";
+}
+
+.anking-sort__ellipsis::before {
+  content: "...";
+}
+
+.anking-rect__rect {
+  fill: moccasin;
+  stroke: olive;
+}
+.is-active .anking-rect__rect {
+  fill: salmon;
+  stroke: yellow;
+}
+.is-back.is-active .anking-rect__rect {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.anking-rect__ellipsis {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.anking-rect__label {
+  stroke: black;
+  stroke-width: 0.5;
+}

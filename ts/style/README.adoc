@@ -1,0 +1,28 @@
+= Closet CSS classees
+
+.General
+----
+.is-front
+.is-back
+.is-active
+.is-inactive
+----
+
+.Clozes
+----
+.anking-cloze
+.anking-cloze__answer
+.anking-cloze__hint
+.anking-cloze__ellipsis
+----
+
+.Multiple Choice
+----
+.anking-multiple-choice
+.anking-multiple-choice__item
+.anking-multiple-choice__separator
+.anking-multiple-choice__option
+.anking-multiple-choice__correct
+.anking-mulitple-choice__wrong
+.anking-mulitple-choice__ellipsis
+----

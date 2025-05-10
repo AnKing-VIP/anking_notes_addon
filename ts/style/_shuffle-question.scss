@@ -1,0 +1,23 @@
+@use "utils";
+
+@mixin shuffle-question($name) {
+  .anking-#{$name} {
+    @include utils.wrap("«", "»");
+
+    &.is-active anking-#{$name}__item {
+      color: mediumpurple;
+    }
+
+    &.is-inactive {
+      @include utils.wrap-reset;
+    }
+  }
+
+  .anking-#{$name}__separator {
+    @include utils.placeholder(", ");
+  }
+
+  .anking-#{$name}__ellipsis {
+    @include utils.placeholder("...");
+  }
+}

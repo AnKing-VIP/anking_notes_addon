@@ -1,0 +1,7 @@
+@use "utils";
+
+@mixin shuffle {
+  .anking-shuffle__separator {
+    @include utils.placeholder(", ");
+  }
+}

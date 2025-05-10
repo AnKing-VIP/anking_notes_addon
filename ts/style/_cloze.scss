@@ -1,0 +1,26 @@
+@use "utils";
+
+@mixin cloze {
+  $denim-blue: #1560bd;
+
+  .anking-cloze {
+    @include utils.wrap("[", "]");
+
+    &.is-active {
+      color: $denim-blue;
+    }
+
+    &.is-back,
+    &.is-inactive {
+      @include utils.wrap-reset;
+    }
+  }
+
+  .anking-cloze__hint:empty {
+    @include utils.placeholder("...");
+  }
+
+  .anking-cloze__ellipsis {
+    @include utils.placeholder("...");
+  }
+}

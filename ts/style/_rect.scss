@@ -1,0 +1,28 @@
+@use "utils";
+
+@mixin rect {
+  .anking-rect__rect {
+    fill: moccasin;
+    stroke: olive;
+
+    .is-active & {
+      fill: salmon;
+      stroke: yellow;
+    }
+
+    .is-back.is-active & {
+      fill: transparent;
+      stroke: transparent;
+    }
+  }
+
+  .anking-rect__ellipsis {
+    fill: transparent;
+    stroke: transparent;
+  }
+
+  .anking-rect__label {
+    stroke: black;
+    stroke-width: 0.5;
+  }
+}

@@ -704,6 +704,24 @@ def anking_notetype_models() -> List["NotetypeDict"]:
     return [anking_notetype_model(name) for name in anking_notetype_names()]
 
 
+def notetype_base_name(model_name: str) -> str:
+    """Returns the base name of a note type, that is if it's a version of a an anking note type
+    it will return the base name, otherwise it will return the name itself."""
+    return next(
+        (
+            notetype_base_name
+            for notetype_base_name in anking_notetype_names()
+            if re.match(rf"{notetype_base_name}($| |-)", model_name)
+        ),
+        None,
+    )
+
+
+def is_io_note_type(model_name: str) -> bool:
+    "Return True if the given note type is an image occlusion type."
+    return notetype_base_name(model_name) in ("IO-one by one", "Physeo-IO one by one")
+
+
 def all_btns_setting_configs():
     result = OrderedDict()
     for notetype_name in anking_notetype_templates().keys():

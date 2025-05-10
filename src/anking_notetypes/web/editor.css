@@ -1,0 +1,36 @@
+img {
+  max-width: 100% !important;
+  max-height: var(--anking-closet-max-height);
+}
+
+.anking-select-mode {
+  /* slightly below top */
+  vertical-align: 20%;
+  /* night-mode fix */
+  background-color: var(--frame-bg);
+  border-color: var(--border);
+  color: var(--text-fg);
+}
+
+.anking-rect__rect {
+  fill: moccasin;
+  stroke: olive;
+}
+.is-active .anking-rect__rect {
+  fill: salmon;
+  stroke: yellow;
+}
+.is-back.is-active .anking-rect__rect {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.anking-rect__ellipsis {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.anking-rect__label {
+  stroke: black;
+  stroke-width: 0.5;
+}

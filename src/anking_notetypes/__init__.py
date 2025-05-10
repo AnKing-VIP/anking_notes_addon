@@ -7,20 +7,16 @@ if TYPE_CHECKING:
 
 from anki.utils import ids2str
 from aqt import mw
-from aqt.qt import QUrl
 from aqt.browser import Browser
-from aqt.editor import EditorWebView
 from aqt.gui_hooks import (
     browser_will_show_context_menu,
     card_layout_will_show,
     profile_did_open,
-    editor_will_show_context_menu,
 )
-from aqt.qt import QMenu, QPushButton, qtmajor, QAction, qconnect
+from aqt.qt import QMenu, QPushButton
 from aqt.utils import askUserDialog, tooltip
 
-from bs4 import BeautifulSoup
-
+from . import editor
 from .compat import add_compat_aliases
 from .gui.config_window import (
     NotetypesConfigWindow,
@@ -51,7 +47,7 @@ def setup():
 
     browser_will_show_context_menu.append(on_browser_will_show_context_menu)
 
-    editor_will_show_context_menu.append(on_editor_will_show_context_menu)
+    editor.init()
 
 
 def on_profile_did_open():
@@ -199,41 +195,6 @@ def on_browser_will_show_context_menu(browser: Browser, context_menu: QMenu) -> 
     context_menu.addAction(action)
     if not selected_nids:
         action.setDisabled(True)
-
-
-def on_editor_will_show_context_menu(webview: EditorWebView, menu: QMenu) -> None:
-    def on_blur_image() -> None:
-        editor = webview.editor
-        url = data.mediaUrl()
-        if url.matches(QUrl(mw.serverURL()), QUrl.UrlFormattingOption.RemovePath):
-            src = url.path().strip("/")
-        else:
-            src = url.toString()
-        field = editor.note.fields[editor.currentField]
-        soup = BeautifulSoup(field, "html.parser")
-        for img in soup("img"):
-            if img.get("src", "").strip("/") != src:
-                continue
-            classes = img.get("class", [])
-            if "blur" in classes:
-                classes.remove("blur")
-            else:
-                classes.append("blur")
-            if classes:
-                img["class"] = classes
-            elif "class" in img.attrs:
-                del img["class"]
-        editor.note.fields[editor.currentField] = soup.decode_contents()
-        editor.loadNoteKeepingFocus()
-
-    if qtmajor >= 6:
-        data = webview.lastContextMenuRequest()  # type: ignore
-    else:
-        data = webview.page().contextMenuData()
-    if data.mediaUrl().isValid():
-        blur_image_action = QAction("AnKing Notetypes: Blur/Unblur Image", menu)
-        qconnect(blur_image_action.triggered, on_blur_image)
-        menu.addAction(blur_image_action)
 
 
 if mw is not None:

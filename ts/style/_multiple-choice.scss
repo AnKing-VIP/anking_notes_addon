@@ -1,0 +1,31 @@
+@use "utils";
+
+@mixin multiple-choice {
+  .anking-multiple-choice {
+    @include utils.wrap("( ", " )");
+
+    &.is-inactive {
+      @include utils.wrap-reset;
+    }
+  }
+
+  .anking-multiple-choice__separator {
+    @include utils.placeholder(", ");
+  }
+
+  .anking-multiple-choice__option {
+    color: orange;
+  }
+
+  .anking-multiple-choice__correct {
+    color: lime;
+  }
+
+  .anking-multiple-choice__wrong {
+    color: red;
+  }
+
+  .anking-multiple-choice__ellipsis {
+    @include utils.placeholder("...");
+  }
+}

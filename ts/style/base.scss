@@ -1,0 +1,32 @@
+@use "shuffle";
+@use "cloze";
+@use "multiple-choice";
+@use "shuffle-question";
+@use "rect";
+
+.android .card:not(.mathjax-rendered) {
+  visibility: hidden;
+}
+
+.anking-delay {
+  visibility: hidden;
+}
+
+.anking-log {
+  color: black;
+  background-color: rgb(255, 147, 40);
+
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+@include shuffle.shuffle;
+
+@include cloze.cloze;
+@include multiple-choice.multiple-choice;
+@include shuffle-question.shuffle-question("mingle");
+@include shuffle-question.shuffle-question("jumble");
+@include shuffle-question.shuffle-question("sort");
+
+@include rect.rect;
