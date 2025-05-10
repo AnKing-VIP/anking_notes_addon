@@ -1,0 +1,26 @@
+@use "utils";
+
+@mixin cloze {
+  $denim-blue: #1560bd;
+
+  .closet-cloze {
+    @include utils.wrap("[", "]");
+
+    &.is-active {
+      color: $denim-blue;
+    }
+
+    &.is-back,
+    &.is-inactive {
+      @include utils.wrap-reset;
+    }
+  }
+
+  .closet-cloze__hint:empty {
+    @include utils.placeholder("...");
+  }
+
+  .closet-cloze__ellipsis {
+    @include utils.placeholder("...");
+  }
+}

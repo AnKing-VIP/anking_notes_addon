@@ -19,3 +19,6 @@ __pycache__/
 *.code-workspace
 
 **/.history
+
+node_modules
+yarn-error.log

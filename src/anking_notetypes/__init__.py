@@ -33,6 +33,7 @@ from .notetype_setting_definitions import (
     HINT_BUTTONS,
     anking_notetype_models,
 )
+from . import editor
 
 ADDON_DIR_NAME = str(Path(__file__).parent.name)
 RESOURCES_PATH = Path(__file__).parent / "resources"
@@ -52,6 +53,8 @@ def setup():
     browser_will_show_context_menu.append(on_browser_will_show_context_menu)
 
     editor_will_show_context_menu.append(on_editor_will_show_context_menu)
+
+    editor.init_webview()
 
 
 def on_profile_did_open():

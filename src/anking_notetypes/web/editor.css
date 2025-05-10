@@ -1,0 +1,36 @@
+img {
+  max-width: 100% !important;
+  max-height: var(--closet-max-height);
+}
+
+.closet-select-mode {
+  /* slightly below top */
+  vertical-align: 20%;
+  /* night-mode fix */
+  background-color: var(--frame-bg);
+  border-color: var(--border);
+  color: var(--text-fg);
+}
+
+.closet-rect__rect {
+  fill: moccasin;
+  stroke: olive;
+}
+.is-active .closet-rect__rect {
+  fill: salmon;
+  stroke: yellow;
+}
+.is-back.is-active .closet-rect__rect {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.closet-rect__ellipsis {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.closet-rect__label {
+  stroke: black;
+  stroke-width: 0.5;
+}
