@@ -1,4 +1,4 @@
-<!-- version b559248 -->
+<!-- version cdc8a44 -->
 <script>
 // ##############  OCCLUSION SHORTCUTS  ##############
 var RevealIncrementalShortcut = "N";
@@ -458,7 +458,7 @@ var numTagLevelsToShow = 0;
   var closetPromise = import(`${getAnkiPrefix()}/${closetFilename}`);
   closetPromise
   .then(
-    (closet) => closet.template.anki.initialize(closet, closetUserLogic, "{{Card}}", "{{Tags}}", "back"),
+    ( closet ) => closet.template.anki.initialize(closet, closetUserLogic, "{{Card}}", "{{Tags}}", "back"),
     (error) => console.log("An error occured while loading AnKing Closet:", error))
   .catch((error) => console.log("An error occured while executing AnKing Closet:", error));
   
