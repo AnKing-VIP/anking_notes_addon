@@ -5,20 +5,22 @@ from pathlib import Path
 from typing import Any, List, Optional, Tuple
 
 from aqt import mw
-from aqt.editor import Editor
+from aqt.editor import Editor, EditorWebView
 from aqt.gui_hooks import (
     editor_did_init_buttons,
     editor_did_init_shortcuts,
     editor_did_load_note,
     editor_will_load_note,
     editor_will_munge_html,
+    editor_will_show_context_menu,
     webview_did_receive_js_message,
     webview_will_set_content,
 )
-from aqt.qt import QKeySequence
+from aqt.qt import QAction, QKeySequence, QMenu, QUrl, qconnect, qtmajor
 from aqt.utils import shortcut, showInfo
-from .notetype_setting_definitions import is_io_note_type
+from bs4 import BeautifulSoup
 
+from .notetype_setting_definitions import is_io_note_type
 
 occlude_shortcut = "Ctrl+O"
 occlusion_behavior = "autopaste"
@@ -311,7 +313,42 @@ def maybe_refocus(editor):
     editor.web.eval("EditorIO.maybeRefocus(); ")
 
 
-def init_webview():
+def on_editor_will_show_context_menu(webview: EditorWebView, menu: QMenu) -> None:
+    def on_blur_image() -> None:
+        editor = webview.editor
+        url = data.mediaUrl()
+        if url.matches(QUrl(mw.serverURL()), QUrl.UrlFormattingOption.RemovePath):
+            src = url.path().strip("/")
+        else:
+            src = url.toString()
+        field = editor.note.fields[editor.currentField]
+        soup = BeautifulSoup(field, "html.parser")
+        for img in soup("img"):
+            if img.get("src", "").strip("/") != src:
+                continue
+            classes = img.get("class", [])
+            if "blur" in classes:
+                classes.remove("blur")
+            else:
+                classes.append("blur")
+            if classes:
+                img["class"] = classes
+            elif "class" in img.attrs:
+                del img["class"]
+        editor.note.fields[editor.currentField] = soup.decode_contents()
+        editor.loadNoteKeepingFocus()
+
+    if qtmajor >= 6:
+        data = webview.lastContextMenuRequest()  # type: ignore
+    else:
+        data = webview.page().contextMenuData()
+    if data.mediaUrl().isValid():
+        blur_image_action = QAction("AnKing Notetypes: Blur/Unblur Image", menu)
+        qconnect(blur_image_action.triggered, on_blur_image)
+        menu.addAction(blur_image_action)
+
+
+def init():
     webview_will_set_content.append(include_closet_code)
     webview_did_receive_js_message.append(add_occlusion_messages)
     editor_did_init_buttons.append(add_buttons)
@@ -319,4 +356,5 @@ def init_webview():
     editor_will_load_note.append(clear_occlusion_mode)
     editor_did_load_note.append(maybe_refocus)
     editor_will_munge_html.append(remove_occlusion_code)
+    editor_will_show_context_menu.append(on_editor_will_show_context_menu)
     mw.addonManager.setWebExports(__name__, r"(web|resources)/.*(css|js)")
