@@ -22,7 +22,7 @@ from bs4 import BeautifulSoup
 
 from .notetype_setting_definitions import is_io_note_type
 
-occlude_shortcut = "Ctrl+O"
+occlude_shortcut = "Ctrl+Shift+O"
 occlusion_behavior = "autopaste"
 
 
