@@ -20,8 +20,6 @@ from aqt.utils import shortcut, showInfo
 from .notetype_setting_definitions import is_io_note_type
 
 
-addon_package = mw.addonManager.addonFromModule(__name__)
-mw.addonManager.setWebExports(__name__, r"(web|resources)/.*(css|js)")
 occlude_shortcut = "Ctrl+O"
 occlusion_behavior = "autopaste"
 
@@ -140,6 +138,7 @@ def include_closet_code(webcontent, context) -> None:
     if not isinstance(context, Editor):
         return
 
+    addon_package = mw.addonManager.addonFromModule(__name__)
     webcontent.css.append(f"/_addons/{addon_package}/web/editor.css")
     webcontent.js.append(f"/_addons/{addon_package}/web/editor.js")
 
@@ -239,6 +238,7 @@ def toggle_occlusion_mode(editor):
         editor.web.eval("EditorCloset.setInactive()")
         return
 
+    addon_package = mw.addonManager.addonFromModule(__name__)
     js_path = json.dumps(f"_addons/{addon_package}/resources/{anking_io_js_filename()}")
     max_code_fields = get_max_code_field(editor)
 
@@ -316,3 +316,4 @@ def init_webview():
     editor_will_load_note.append(clear_occlusion_mode)
     editor_did_load_note.append(maybe_refocus)
     editor_will_munge_html.append(remove_occlusion_code)
+    mw.addonManager.setWebExports(__name__, r"(web|resources)/.*(css|js)")
