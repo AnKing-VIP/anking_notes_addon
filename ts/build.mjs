@@ -3,7 +3,7 @@ import * as esbuild from "esbuild";
 import fs from "fs";
 
 function getVersion() {
-    return fs.readFileSync(".version", { encoding: "utf8", flag: "r" });
+    return fs.readFileSync(".version", { encoding: "utf8", flag: "r" }).trim();
 }
 
 const production = env.NODE_ENV === "production";

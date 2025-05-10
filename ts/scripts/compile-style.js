@@ -5,7 +5,7 @@ const sass = require("sass");
 const __basedir = `${__dirname}/..`;
 
 const getVersion = () => {
-    return fs.readFileSync(`${__basedir}/.version`, { encoding: 'utf8', flag: 'r' });
+    return fs.readFileSync(`${__basedir}/.version`, { encoding: 'utf8', flag: 'r' }).trim();
 }
 const renderFile = (input, output) => {
     sass.render(
