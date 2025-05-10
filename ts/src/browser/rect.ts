@@ -135,13 +135,13 @@ const makeRects = (props: RectProperties | RectPropertyGetter) => <
 };
 
 const props: RectProperties = {
-    classes: "closet-rect__rect",
-    labelClasses: "closet-rect__label",
+    classes: "anking-rect__rect",
+    labelClasses: "anking-rect__label",
 };
 
 const ellipseProps: RectProperties = {
-    classes: "closet-rect__ellipsis",
-    labelClasses: "closet-rect__ellipsis",
+    classes: "anking-rect__ellipsis",
+    labelClasses: "anking-rect__ellipsis",
 };
 
 const classesForFront = "is-active is-front";

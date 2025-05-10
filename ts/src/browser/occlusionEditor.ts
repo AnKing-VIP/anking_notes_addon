@@ -95,8 +95,8 @@ const initRect = (
     const result = Rect.make();
     result.pos = [x, y, width, height];
     result.labelText = labelText;
-    result.classes = "closet-rect__rect";
-    result.labelClasses = "closet-rect__label";
+    result.classes = "anking-rect__rect";
+    result.labelClasses = "anking-rect__label";
 
     return result;
 };
@@ -235,7 +235,7 @@ const defaultRejectHandler: ShapeHandler = () => (
 ) => draw.cleanup();
 
 const occlusionCss = `
-.closet-occlusion-container {
+.anking-occlusion-container {
   outline: 3px dotted hotpink;
   outline-offset: -3px;
 }`;

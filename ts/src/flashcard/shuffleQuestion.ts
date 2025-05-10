@@ -27,17 +27,17 @@ const justValues = <T extends Un>(tag: TagNode, _internals: Internals<T>) =>
     tag.values;
 
 const mapper = (name: string) => (s: string) =>
-    `<span class="closet-${name}__item">${s}</span>`;
+    `<span class="anking-${name}__item">${s}</span>`;
 const separator = (name: string) =>
-    `<span class="closet-${name}__separator"></span>`;
+    `<span class="anking-${name}__separator"></span>`;
 
 const ellipsis = (name: string) => () =>
-    `<span class="closet-${name} is-inactive"><span class="closet-${name}__ellipsis"></span></span>`;
+    `<span class="anking-${name} is-inactive"><span class="anking-${name}__ellipsis"></span></span>`;
 
 const inactive = (name: string): Stylizer =>
     Stylizer.make({
         processor: (s: string) =>
-            `<span class="closet-${name} is-inactive">${s}</span>`,
+            `<span class="anking-${name} is-inactive">${s}</span>`,
         mapper: mapper(name),
         separator: separator(name),
     });
@@ -45,7 +45,7 @@ const inactive = (name: string): Stylizer =>
 const active = (name: string): Stylizer =>
     Stylizer.make({
         processor: (s: string) =>
-            `<span class="closet-${name} is-active">${s}</span>`,
+            `<span class="anking-${name} is-active">${s}</span>`,
         mapper: mapper(name),
         separator: separator(name),
     });

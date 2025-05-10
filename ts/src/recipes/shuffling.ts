@@ -7,9 +7,9 @@ import { topUp } from "../sortInStrategies";
 import { separated } from "../template/optics";
 
 const defaultStylizer = Stylizer.make({
-    processor: (s: string) => `<span class="closet-shuffle">${s}</span>`,
-    mapper: (s: string) => `<span class="closet-shuffle__item">${s}</span>`,
-    separator: '<span class="closet-shuffle__separator"></span>',
+    processor: (s: string) => `<span class="anking-shuffle">${s}</span>`,
+    mapper: (s: string) => `<span class="anking-shuffle__item">${s}</span>`,
+    separator: '<span class="anking-shuffle__separator"></span>',
 });
 
 const defaultEval = <T extends Un>(

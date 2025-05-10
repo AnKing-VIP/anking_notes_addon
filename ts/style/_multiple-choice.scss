@@ -1,7 +1,7 @@
 @use "utils";
 
 @mixin multiple-choice {
-  .closet-multiple-choice {
+  .anking-multiple-choice {
     @include utils.wrap("( ", " )");
 
     &.is-inactive {
@@ -9,23 +9,23 @@
     }
   }
 
-  .closet-multiple-choice__separator {
+  .anking-multiple-choice__separator {
     @include utils.placeholder(", ");
   }
 
-  .closet-multiple-choice__option {
+  .anking-multiple-choice__option {
     color: orange;
   }
 
-  .closet-multiple-choice__correct {
+  .anking-multiple-choice__correct {
     color: lime;
   }
 
-  .closet-multiple-choice__wrong {
+  .anking-multiple-choice__wrong {
     color: red;
   }
 
-  .closet-multiple-choice__ellipsis {
+  .anking-multiple-choice__ellipsis {
     @include utils.placeholder("...");
   }
 }

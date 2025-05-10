@@ -33,7 +33,7 @@ export interface MemoryMap {
     writeBack: () => void;
 }
 
-const _persistenceKey = "github.com/hgiesel/closet";
+const _persistenceKey = "github.com/AnKing-VIP/anking_notes_addon";
 
 // used in android, iOS, web
 class Persistence_sessionStorage implements AnkiPersistence {

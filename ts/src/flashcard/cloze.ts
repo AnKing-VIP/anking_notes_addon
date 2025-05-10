@@ -24,26 +24,26 @@ import {
 } from "./flashcardTemplate";
 
 const inactive = constant(
-    '<span class="closet-cloze is-inactive"><span class="closet-cloze__ellipsis"></span></span>',
+    '<span class="anking-cloze is-inactive"><span class="anking-cloze__ellipsis"></span></span>',
 );
 
 const active = (side: string) => (s: string) =>
-    `<span class="closet-cloze is-active is-${side}">${s}</span>`;
+    `<span class="anking-cloze is-active is-${side}">${s}</span>`;
 const activeFront: Stylizer = Stylizer.make({ processor: active("front") });
 const activeBack = Stylizer.make({ processor: active("back") });
 
 const hint = <T extends Un>(tag: TagNode, _internals: Internals<T>) => {
-    return [`<span class="closet-cloze__hint">${tag.values[1] ?? ""}</span>`];
+    return [`<span class="anking-cloze__hint">${tag.values[1] ?? ""}</span>`];
 };
 
 const answer = (tag: TagNode) =>
-    `<span class="closet-cloze__answer">${tag.values[0]}</span>`;
+    `<span class="anking-cloze__answer">${tag.values[0]}</span>`;
 const answerBubbleReady = <T extends Un>(
     tag: TagNode,
     { ready }: Internals<T>,
 ) => ({
     ready: ready,
-    result: `<span  class="closet-cloze is-inactive">${answer(tag)}</span>`,
+    result: `<span  class="anking-cloze is-inactive">${answer(tag)}</span>`,
 });
 const answerAsList = (tag: TagNode) => [answer(tag)];
 

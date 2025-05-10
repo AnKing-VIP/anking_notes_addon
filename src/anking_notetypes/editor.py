@@ -94,7 +94,7 @@ def make_insertion_js(field_index: int, text: str) -> str:
 
     cmd = (
         f"pycmd(`key:{field_index}:${{getNoteId()}}:{escaped}`); "
-        f"EditorCloset.setFieldHTML({field_index}, `{escaped}`); "
+        f"EditorIO.setFieldHTML({field_index}, `{escaped}`); "
     )
     return cmd
 
@@ -106,7 +106,7 @@ def insert_into_zero_indexed(editor, text: str) -> None:
         if not match or int(match[0]) != 0:
             continue
 
-        editor.web.eval(f"EditorCloset.insertIntoZeroIndexed(`{text}`, {index}); ")
+        editor.web.eval(f"EditorIO.insertIntoZeroIndexed(`{text}`, {index}); ")
         break
 
 
@@ -157,13 +157,13 @@ def add_occlusion_messages(
     if isinstance(context, Editor):
         editor: Editor = context
         global old_occlusion_indices, occlusion_editor_active  # pylint: disable=global-statement
-        if message.startswith("oldOcclusions"):
+        if message.startswith("ankingOldOcclusions"):
             _, _src, index_text = message.split(":", 2)
             old_occlusion_indices = process_occlusion_index_text(index_text)
 
             return (True, None)
 
-        elif message.startswith("newOcclusions"):
+        elif message.startswith("ankingNewOcclusions"):
             _, _src, index_text = message.split(":", 2)
             indices = process_occlusion_index_text(index_text)
 
@@ -172,7 +172,7 @@ def add_occlusion_messages(
 
             return (True, could_fill)
 
-        elif message.startswith("occlusionText"):
+        elif message.startswith("ankingOcclusionText"):
             text = message.split(":", 1)[1]
 
             if occlusion_behavior == "autopaste":
@@ -182,19 +182,19 @@ def add_occlusion_messages(
 
             return (True, None)
 
-        elif message == "occlusionEditorActive":
+        elif message == "ankingOcclusionEditorActive":
             occlusion_editor_active = True
             return (True, None)
 
-        elif message == "occlusionEditorInactive":
+        elif message == "ankingOcclusionEditorInactive":
             occlusion_editor_active = False
             return (True, None)
 
-        elif message.startswith("closetRefocus"):
+        elif message.startswith("ankingClosetRefocus"):
             refocus(editor)
             return (True, None)
 
-        elif message.startswith("closetMultipleImages"):
+        elif message.startswith("ankingClosetMultipleImages"):
             showInfo("Cannot start occlusion editor if field contains multiple images.")
             return (True, None)
 
@@ -235,7 +235,7 @@ def toggle_occlusion_mode(editor):
 
     if not is_io_note_type(model["name"]):
         showInfo("Please choose an AnKing image occlusion note type")
-        editor.web.eval("EditorCloset.setInactive()")
+        editor.web.eval("EditorIO.setInactive()")
         return
 
     addon_package = mw.addonManager.addonFromModule(__name__)
@@ -245,7 +245,7 @@ def toggle_occlusion_mode(editor):
     if not mw.focusWidget() is editor:
         refocus(editor)
 
-    editor.web.eval(f"EditorCloset.toggleOcclusionMode({js_path}, {max_code_fields})")
+    editor.web.eval(f"EditorIO.toggleOcclusionMode({js_path}, {max_code_fields})")
 
 
 def add_occlusion_button(buttons, editor):
@@ -256,13 +256,15 @@ def add_occlusion_button(buttons, editor):
 
     occlusion_button = editor._addButton(  # pylint: disable=protected-access
         str(icon_path.absolute()),
-        "occlude",
+        "anking_occlude",
         f"Put all fields into occlusion mode ({shortcut_as_text})",
-        id="closetOcclude",
+        id="ankingOcclude",
         disables=False,
     )
 
-    editor._links["occlude"] = toggle_occlusion_mode  # pylint: disable=protected-access
+    editor._links[  # pylint: disable=protected-access
+        "anking_occlude"
+    ] = toggle_occlusion_mode
     buttons.insert(-1, occlusion_button)
 
 
@@ -271,7 +273,8 @@ def wrap_as_option(name: str, code: str, tooltip: str, shortcut_text: str) -> st
 
 
 def add_buttons(buttons, editor):
-    editor.occlusion_editor_active = False
+    global occlusion_editor_active  # pylint: disable=global-statement
+    occlusion_editor_active = False
 
     add_occlusion_button(buttons, editor)
 
@@ -282,7 +285,7 @@ def add_occlusion_shortcut(cuts, editor):
 
 occlusion_container_pattern = re.compile(
     # remove trailing <br> to prevent accumulation
-    r'<div class="closet-occlusion-container">.*?(<img.*?>).*?</div>(<br>)*'
+    r'<div class="anking-occlusion-container">.*?(<img.*?>).*?</div>(<br>)*'
 )
 
 
@@ -296,16 +299,16 @@ def remove_occlusion_code(txt: str, _editor) -> str:
 
 
 def clear_occlusion_mode(js, _note, _editor):
-    return f"EditorCloset.clearOcclusionMode().then(() => {{ {js} }}); "
+    return f"EditorIO.clearOcclusionMode().then(() => {{ {js} }}); "
 
 
 def refocus(editor):
     editor.web.setFocus()
-    editor.web.eval("EditorCloset.refocus(); ")
+    editor.web.eval("EditorIO.refocus(); ")
 
 
 def maybe_refocus(editor):
-    editor.web.eval("EditorCloset.maybeRefocus(); ")
+    editor.web.eval("EditorIO.maybeRefocus(); ")
 
 
 def init_webview():

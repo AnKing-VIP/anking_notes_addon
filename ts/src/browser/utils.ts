@@ -100,24 +100,24 @@ img {
   max-width: 100% !important;
 }
 
-.closet-occlusion-container {
+.anking-occlusion-container {
   display: inline-block;
   position: relative;
 }
 
-.closet-occlusion-container > * {
+.anking-occlusion-container > * {
   display: block;
 
   margin-left: auto;
   margin-right: auto;
 }
 
-.closet-occlusion-container > svg {
+.anking-occlusion-container > svg {
   position: absolute;
   top: 0;
 }
 
-.closet-shape > text {
+.anking-shape > text {
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;

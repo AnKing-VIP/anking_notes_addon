@@ -98,11 +98,11 @@ const logInit = (
     try {
         const times = init(closet, logic, cardType, tagsFull, side);
         console.log(
-            `Closet executed in ${times.map((t: number) => t.toFixed(3))}ms.`,
+            `AnKing Closet executed in ${times.map((t: number) => t.toFixed(3))}ms.`,
         );
     } catch (error) {
-        console.log("An error occured while executing Closet:", error);
-        ankiLog("An error occured while executing Closet", error);
+        console.log("An error occured while executing AnKing Closet:", error);
+        ankiLog("An error occured while executing AnKing Closet", error);
     } finally {
         cleanup();
     }

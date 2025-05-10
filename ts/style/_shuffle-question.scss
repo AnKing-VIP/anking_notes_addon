@@ -1,10 +1,10 @@
 @use "utils";
 
 @mixin shuffle-question($name) {
-  .closet-#{$name} {
+  .anking-#{$name} {
     @include utils.wrap("«", "»");
 
-    &.is-active .closet-#{$name}__item {
+    &.is-active anking-#{$name}__item {
       color: mediumpurple;
     }
 
@@ -13,11 +13,11 @@
     }
   }
 
-  .closet-#{$name}__separator {
+  .anking-#{$name}__separator {
     @include utils.placeholder(", ");
   }
 
-  .closet-#{$name}__ellipsis {
+  .anking-#{$name}__ellipsis {
     @include utils.placeholder("...");
   }
 }

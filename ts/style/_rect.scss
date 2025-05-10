@@ -1,7 +1,7 @@
 @use "utils";
 
 @mixin rect {
-  .closet-rect__rect {
+  .anking-rect__rect {
     fill: moccasin;
     stroke: olive;
 
@@ -16,12 +16,12 @@
     }
   }
 
-  .closet-rect__ellipsis {
+  .anking-rect__ellipsis {
     fill: transparent;
     stroke: transparent;
   }
 
-  .closet-rect__label {
+  .anking-rect__label {
     stroke: black;
     stroke-width: 0.5;
   }

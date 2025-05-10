@@ -3,7 +3,7 @@
 @mixin cloze {
   $denim-blue: #1560bd;
 
-  .closet-cloze {
+  .anking-cloze {
     @include utils.wrap("[", "]");
 
     &.is-active {
@@ -16,11 +16,11 @@
     }
   }
 
-  .closet-cloze__hint:empty {
+  .anking-cloze__hint:empty {
     @include utils.placeholder("...");
   }
 
-  .closet-cloze__ellipsis {
+  .anking-cloze__ellipsis {
     @include utils.placeholder("...");
   }
 }

@@ -1,9 +1,9 @@
 img {
   max-width: 100% !important;
-  max-height: var(--closet-max-height);
+  max-height: var(--anking-closet-max-height);
 }
 
-.closet-select-mode {
+.anking-select-mode {
   /* slightly below top */
   vertical-align: 20%;
   /* night-mode fix */
@@ -12,25 +12,25 @@ img {
   color: var(--text-fg);
 }
 
-.closet-rect__rect {
+.anking-rect__rect {
   fill: moccasin;
   stroke: olive;
 }
-.is-active .closet-rect__rect {
+.is-active .anking-rect__rect {
   fill: salmon;
   stroke: yellow;
 }
-.is-back.is-active .closet-rect__rect {
+.is-back.is-active .anking-rect__rect {
   fill: transparent;
   stroke: transparent;
 }
 
-.closet-rect__ellipsis {
+.anking-rect__ellipsis {
   fill: transparent;
   stroke: transparent;
 }
 
-.closet-rect__label {
+.anking-rect__label {
   stroke: black;
   stroke-width: 0.5;
 }

@@ -10,19 +10,19 @@
 
 .Clozes
 ----
-.closet-cloze
-.closet-cloze__answer
-.closet-cloze__hint
-.closet-cloze__ellipsis
+.anking-cloze
+.anking-cloze__answer
+.anking-cloze__hint
+.anking-cloze__ellipsis
 ----
 
 .Multiple Choice
 ----
-.closet-multiple-choice
-.closet-multiple-choice__item
-.closet-multiple-choice__separator
-.closet-multiple-choice__option
-.closet-multiple-choice__correct
-.closet-mulitple-choice__wrong
-.closet-mulitple-choice__ellipsis
+.anking-multiple-choice
+.anking-multiple-choice__item
+.anking-multiple-choice__separator
+.anking-multiple-choice__option
+.anking-multiple-choice__correct
+.anking-mulitple-choice__wrong
+.anking-mulitple-choice__ellipsis
 ----

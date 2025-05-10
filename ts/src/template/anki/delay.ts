@@ -21,19 +21,19 @@ const stringifyDescription = (description: InitDescription): string => {
             return "You have set the variable globalThis.closetImmediately.";
         case InitDescription.DesktopShownHook:
             return (
-                "Closet executes while MathJax is still rendering. " +
+                "AnKing Closet executes while MathJax is still rendering. " +
                 "You are on AnkiDesktop. " +
                 "The action will be pushed onto onShownHook."
             );
         case InitDescription.MobileMathJax:
             return (
-                "Closet executes while MathJax is still rendering. " +
+                "AnKing Closet executes while MathJax is still rendering. " +
                 "You are on AnkiMobile. " +
                 "The action will be enqueued on MathJax.Hub.Queue."
             );
         case InitDescription.DesktopMobileLate:
             return (
-                "Closet executes after MathJax finished rendering. " +
+                "AnKing Closet executes after MathJax finished rendering. " +
                 "The action will be executed immediatley."
             );
         case InitDescription.Web:

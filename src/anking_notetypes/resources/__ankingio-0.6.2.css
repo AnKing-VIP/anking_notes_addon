@@ -3,11 +3,11 @@
   visibility: hidden;
 }
 
-.closet-delay {
+.anking-delay {
   visibility: hidden;
 }
 
-.closet-log {
+.anking-log {
   color: black;
   background-color: rgb(255, 147, 40);
   margin-top: 1rem;
@@ -15,158 +15,158 @@
   border-radius: 0.5rem;
 }
 
-.closet-shuffle__separator::before {
+.anking-shuffle__separator::before {
   content: ", ";
 }
 
-.closet-cloze::before {
+.anking-cloze::before {
   content: "[";
 }
-.closet-cloze::after {
+.anking-cloze::after {
   content: "]";
 }
-.closet-cloze.is-active {
+.anking-cloze.is-active {
   color: #1560bd;
 }
-.closet-cloze.is-back::before, .closet-cloze.is-inactive::before {
+.anking-cloze.is-back::before, .anking-cloze.is-inactive::before {
   content: normal;
 }
-.closet-cloze.is-back::after, .closet-cloze.is-inactive::after {
+.anking-cloze.is-back::after, .anking-cloze.is-inactive::after {
   content: normal;
 }
 
-.closet-cloze__hint:empty::before {
+.anking-cloze__hint:empty::before {
   content: "...";
 }
 
-.closet-cloze__ellipsis::before {
+.anking-cloze__ellipsis::before {
   content: "...";
 }
 
-.closet-multiple-choice::before {
+.anking-multiple-choice::before {
   content: "( ";
 }
-.closet-multiple-choice::after {
+.anking-multiple-choice::after {
   content: " )";
 }
-.closet-multiple-choice.is-inactive::before {
+.anking-multiple-choice.is-inactive::before {
   content: normal;
 }
-.closet-multiple-choice.is-inactive::after {
+.anking-multiple-choice.is-inactive::after {
   content: normal;
 }
 
-.closet-multiple-choice__separator::before {
+.anking-multiple-choice__separator::before {
   content: ", ";
 }
 
-.closet-multiple-choice__option {
+.anking-multiple-choice__option {
   color: orange;
 }
 
-.closet-multiple-choice__correct {
+.anking-multiple-choice__correct {
   color: lime;
 }
 
-.closet-multiple-choice__wrong {
+.anking-multiple-choice__wrong {
   color: red;
 }
 
-.closet-multiple-choice__ellipsis::before {
+.anking-multiple-choice__ellipsis::before {
   content: "...";
 }
 
-.closet-mingle::before {
+.anking-mingle::before {
   content: "«";
 }
-.closet-mingle::after {
+.anking-mingle::after {
   content: "»";
 }
-.closet-mingle.is-active .closet-mingle__item {
+.anking-mingle.is-active anking-mingle__item {
   color: mediumpurple;
 }
-.closet-mingle.is-inactive::before {
+.anking-mingle.is-inactive::before {
   content: normal;
 }
-.closet-mingle.is-inactive::after {
+.anking-mingle.is-inactive::after {
   content: normal;
 }
 
-.closet-mingle__separator::before {
+.anking-mingle__separator::before {
   content: ", ";
 }
 
-.closet-mingle__ellipsis::before {
+.anking-mingle__ellipsis::before {
   content: "...";
 }
 
-.closet-jumble::before {
+.anking-jumble::before {
   content: "«";
 }
-.closet-jumble::after {
+.anking-jumble::after {
   content: "»";
 }
-.closet-jumble.is-active .closet-jumble__item {
+.anking-jumble.is-active anking-jumble__item {
   color: mediumpurple;
 }
-.closet-jumble.is-inactive::before {
+.anking-jumble.is-inactive::before {
   content: normal;
 }
-.closet-jumble.is-inactive::after {
+.anking-jumble.is-inactive::after {
   content: normal;
 }
 
-.closet-jumble__separator::before {
+.anking-jumble__separator::before {
   content: ", ";
 }
 
-.closet-jumble__ellipsis::before {
+.anking-jumble__ellipsis::before {
   content: "...";
 }
 
-.closet-sort::before {
+.anking-sort::before {
   content: "«";
 }
-.closet-sort::after {
+.anking-sort::after {
   content: "»";
 }
-.closet-sort.is-active .closet-sort__item {
+.anking-sort.is-active anking-sort__item {
   color: mediumpurple;
 }
-.closet-sort.is-inactive::before {
+.anking-sort.is-inactive::before {
   content: normal;
 }
-.closet-sort.is-inactive::after {
+.anking-sort.is-inactive::after {
   content: normal;
 }
 
-.closet-sort__separator::before {
+.anking-sort__separator::before {
   content: ", ";
 }
 
-.closet-sort__ellipsis::before {
+.anking-sort__ellipsis::before {
   content: "...";
 }
 
-.closet-rect__rect {
+.anking-rect__rect {
   fill: moccasin;
   stroke: olive;
 }
-.is-active .closet-rect__rect {
+.is-active .anking-rect__rect {
   fill: salmon;
   stroke: yellow;
 }
-.is-back.is-active .closet-rect__rect {
+.is-back.is-active .anking-rect__rect {
   fill: transparent;
   stroke: transparent;
 }
 
-.closet-rect__ellipsis {
+.anking-rect__ellipsis {
   fill: transparent;
   stroke: transparent;
 }
 
-.closet-rect__label {
+.anking-rect__label {
   stroke: black;
   stroke-width: 0.5;
 }

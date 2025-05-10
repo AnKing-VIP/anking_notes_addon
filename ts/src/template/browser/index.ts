@@ -13,14 +13,14 @@ export { interspliceChildNodes } from "./intersplice";
 const createStyleTag = (keyword: string, input: string): HTMLStyleElement => {
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
-    styleSheet.id = `closet-${keyword}`;
+    styleSheet.id = `anking-${keyword}`;
     styleSheet.textContent = input;
 
     return styleSheet;
 };
 
 const hasStyleTag = (root: Document | ShadowRoot, keyword: string): boolean => {
-    return Boolean(root.getElementById(`closet-${keyword}`));
+    return Boolean(root.getElementById(`anking-${keyword}`));
 };
 
 const appendDocumentStyle = (keyword: string, css: string): void => {
@@ -104,7 +104,7 @@ export class BrowserTemplate extends Template {
     }
 }
 
-const delayKeyword = "closet-delay";
+const delayKeyword = "anking-delay";
 
 export const cleanup = (): void => {
     for (const element of Array.from(

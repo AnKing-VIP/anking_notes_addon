@@ -45,9 +45,9 @@ const fillDataOptions = (partial: Partial<DataOptions>): DataOptions => {
     };
 };
 
-const closetEnvironmentName = "_closetEnvironment";
-interface ClosetEnvironment {
-    [closetEnvironmentName]: StorageType<unknown>;
+const ankingEnvironmentName = "_ankingEnvironment";
+interface AnkingEnvironment {
+    [ankingEnvironmentName]: StorageType<unknown>;
 }
 
 export class FilterManager<P extends Un>
@@ -67,13 +67,13 @@ export class FilterManager<P extends Un>
     ): FilterManager<P> {
         const environment = !Object.prototype.hasOwnProperty.call(
             globalThis,
-            closetEnvironmentName,
+            ankingEnvironmentName,
         )
-            ? ((globalThis as typeof globalThis & Partial<ClosetEnvironment>)[
-                  closetEnvironmentName
+            ? ((globalThis as typeof globalThis & Partial<AnkingEnvironment>)[
+                  ankingEnvironmentName
               ] = new Map())
-            : (globalThis as typeof globalThis & Partial<ClosetEnvironment>)[
-                  closetEnvironmentName
+            : (globalThis as typeof globalThis & Partial<AnkingEnvironment>)[
+                  ankingEnvironmentName
               ];
 
         return new FilterManager(

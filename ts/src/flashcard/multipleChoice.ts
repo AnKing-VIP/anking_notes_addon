@@ -26,7 +26,7 @@ import {
 type ValuePlusCategory = [string, number];
 
 const ellipsis = constant(
-    '<span class="closet-multiple-choice is-inactive"><span class="closet-multiple-choice__ellipsis"></span></span>',
+    '<span class="anking-multiple-choice is-inactive"><span class="anking-multiple-choice__ellipsis"></span></span>',
 );
 
 const valuesWithIndex = (tag: TagNode): ValuePlusCategory[] =>
@@ -38,29 +38,29 @@ const valuesWithIndex = (tag: TagNode): ValuePlusCategory[] =>
 
 const firstCategory = (tag: TagNode): string[] => tag.values[0];
 
-const separator = `<span class="closet-multiple-choice__separator"></span>`;
+const separator = `<span class="anking-multiple-choice__separator"></span>`;
 
 const inactive = Stylizer.make({
     processor: (s: string) =>
-        `<span class="closet-multiple-choice is-inactive">${s}</span>`,
+        `<span class="anking-multiple-choice is-inactive">${s}</span>`,
     mapper: (s: string) =>
-        `<span class="closet-multiple-choice__item">${s}</span>`,
+        `<span class="anking-multiple-choice__item">${s}</span>`,
     separator,
 });
 
 const active = (side: string) => (s: string) =>
-    `<span class="closet-multiple-choice is-active is-${side}">${s}</span>`;
+    `<span class="anking-multiple-choice is-active is-${side}">${s}</span>`;
 const activeFront = Stylizer.make({
     processor: active("front"),
     mapper: (s: string) =>
-        `<span class="closet-multiple-choice__item closet-multiple-choice__option">${s}</span>`,
+        `<span class="anking-multiple-choice__item anking-multiple-choice__option">${s}</span>`,
     separator,
 });
 
 const activeBack = Stylizer.make({
     processor: active("back"),
     mapper: (v: string, _i, t: number) =>
-        `<span class="closet-multiple-choice__item closet-multiple-choice__${
+        `<span class="anking-multiple-choice__item anking-multiple-choice__${
             t === 0 ? "correct" : "wrong"
         }">${v}</span>`,
     separator,
