@@ -253,7 +253,9 @@ var EditorIO = {
         if (EditorIO.occlusionMode) {
             EditorIO.occlusionEditorTarget.dispatchEvent(new Event("reject"));
 
-            EditorIO.occlusionField.callback.call();
+            setTimeout(() => {
+                EditorIO.occlusionField.callback.call();
+            })
             EditorIO.focusIndex = EditorIO.getFocusedFieldIndex();
 
             EditorIO.hadOcclusionEditor = true;
