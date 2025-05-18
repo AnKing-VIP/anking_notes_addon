@@ -77,7 +77,6 @@ const renderRects = <T extends Un>(
                 }
 
                 const svgRect = Rect.make(draw);
-                console.log(`x=${x}, y=${y}, width=${width}, height=${height}`);
                 svgRect.pos = [x, y, width, height];
 
                 for (const prop in options) {
