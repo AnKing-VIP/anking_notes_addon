@@ -1,4 +1,4 @@
-<!-- version c84ff46 -->
+<!-- version 2871f6b -->
 <div id="text">{{cloze:Text}}</div>
 
 <!-- ##############  Text-to-speech  ##############
@@ -237,7 +237,7 @@ if (typeof(window.Persistence) === 'undefined') {
       var cardNumberIsOneByOne = !clozeNumbers.filter(n => !Number.isNaN(n)).length || clozeNumbers.includes(parseInt(getCardNumber()))
 
       // check the amount of clozes -> disable OneByOne if less than minimum value wanted (minNumberOfClozes)
-      var numClozesForNumber = (minNumberOfClozes) ? document.querySelectorAll('.clozefield .cloze').length : 0
+      var numClozesForNumber = (minNumberOfClozes) ? document.querySelectorAll('.cloze').length : 0
 
       // stop OneByOne if selectiveOneByOne is not enabled for this specific card OR if OneByOne is disabled some other way
       // -> show normal backside
@@ -315,29 +315,37 @@ if (typeof(window.Persistence) === 'undefined') {
   function shortcutMatcher(shortcut) {
     let shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
     let mainKey = shortcutKeys[shortcutKeys.length - 1]
+    const mainKeyVariants = [];
     if (mainKey.length === 1) {
       if (/\d/.test(mainKey)) {
-        mainKey = "digit" + mainKey
+        // Treat alphanumeric and numpad keys interchangeably
+        mainKeyVariants.push("digit" + mainKey)
+        mainKeyVariants.push("numpad" + mainKey)
       } else if (/[a-zA-Z]/.test(mainKey)) {
-        mainKey = "key" + mainKey
+        mainKeyVariants.push("key" + mainKey)
       } else {
         let code = specialCharCodes[mainKey];
         if (code) {
           mainKey = code
+          mainKeyVariants.push(code)
+        } else {
+          mainKeyVariants.push(mainKey)
         }
       }
+    } else {
+      mainKeyVariants.push(mainKey)
     }
     let ctrl = shortcutKeys.includes("ctrl")
     let shift = shortcutKeys.includes("shift")
     let alt = shortcutKeys.includes("alt")
 
-    let matchShortcut = function (ctrl, shift, alt, mainKey, event) {
-      if (mainKey !== event.code.toLowerCase()) return false
+    let matchShortcut = function (ctrl, shift, alt, mainKeyVariants, event) {
+      if (!mainKeyVariants.includes(event.code.toLowerCase())) return false
       if (ctrl !== (event.ctrlKey || event.metaKey)) return false
       if (shift !== event.shiftKey) return false
       if (alt !== event.altKey) return false
       return true
-    }.bind(window, ctrl, shift, alt, mainKey)
+    }.bind(window, ctrl, shift, alt, mainKeyVariants)
     
     return matchShortcut
   }
@@ -372,7 +380,7 @@ if (typeof(window.Persistence) === 'undefined') {
 
 <!-- ANKING HYPERLINK IMAGE -->
 <div id="pic"><a href="https://www.ankingmed.com">
-    <img src="_AnKingIcon.png" alt="The AnKing" style="height:50px;border:0;position:fixed;bottom:10px;right:10px;">
+    <img src="_AnkingIconSmall.png" alt="The AnKing" style="height:50px;border:0;position:fixed;bottom:10px;right:10px;">
 </a></div>
 
 <script>
