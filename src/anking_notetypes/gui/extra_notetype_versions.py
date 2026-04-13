@@ -1,12 +1,13 @@
 import re
 from concurrent.futures import Future
 from copy import deepcopy
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from aqt import mw
 from aqt.utils import askUser, tooltip
 
 from ..constants import NOTETYPE_COPY_RE
+from ..notetype_renames import matching_notetype_names
 from ..notetype_setting_definitions import anking_notetype_names
 from ..utils import adjust_fields, create_backup
 
@@ -15,18 +16,22 @@ def handle_extra_notetype_versions() -> None:
     # mids of copies of the AnKing notetype identified by its name
     copy_mids_by_notetype_base_name: Dict[str, List[int]] = dict()
     for notetype_base_name in anking_notetype_names():
-        if mw.col.models.by_name(notetype_base_name) is None:
+        matching_names = matching_notetype_names(notetype_base_name)
+        existing_notetype_name = _first_existing_notetype_name(matching_names)
+        if existing_notetype_name is None:
             continue
 
         notetype_copy_mids = [
             x.id
             for x in mw.col.models.all_names_and_ids()
+            for matching_name in matching_names
             if re.match(
-                NOTETYPE_COPY_RE.format(notetype_base_name=notetype_base_name), x.name
+                NOTETYPE_COPY_RE.format(notetype_base_name=re.escape(matching_name)),
+                x.name,
             )
         ]
         if notetype_copy_mids:
-            copy_mids_by_notetype_base_name[notetype_base_name] = notetype_copy_mids
+            copy_mids_by_notetype_base_name[existing_notetype_name] = notetype_copy_mids
 
     if not copy_mids_by_notetype_base_name:
         return
@@ -92,3 +97,14 @@ def convert_extra_notetypes(
 
     mw.reset()
     tooltip("Note types were converted successfully.")
+
+
+def _first_existing_notetype_name(notetype_names: List[str]) -> Optional[str]:
+    return next(
+        (
+            notetype_name
+            for notetype_name in notetype_names
+            if mw.col.models.by_name(notetype_name) is not None
+        ),
+        None,
+    )

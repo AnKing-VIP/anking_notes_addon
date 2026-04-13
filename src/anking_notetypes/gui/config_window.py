@@ -11,6 +11,7 @@ from aqt.utils import askUser, showInfo, tooltip
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
 from ..constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
+from ..notetype_renames import canonical_notetype_name, matching_notetype_names
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
     anking_notetype_model,
@@ -390,7 +391,7 @@ class NotetypesConfigWindow:
             return
 
         nt_base_name = notetype_base_name(model["name"])
-        for model_version in _note_type_versions(model["name"]):
+        for model_version in _note_type_versions(nt_base_name):
             update_notetype_to_newest_version(model_version, nt_base_name)
             mw.col.models.update_dict(model_version)  # type: ignore
 
@@ -631,14 +632,29 @@ def _note_type_versions(nt_base_name: str) -> List["NotetypeDict"]:
     """Returns a list of all notetype versions of the notetype in the collection.
     Version of a note type are created by the AnkiHub add-on and by copying
     the base AnKing note types or importing them from different sources."""
+    nt_base_name = canonical_notetype_name(nt_base_name)
     models = [
         mw.col.models.get(x.id)  # type: ignore
         for x in mw.col.models.all_names_and_ids()
-        if x.name == nt_base_name
-        or re.match(ANKIHUB_NOTETYPE_RE.format(notetype_base_name=nt_base_name), x.name)
-        or re.match(NOTETYPE_COPY_RE.format(notetype_base_name=nt_base_name), x.name)
+        for matching_name in matching_notetype_names(nt_base_name)
+        if _matches_notetype_version(x.name, matching_name)
     ]
     return models
+
+
+def _matches_notetype_version(model_name: str, notetype_base_name: str) -> bool:
+    notetype_base_name_re = re.escape(notetype_base_name)
+    return bool(
+        model_name == notetype_base_name
+        or re.match(
+            ANKIHUB_NOTETYPE_RE.format(notetype_base_name=notetype_base_name_re),
+            model_name,
+        )
+        or re.match(
+            NOTETYPE_COPY_RE.format(notetype_base_name=notetype_base_name_re),
+            model_name,
+        )
+    )
 
 
 def _most_basic_notetype_version(nt_base_name: str) -> Optional["NotetypeDict"]:

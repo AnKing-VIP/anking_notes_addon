@@ -3,6 +3,12 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, OrderedDict, Tuple, Union
 
+from .notetype_renames import (
+    canonical_notetype_name,
+    legacy_notetype_names,
+    matching_notetype_names,
+)
+
 try:
     from anki.models import NotetypeDict  # pylint: disable=unused-import
 except:
@@ -675,7 +681,7 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
     for x in ANKING_NOTETYPES_PATH.iterdir():
         if not x.is_dir():
             continue
-        notetype_name = x.name
+        notetype_name = canonical_notetype_name(x.name)
 
         front_template = (x / "Front Template.html").read_text(
             encoding="utf-8", errors="ignore"
@@ -690,14 +696,32 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
 
 
 def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
+    notetype_name = canonical_notetype_name(notetype_name)
+    notetype_folder_name = _notetype_folder_name(notetype_name)
     result = json.loads(
-        (ANKING_NOTETYPES_PATH / notetype_name / f"{notetype_name}.json").read_text()
+        (
+            ANKING_NOTETYPES_PATH
+            / notetype_folder_name
+            / f"{notetype_folder_name}.json"
+        ).read_text()
     )
     front, back, styling = anking_notetype_templates()[notetype_name]
+    result["name"] = notetype_name
     result["tmpls"][0]["qfmt"] = front
     result["tmpls"][0]["afmt"] = back
     result["css"] = styling
     return result
+
+
+def _notetype_folder_name(notetype_name: str) -> str:
+    if (ANKING_NOTETYPES_PATH / notetype_name).is_dir():
+        return notetype_name
+
+    for legacy_name in legacy_notetype_names(notetype_name):
+        if (ANKING_NOTETYPES_PATH / legacy_name).is_dir():
+            return legacy_name
+
+    return notetype_name
 
 
 def anking_notetype_models() -> List["NotetypeDict"]:
@@ -711,7 +735,8 @@ def notetype_base_name(model_name: str) -> str:
         (
             notetype_base_name
             for notetype_base_name in anking_notetype_names()
-            if re.match(rf"{notetype_base_name}($| |-)", model_name)
+            for matching_name in matching_notetype_names(notetype_base_name)
+            if re.match(rf"{re.escape(matching_name)}($| |-)", model_name)
         ),
         None,
     )
