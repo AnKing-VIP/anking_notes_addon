@@ -10,7 +10,11 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
-from ..notetype_renames import canonical_notetype_name, matching_notetype_names
+from ..notetype_renames import (
+    canonical_notetype_name,
+    legacy_notetype_names,
+    matching_notetype_names,
+)
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
     anking_notetype_model,
@@ -652,15 +656,26 @@ def _matches_notetype_version(model_name: str, base_name: str) -> bool:
 
 
 def _most_basic_notetype_version(nt_base_name: str) -> Optional["NotetypeDict"]:
-    """Returns the most basic version of a note type, that is the version with the shortest name."""
+    """Returns the most basic version of a note type.
+
+    Prefers an exact match on the canonical name, then an exact legacy name,
+    then falls back to the shortest name. Without the canonical/legacy
+    preference, a legacy main like ``AnKingMCAT`` would beat ``AnKing MCAT``
+    on name length alone.
+    """
+    canonical = canonical_notetype_name(nt_base_name)
     model_versions = _note_type_versions(nt_base_name)
-    result = min(
+    versions_by_name = {model["name"]: model for model in model_versions}
+
+    for preferred in [canonical, *legacy_notetype_names(canonical)]:
+        if preferred in versions_by_name:
+            return versions_by_name[preferred]
+
+    return min(
         model_versions,
-        # sort by length of name and then alphabetically
         key=lambda model: (len(model["name"]), model["name"]),
         default=None,
     )
-    return result
 
 
 def _names_of_all_supported_note_types() -> List[str]:

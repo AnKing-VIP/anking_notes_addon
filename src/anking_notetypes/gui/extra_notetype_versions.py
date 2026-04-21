@@ -1,22 +1,24 @@
 from concurrent.futures import Future
 from copy import deepcopy
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from aqt import mw
 from aqt.utils import askUser, tooltip
 
-from ..notetype_renames import matching_notetype_names
+from ..notetype_renames import legacy_notetype_names, matching_notetype_names
 from ..notetype_setting_definitions import anking_notetype_names, is_notetype_copy
 from ..utils import adjust_fields, create_backup
 
+if TYPE_CHECKING:
+    from anki.models import NotetypeDict
+
 
 def handle_extra_notetype_versions() -> None:
-    # mids of copies of the AnKing notetype identified by its name
+    # mids of copies of the AnKing notetype, keyed by canonical base name
     copy_mids_by_notetype_base_name: Dict[str, List[int]] = dict()
     for notetype_base_name in anking_notetype_names():
         matching_names = matching_notetype_names(notetype_base_name)
-        existing_notetype_name = _first_existing_notetype_name(matching_names)
-        if existing_notetype_name is None:
+        if _first_existing_notetype_name(matching_names) is None:
             continue
 
         notetype_copy_mids = [
@@ -26,7 +28,7 @@ def handle_extra_notetype_versions() -> None:
             if is_notetype_copy(x.name, matching_name)
         ]
         if notetype_copy_mids:
-            copy_mids_by_notetype_base_name[existing_notetype_name] = notetype_copy_mids
+            copy_mids_by_notetype_base_name[notetype_base_name] = notetype_copy_mids
 
     if not copy_mids_by_notetype_base_name:
         return
@@ -63,6 +65,10 @@ def convert_extra_notetypes(
 
     for notetype_base_name, copy_mids in copy_mids_by_notetype_base_name.items():
         model = mw.col.models.by_name(notetype_base_name)
+        if model is None:
+            # Only a legacy-named main exists — rename it to canonical so
+            # copies (including canonical-named copies) fold into the new name.
+            model = _rename_legacy_main_to_canonical(notetype_base_name)
         for copy_mid in copy_mids:
             model_copy = mw.col.models.get(copy_mid)  # type: ignore
 
@@ -103,3 +109,15 @@ def _first_existing_notetype_name(notetype_names: List[str]) -> Optional[str]:
         ),
         None,
     )
+
+
+def _rename_legacy_main_to_canonical(canonical_name: str) -> Optional["NotetypeDict"]:
+    for legacy_name in legacy_notetype_names(canonical_name):
+        legacy_model = mw.col.models.by_name(legacy_name)
+        if legacy_model is None:
+            continue
+        legacy_model["name"] = canonical_name
+        legacy_model["usn"] = -1
+        mw.col.models.update_dict(legacy_model)
+        return mw.col.models.by_name(canonical_name)
+    return None

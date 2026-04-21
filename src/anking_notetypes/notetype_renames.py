@@ -34,8 +34,10 @@ def matching_notetype_names(canonical_name: str) -> List[str]:
 
 
 def renamed_notetype_name(model_name: str) -> str:
-    if model_name in FULL_NOTETYPE_RENAMES:
-        return FULL_NOTETYPE_RENAMES[model_name]
+    for old_full, new_full in FULL_NOTETYPE_RENAMES.items():
+        match = re.match(rf"{re.escape(old_full)}(?=$|-)", model_name)
+        if match:
+            return new_full + model_name[match.end() :]
 
     for old_name, new_name in NOTETYPE_RENAMES.items():
         match = re.match(rf"({re.escape(old_name)})(?=$| |-)", model_name)

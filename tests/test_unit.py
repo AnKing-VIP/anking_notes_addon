@@ -54,6 +54,16 @@ class TestNotetypeRenames:
             == "AnKing MCAT (AnKing MCAT Deck / AnKingMed)"
         )
 
+    def test_mcat_full_rename_preserves_copy_suffix(self):
+        assert (
+            renamed_notetype_name("AnKingMCAT (AnKing-MCAT / AnKingMed)-abcde")
+            == "AnKing MCAT (AnKing MCAT Deck / AnKingMed)-abcde"
+        )
+
+    def test_renamed_notetype_name_ignores_unrelated_prefix(self):
+        with patch.dict(NOTETYPE_RENAMES, FAKE_RENAMES):
+            assert renamed_notetype_name("Old-AnKingology") == "Old-AnKingology"
+
     def test_canonical_notetype_name(self):
         with patch.dict(NOTETYPE_RENAMES, FAKE_RENAMES):
             assert canonical_notetype_name("Old-AnKing") == "AnKingOverhaul"
