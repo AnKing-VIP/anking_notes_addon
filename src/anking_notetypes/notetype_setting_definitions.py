@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, OrderedDict, Tuple, Union
 
+from .constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
 from .notetype_renames import (
     canonical_notetype_name,
     legacy_notetype_names,
@@ -739,6 +740,24 @@ def notetype_base_name(model_name: str) -> str:
             if re.match(rf"{re.escape(matching_name)}($| |-)", model_name)
         ),
         None,
+    )
+
+
+def is_notetype_copy(model_name: str, base_name: str) -> bool:
+    return bool(
+        re.match(
+            NOTETYPE_COPY_RE.format(notetype_base_name=re.escape(base_name)),
+            model_name,
+        )
+    )
+
+
+def is_ankihub_notetype_version(model_name: str, base_name: str) -> bool:
+    return bool(
+        re.match(
+            ANKIHUB_NOTETYPE_RE.format(notetype_base_name=re.escape(base_name)),
+            model_name,
+        )
     )
 
 

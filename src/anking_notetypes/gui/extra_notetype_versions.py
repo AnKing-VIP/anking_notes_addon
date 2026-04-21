@@ -1,4 +1,3 @@
-import re
 from concurrent.futures import Future
 from copy import deepcopy
 from typing import Dict, List, Optional
@@ -6,9 +5,8 @@ from typing import Dict, List, Optional
 from aqt import mw
 from aqt.utils import askUser, tooltip
 
-from ..constants import NOTETYPE_COPY_RE
 from ..notetype_renames import matching_notetype_names
-from ..notetype_setting_definitions import anking_notetype_names
+from ..notetype_setting_definitions import anking_notetype_names, is_notetype_copy
 from ..utils import adjust_fields, create_backup
 
 
@@ -25,10 +23,7 @@ def handle_extra_notetype_versions() -> None:
             x.id
             for x in mw.col.models.all_names_and_ids()
             for matching_name in matching_names
-            if re.match(
-                NOTETYPE_COPY_RE.format(notetype_base_name=re.escape(matching_name)),
-                x.name,
-            )
+            if is_notetype_copy(x.name, matching_name)
         ]
         if notetype_copy_mids:
             copy_mids_by_notetype_base_name[existing_notetype_name] = notetype_copy_mids

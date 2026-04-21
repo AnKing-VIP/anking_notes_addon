@@ -10,7 +10,6 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
-from ..constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
 from ..notetype_renames import canonical_notetype_name, matching_notetype_names
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
@@ -19,8 +18,10 @@ from ..notetype_setting_definitions import (
     configurable_fields_for_notetype,
     general_settings,
     general_settings_defaults_dict,
-    setting_configs,
+    is_ankihub_notetype_version,
+    is_notetype_copy,
     notetype_base_name,
+    setting_configs,
 )
 from ..utils import update_notetype_to_newest_version
 from .anking_widgets import AnkingIconsLayout, GithubLinkLayout
@@ -642,18 +643,11 @@ def _note_type_versions(nt_base_name: str) -> List["NotetypeDict"]:
     return models
 
 
-def _matches_notetype_version(model_name: str, notetype_base_name: str) -> bool:
-    notetype_base_name_re = re.escape(notetype_base_name)
-    return bool(
-        model_name == notetype_base_name
-        or re.match(
-            ANKIHUB_NOTETYPE_RE.format(notetype_base_name=notetype_base_name_re),
-            model_name,
-        )
-        or re.match(
-            NOTETYPE_COPY_RE.format(notetype_base_name=notetype_base_name_re),
-            model_name,
-        )
+def _matches_notetype_version(model_name: str, base_name: str) -> bool:
+    return (
+        model_name == base_name
+        or is_ankihub_notetype_version(model_name, base_name)
+        or is_notetype_copy(model_name, base_name)
     )
 
 
