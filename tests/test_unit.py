@@ -50,10 +50,6 @@ class TestNotetypeRenames:
         assert (
             notetype_base_name("AnKingMCAT (AnKing-MCAT / AnKingMed)") == "AnKing MCAT"
         )
-        assert (
-            renamed_notetype_name("AnKingMCAT (AnKing-MCAT / AnKingMed)")
-            == "AnKing MCAT (AnKing MCAT Deck / AnKingMed)"
-        )
 
     def test_mcat_canonical_name_not_confused_with_anking_prefix(self):
         # "AnKing" is a valid base and prefix of "AnKing MCAT" — verify the
@@ -65,10 +61,11 @@ class TestNotetypeRenames:
             == "AnKing MCAT"
         )
 
-    def test_mcat_full_rename_preserves_copy_suffix(self):
+    def test_renamed_notetype_name_leaves_ankihub_qualified_alone(self):
+        # AnkiHub-qualified notetypes are renamed by the AnkiHub add-on, not here.
         assert (
-            renamed_notetype_name("AnKingMCAT (AnKing-MCAT / AnKingMed)-abcde")
-            == "AnKing MCAT (AnKing MCAT Deck / AnKingMed)-abcde"
+            renamed_notetype_name("AnKingMCAT (AnKing-MCAT / AnKingMed)")
+            == "AnKingMCAT (AnKing-MCAT / AnKingMed)"
         )
 
     def test_renamed_notetype_name_ignores_unrelated_prefix(self):
@@ -91,9 +88,10 @@ class TestNotetypeRenames:
         with patch.dict(NOTETYPE_RENAMES, FAKE_RENAMES):
             assert renamed_notetype_name("Old-AnKing") == "AnKingOverhaul"
             assert renamed_notetype_name("Old-AnKing-1dgs0") == "AnKingOverhaul-1dgs0"
+            # AnkiHub-qualified form is left alone — AnkiHub owns that rename.
             assert (
                 renamed_notetype_name("Old-AnKing (AnKing / Example)")
-                == "AnKingOverhaul (AnKing / Example)"
+                == "Old-AnKing (AnKing / Example)"
             )
 
     def test_notetype_base_name_recognizes_legacy_name(self):

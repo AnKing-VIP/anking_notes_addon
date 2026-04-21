@@ -8,14 +8,6 @@ NOTETYPE_RENAMES: Dict[str, str] = {
     "AnKingMCAT": "AnKing MCAT",
 }
 
-# Full renames for AnkiHub-qualified names where the deck portion also changed
-# and cannot be derived from NOTETYPE_RENAMES alone.
-FULL_NOTETYPE_RENAMES: Dict[str, str] = {
-    "AnKingMCAT (AnKing-MCAT / AnKingMed)": (
-        "AnKing MCAT (AnKing MCAT Deck / AnKingMed)"
-    ),
-}
-
 
 def canonical_notetype_name(notetype_name: str) -> str:
     return NOTETYPE_RENAMES.get(notetype_name, notetype_name)
@@ -34,13 +26,12 @@ def matching_notetype_names(canonical_name: str) -> List[str]:
 
 
 def renamed_notetype_name(model_name: str) -> str:
-    for old_full, new_full in FULL_NOTETYPE_RENAMES.items():
-        match = re.match(rf"{re.escape(old_full)}(?=$|-)", model_name)
-        if match:
-            return new_full + model_name[match.end() :]
-
+    # Match bare name or copy-suffixed form only. AnkiHub-qualified forms
+    # like "AnKingMCAT (AnKing-MCAT / AnKingMed)" are owned by the AnkiHub
+    # add-on — we don't rename them here because the deck portion may or
+    # may not be renamed upstream, and we can't know.
     for old_name, new_name in NOTETYPE_RENAMES.items():
-        match = re.match(rf"({re.escape(old_name)})(?=$| |-)", model_name)
+        match = re.match(rf"({re.escape(old_name)})(?=$|-)", model_name)
         if match:
             return new_name + model_name[match.end() :]
     return model_name
