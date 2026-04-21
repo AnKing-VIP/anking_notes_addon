@@ -632,11 +632,11 @@ def _note_type_versions(nt_base_name: str) -> List["NotetypeDict"]:
     """Returns a list of all notetype versions of the notetype in the collection.
     Version of a note type are created by the AnkiHub add-on and by copying
     the base AnKing note types or importing them from different sources."""
-    nt_base_name = canonical_notetype_name(nt_base_name)
+    matching_names = matching_notetype_names(canonical_notetype_name(nt_base_name))
     models = [
         mw.col.models.get(x.id)  # type: ignore
         for x in mw.col.models.all_names_and_ids()
-        for matching_name in matching_notetype_names(nt_base_name)
+        for matching_name in matching_names
         if _matches_notetype_version(x.name, matching_name)
     ]
     return models

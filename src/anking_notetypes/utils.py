@@ -44,12 +44,8 @@ def update_notetype_to_newest_version(
 
 def _updated_notetype_name(model_name: str) -> str:
     new_name = renamed_notetype_name(model_name)
-    if new_name == model_name:
+    if new_name == model_name or mw.col.models.by_name(new_name):
         return model_name
-
-    if mw.col.models.by_name(new_name):
-        return model_name
-
     return new_name
 
 

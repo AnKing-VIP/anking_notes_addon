@@ -8,6 +8,8 @@ NOTETYPE_RENAMES: Dict[str, str] = {
     "AnKingMCAT": "AnKing MCAT",
 }
 
+# Full renames for AnkiHub-qualified names where the deck portion also changed
+# and cannot be derived from NOTETYPE_RENAMES alone.
 FULL_NOTETYPE_RENAMES: Dict[str, str] = {
     "AnKingMCAT (AnKing-MCAT / AnKingMed)": (
         "AnKing MCAT (AnKing MCAT Deck / AnKingMed)"
