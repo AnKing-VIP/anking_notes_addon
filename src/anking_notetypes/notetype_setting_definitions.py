@@ -733,9 +733,9 @@ def notetype_base_name(model_name: str) -> str:
     """Returns the base name of a note type, that is if it's a version of a an anking note type
     it will return the base name, otherwise it will return the name itself."""
     candidates = [
-        (matching_name, notetype_base_name)
-        for notetype_base_name in anking_notetype_names()
-        for matching_name in matching_notetype_names(notetype_base_name)
+        (matching_name, base_name)
+        for base_name in anking_notetype_names()
+        for matching_name in matching_notetype_names(base_name)
     ]
     # Prefer the longest matching name so e.g. "AnKing MCAT" wins over "AnKing"
     # when the model is "AnKing MCAT" / "AnKing MCAT-abcde" / AnkiHub-qualified.
