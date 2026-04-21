@@ -148,7 +148,6 @@ def _rename_legacy_main_to_canonical(canonical_name: str) -> Optional["NotetypeD
         if legacy_model is None:
             continue
         legacy_model["name"] = canonical_name
-        legacy_model["usn"] = -1
         mw.col.models.update_dict(legacy_model)
         return legacy_model
     return None

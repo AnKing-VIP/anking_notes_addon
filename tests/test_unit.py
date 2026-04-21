@@ -188,7 +188,6 @@ class TestRenameLegacyMainToCanonical:
             )
 
         assert legacy_model["name"] == "AnKingOverhaul"
-        assert legacy_model["usn"] == -1
         mw_mock.col.models.update_dict.assert_called_once_with(legacy_model)
         assert result is legacy_model
 
