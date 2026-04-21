@@ -22,3 +22,5 @@ __pycache__/
 
 node_modules
 yarn-error.log
+
+.claude/
