@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from src.anking_notetypes import notetype_setting_definitions, utils
+from src.anking_notetypes.gui import extra_notetype_versions
 from src.anking_notetypes.notetype_renames import (
     NOTETYPE_RENAMES,
     canonical_notetype_name,
@@ -148,3 +149,41 @@ class TestUpdatedNotetypeName:
             NOTETYPE_RENAMES, FAKE_RENAMES
         ):
             assert utils._updated_notetype_name("Old-AnKing") == "Old-AnKing"
+
+
+class TestRenameLegacyMainToCanonical:
+    def test_renames_legacy_main_and_returns_canonical_model(self):
+        legacy_model = {"id": 42, "name": "Old-AnKing"}
+        canonical_model = {"id": 42, "name": "AnKingOverhaul"}
+        mw_mock = MagicMock()
+        mw_mock.col.models.by_name.side_effect = lambda name: {
+            "Old-AnKing": legacy_model,
+            "AnKingOverhaul": canonical_model,
+        }.get(name)
+
+        with patch.object(extra_notetype_versions, "mw", mw_mock), patch.dict(
+            NOTETYPE_RENAMES, FAKE_RENAMES
+        ):
+            result = extra_notetype_versions._rename_legacy_main_to_canonical(
+                "AnKingOverhaul"
+            )
+
+        assert legacy_model["name"] == "AnKingOverhaul"
+        assert legacy_model["usn"] == -1
+        mw_mock.col.models.update_dict.assert_called_once_with(legacy_model)
+        assert result is canonical_model
+
+    def test_returns_none_when_no_legacy_main_exists(self):
+        mw_mock = MagicMock()
+        mw_mock.col.models.by_name.return_value = None
+
+        with patch.object(extra_notetype_versions, "mw", mw_mock), patch.dict(
+            NOTETYPE_RENAMES, FAKE_RENAMES
+        ):
+            assert (
+                extra_notetype_versions._rename_legacy_main_to_canonical(
+                    "AnKingOverhaul"
+                )
+                is None
+            )
+        mw_mock.col.models.update_dict.assert_not_called()
