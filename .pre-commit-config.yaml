@@ -19,7 +19,7 @@ repos:
         args: ["--diff"]
 
 -   repo: https://github.com/pycqa/flake8
-    rev: 4.0.1
+    rev: 6.1.0
     hooks:
     -   id: flake8
 
@@ -29,7 +29,7 @@ repos:
     - id: pylint
       language: python
       types: [python]
-      additional_dependencies: [aqt]
+      additional_dependencies: [aqt, pytest]
       args:
         [
           "-rn", # Only display messages
