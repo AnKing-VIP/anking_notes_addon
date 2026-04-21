@@ -55,6 +55,16 @@ class TestNotetypeRenames:
             == "AnKing MCAT (AnKing MCAT Deck / AnKingMed)"
         )
 
+    def test_mcat_canonical_name_not_confused_with_anking_prefix(self):
+        # "AnKing" is a valid base and prefix of "AnKing MCAT" — verify the
+        # longer name wins so canonical MCAT names are not misclassified.
+        assert notetype_base_name("AnKing MCAT") == "AnKing MCAT"
+        assert notetype_base_name("AnKing MCAT-abcde") == "AnKing MCAT"
+        assert (
+            notetype_base_name("AnKing MCAT (AnKing MCAT Deck / AnKingMed)")
+            == "AnKing MCAT"
+        )
+
     def test_mcat_full_rename_preserves_copy_suffix(self):
         assert (
             renamed_notetype_name("AnKingMCAT (AnKing-MCAT / AnKingMed)-abcde")

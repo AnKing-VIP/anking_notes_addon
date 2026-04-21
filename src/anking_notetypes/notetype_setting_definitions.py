@@ -732,11 +732,18 @@ def anking_notetype_models() -> List["NotetypeDict"]:
 def notetype_base_name(model_name: str) -> str:
     """Returns the base name of a note type, that is if it's a version of a an anking note type
     it will return the base name, otherwise it will return the name itself."""
+    candidates = [
+        (matching_name, notetype_base_name)
+        for notetype_base_name in anking_notetype_names()
+        for matching_name in matching_notetype_names(notetype_base_name)
+    ]
+    # Prefer the longest matching name so e.g. "AnKing MCAT" wins over "AnKing"
+    # when the model is "AnKing MCAT" / "AnKing MCAT-abcde" / AnkiHub-qualified.
+    candidates.sort(key=lambda pair: len(pair[0]), reverse=True)
     return next(
         (
-            notetype_base_name
-            for notetype_base_name in anking_notetype_names()
-            for matching_name in matching_notetype_names(notetype_base_name)
+            base_name
+            for matching_name, base_name in candidates
             if re.match(rf"{re.escape(matching_name)}($| |-)", model_name)
         ),
         None,
