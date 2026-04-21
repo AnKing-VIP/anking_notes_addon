@@ -205,3 +205,39 @@ class TestRenameLegacyMainToCanonical:
                 is None
             )
         mw_mock.col.models.update_dict.assert_not_called()
+
+
+class TestConvertExtraNotetypes:
+    def test_canonical_main_present_skips_legacy_rename(self):
+        canonical_model = {
+            "id": 1,
+            "name": "AnKingOverhaul",
+            "flds": [{"name": "Front"}],
+        }
+        copy_model = {
+            "id": 2,
+            "name": "AnKingOverhaul-abcde",
+            "flds": [{"name": "Front"}],
+        }
+        mw_mock = MagicMock()
+        mw_mock.col.models.by_name.side_effect = lambda name: (
+            canonical_model if name == "AnKingOverhaul" else None
+        )
+        mw_mock.col.models.get.return_value = copy_model
+        mw_mock.col.find_notes.return_value = []
+
+        with patch.object(extra_notetype_versions, "mw", mw_mock), patch.dict(
+            NOTETYPE_RENAMES, FAKE_RENAMES
+        ), patch.object(
+            extra_notetype_versions, "_rename_legacy_main_to_canonical"
+        ) as rename_mock, patch.object(
+            extra_notetype_versions, "adjust_fields", side_effect=lambda old, new: new
+        ), patch.object(
+            extra_notetype_versions, "tooltip"
+        ):
+            extra_notetype_versions.convert_extra_notetypes(
+                MagicMock(), {"AnKingOverhaul": [2]}
+            )
+
+        rename_mock.assert_not_called()
+        mw_mock.col.models.remove.assert_called_once_with(2)
