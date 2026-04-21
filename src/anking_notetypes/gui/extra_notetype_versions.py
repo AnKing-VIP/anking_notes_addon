@@ -18,6 +18,7 @@ def handle_extra_notetype_versions() -> None:
     copy_mids_by_notetype_base_name: Dict[str, List[int]] = dict()
     # (legacy_name, canonical_name) pairs for mains that will be renamed during conversion
     legacy_mains_to_rename: List[Tuple[str, str]] = []
+    all_models = list(mw.col.models.all_names_and_ids())
     for notetype_base_name in anking_notetype_names():
         matching_names = matching_notetype_names(notetype_base_name)
         if _first_existing_notetype_name(matching_names) is None:
@@ -25,7 +26,7 @@ def handle_extra_notetype_versions() -> None:
 
         notetype_copy_mids = [
             x.id
-            for x in mw.col.models.all_names_and_ids()
+            for x in all_models
             for matching_name in matching_names
             if is_notetype_copy(x.name, matching_name)
         ]
@@ -71,8 +72,6 @@ def convert_extra_notetypes(
     for notetype_base_name, copy_mids in copy_mids_by_notetype_base_name.items():
         model = mw.col.models.by_name(notetype_base_name)
         if model is None:
-            # Only a legacy-named main exists — rename it to canonical so
-            # copies (including canonical-named copies) fold into the new name.
             model = _rename_legacy_main_to_canonical(notetype_base_name)
         for copy_mid in copy_mids:
             model_copy = mw.col.models.get(copy_mid)  # type: ignore
@@ -151,5 +150,5 @@ def _rename_legacy_main_to_canonical(canonical_name: str) -> Optional["NotetypeD
         legacy_model["name"] = canonical_name
         legacy_model["usn"] = -1
         mw.col.models.update_dict(legacy_model)
-        return mw.col.models.by_name(canonical_name)
+        return legacy_model
     return None

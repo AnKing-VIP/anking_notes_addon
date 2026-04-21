@@ -167,11 +167,9 @@ class TestBuildConfirmationMessage:
 class TestRenameLegacyMainToCanonical:
     def test_renames_legacy_main_and_returns_canonical_model(self):
         legacy_model = {"id": 42, "name": "Old-AnKing"}
-        canonical_model = {"id": 42, "name": "AnKingOverhaul"}
         mw_mock = MagicMock()
         mw_mock.col.models.by_name.side_effect = lambda name: {
             "Old-AnKing": legacy_model,
-            "AnKingOverhaul": canonical_model,
         }.get(name)
 
         with patch.object(extra_notetype_versions, "mw", mw_mock), patch.dict(
@@ -184,7 +182,7 @@ class TestRenameLegacyMainToCanonical:
         assert legacy_model["name"] == "AnKingOverhaul"
         assert legacy_model["usn"] == -1
         mw_mock.col.models.update_dict.assert_called_once_with(legacy_model)
-        assert result is canonical_model
+        assert result is legacy_model
 
     def test_returns_none_when_no_legacy_main_exists(self):
         mw_mock = MagicMock()
