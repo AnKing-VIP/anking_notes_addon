@@ -151,6 +151,19 @@ class TestUpdatedNotetypeName:
             assert utils._updated_notetype_name("Old-AnKing") == "Old-AnKing"
 
 
+class TestBuildConfirmationMessage:
+    def test_no_legacy_mains_omits_rename_section(self):
+        message = extra_notetype_versions._build_confirmation_message([])
+        assert "renamed" not in message
+
+    def test_lists_affected_legacy_mains(self):
+        message = extra_notetype_versions._build_confirmation_message(
+            [("AnKingMCAT", "AnKing MCAT"), ("Old-AnKing", "AnKingOverhaul")]
+        )
+        assert '"AnKingMCAT" → "AnKing MCAT"' in message
+        assert '"Old-AnKing" → "AnKingOverhaul"' in message
+
+
 class TestRenameLegacyMainToCanonical:
     def test_renames_legacy_main_and_returns_canonical_model(self):
         legacy_model = {"id": 42, "name": "Old-AnKing"}
