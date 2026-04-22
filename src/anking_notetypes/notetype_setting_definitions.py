@@ -3,6 +3,13 @@ import re
 from pathlib import Path
 from typing import Any, Dict, List, OrderedDict, Tuple, Union
 
+from .constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
+from .notetype_renames import (
+    canonical_notetype_name,
+    legacy_notetype_names,
+    matching_notetype_names,
+)
+
 try:
     from anki.models import NotetypeDict  # pylint: disable=unused-import
 except:
@@ -675,7 +682,7 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
     for x in ANKING_NOTETYPES_PATH.iterdir():
         if not x.is_dir():
             continue
-        notetype_name = x.name
+        notetype_name = canonical_notetype_name(x.name)
 
         front_template = (x / "Front Template.html").read_text(
             encoding="utf-8", errors="ignore"
@@ -690,14 +697,32 @@ def anking_notetype_templates() -> Dict[str, Tuple[str, str, str]]:
 
 
 def anking_notetype_model(notetype_name: str) -> "NotetypeDict":
+    notetype_name = canonical_notetype_name(notetype_name)
+    notetype_folder_name = _notetype_folder_name(notetype_name)
     result = json.loads(
-        (ANKING_NOTETYPES_PATH / notetype_name / f"{notetype_name}.json").read_text()
+        (
+            ANKING_NOTETYPES_PATH
+            / notetype_folder_name
+            / f"{notetype_folder_name}.json"
+        ).read_text()
     )
     front, back, styling = anking_notetype_templates()[notetype_name]
+    result["name"] = notetype_name
     result["tmpls"][0]["qfmt"] = front
     result["tmpls"][0]["afmt"] = back
     result["css"] = styling
     return result
+
+
+def _notetype_folder_name(notetype_name: str) -> str:
+    if (ANKING_NOTETYPES_PATH / notetype_name).is_dir():
+        return notetype_name
+
+    for legacy_name in legacy_notetype_names(notetype_name):
+        if (ANKING_NOTETYPES_PATH / legacy_name).is_dir():
+            return legacy_name
+
+    return notetype_name
 
 
 def anking_notetype_models() -> List["NotetypeDict"]:
@@ -707,13 +732,39 @@ def anking_notetype_models() -> List["NotetypeDict"]:
 def notetype_base_name(model_name: str) -> str:
     """Returns the base name of a note type, that is if it's a version of a an anking note type
     it will return the base name, otherwise it will return the name itself."""
+    candidates = [
+        (matching_name, base_name)
+        for base_name in anking_notetype_names()
+        for matching_name in matching_notetype_names(base_name)
+    ]
+    # Prefer the longest matching name so e.g. "AnKing MCAT" wins over "AnKing"
+    # when the model is "AnKing MCAT" / "AnKing MCAT-abcde" / AnkiHub-qualified.
+    candidates.sort(key=lambda pair: len(pair[0]), reverse=True)
     return next(
         (
-            notetype_base_name
-            for notetype_base_name in anking_notetype_names()
-            if re.match(rf"{notetype_base_name}($| |-)", model_name)
+            base_name
+            for matching_name, base_name in candidates
+            if re.match(rf"{re.escape(matching_name)}($| |-)", model_name)
         ),
         None,
+    )
+
+
+def is_notetype_copy(model_name: str, base_name: str) -> bool:
+    return bool(
+        re.match(
+            NOTETYPE_COPY_RE.format(notetype_base_name=re.escape(base_name)),
+            model_name,
+        )
+    )
+
+
+def is_ankihub_notetype_version(model_name: str, base_name: str) -> bool:
+    return bool(
+        re.match(
+            ANKIHUB_NOTETYPE_RE.format(notetype_base_name=re.escape(base_name)),
+            model_name,
+        )
     )
 
 

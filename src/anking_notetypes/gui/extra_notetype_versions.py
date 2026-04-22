@@ -1,42 +1,50 @@
-import re
 from concurrent.futures import Future
 from copy import deepcopy
-from typing import Dict, List
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from aqt import mw
 from aqt.utils import askUser, tooltip
 
-from ..constants import NOTETYPE_COPY_RE
-from ..notetype_setting_definitions import anking_notetype_names
+from ..notetype_renames import legacy_notetype_names, matching_notetype_names
+from ..notetype_setting_definitions import anking_notetype_names, is_notetype_copy
 from ..utils import adjust_fields, create_backup
+
+if TYPE_CHECKING:
+    from anki.models import NotetypeDict
 
 
 def handle_extra_notetype_versions() -> None:
-    # mids of copies of the AnKing notetype identified by its name
+    # mids of copies of the AnKing notetype, keyed by canonical base name
     copy_mids_by_notetype_base_name: Dict[str, List[int]] = dict()
+    # (legacy_name, canonical_name) pairs for mains that will be renamed during conversion
+    legacy_mains_to_rename: List[Tuple[str, str]] = []
+    all_models = list(mw.col.models.all_names_and_ids())
     for notetype_base_name in anking_notetype_names():
-        if mw.col.models.by_name(notetype_base_name) is None:
+        matching_names = matching_notetype_names(notetype_base_name)
+        if _first_existing_notetype_name(matching_names) is None:
             continue
 
         notetype_copy_mids = [
             x.id
-            for x in mw.col.models.all_names_and_ids()
-            if re.match(
-                NOTETYPE_COPY_RE.format(notetype_base_name=notetype_base_name), x.name
-            )
+            for x in all_models
+            for matching_name in matching_names
+            if is_notetype_copy(x.name, matching_name)
         ]
-        if notetype_copy_mids:
-            copy_mids_by_notetype_base_name[notetype_base_name] = notetype_copy_mids
+        if not notetype_copy_mids:
+            continue
+
+        copy_mids_by_notetype_base_name[notetype_base_name] = notetype_copy_mids
+        if mw.col.models.by_name(notetype_base_name) is None:
+            for legacy_name in legacy_notetype_names(notetype_base_name):
+                if mw.col.models.by_name(legacy_name) is not None:
+                    legacy_mains_to_rename.append((legacy_name, notetype_base_name))
+                    break
 
     if not copy_mids_by_notetype_base_name:
         return
 
     if not askUser(
-        "There are extra copies of AnKing note types. Do you want to convert all note types with names like "
-        'for example "AnKingOverhaul-1dgs0" to "AnKingOverhaul" respectively?\n\n'
-        "This will delete the extra note types and require a full upload of the collection "
-        "the next time you sync with AnkiWeb. A backup will be created before the changes are applied.\n\n"
-        "No matter what you chose the AnKing Note Types window will open after you select an option.",
+        _build_confirmation_message(legacy_mains_to_rename),
         title="Extra copies of AnKing note types",
     ):
         return
@@ -63,6 +71,8 @@ def convert_extra_notetypes(
 
     for notetype_base_name, copy_mids in copy_mids_by_notetype_base_name.items():
         model = mw.col.models.by_name(notetype_base_name)
+        if model is None:
+            model = _rename_legacy_main_to_canonical(notetype_base_name)
         for copy_mid in copy_mids:
             model_copy = mw.col.models.get(copy_mid)  # type: ignore
 
@@ -92,3 +102,52 @@ def convert_extra_notetypes(
 
     mw.reset()
     tooltip("Note types were converted successfully.")
+
+
+def _build_confirmation_message(
+    legacy_mains_to_rename: List[Tuple[str, str]],
+) -> str:
+    message = (
+        "There are extra copies of AnKing note types. Do you want to convert all "
+        "note types with names like "
+        'for example "AnKingOverhaul-1dgs0" to "AnKingOverhaul" respectively?\n\n'
+        "This will delete the extra note types and require a full upload of the "
+        "collection the next time you sync with AnkiWeb. A backup will be created "
+        "before the changes are applied.\n\n"
+    )
+    if legacy_mains_to_rename:
+        renames = "\n".join(
+            f'  - "{legacy}" → "{canonical}"'
+            for legacy, canonical in legacy_mains_to_rename
+        )
+        message += (
+            "The following note types will also be renamed to their current "
+            f"names:\n{renames}\n\n"
+        )
+    message += (
+        "No matter what you chose the AnKing Note Types window will open after "
+        "you select an option."
+    )
+    return message
+
+
+def _first_existing_notetype_name(notetype_names: List[str]) -> Optional[str]:
+    return next(
+        (
+            notetype_name
+            for notetype_name in notetype_names
+            if mw.col.models.by_name(notetype_name) is not None
+        ),
+        None,
+    )
+
+
+def _rename_legacy_main_to_canonical(canonical_name: str) -> Optional["NotetypeDict"]:
+    for legacy_name in legacy_notetype_names(canonical_name):
+        legacy_model = mw.col.models.by_name(legacy_name)
+        if legacy_model is None:
+            continue
+        legacy_model["name"] = canonical_name
+        mw.col.models.update_dict(legacy_model)
+        return legacy_model
+    return None

@@ -10,7 +10,11 @@ from aqt.utils import askUser, showInfo, tooltip
 
 from ..ankiaddonconfig import ConfigManager, ConfigWindow
 from ..ankiaddonconfig.window import ConfigLayout
-from ..constants import ANKIHUB_NOTETYPE_RE, NOTETYPE_COPY_RE
+from ..notetype_renames import (
+    canonical_notetype_name,
+    legacy_notetype_names,
+    matching_notetype_names,
+)
 from ..notetype_setting import NotetypeSetting, NotetypeSettingException
 from ..notetype_setting_definitions import (
     anking_notetype_model,
@@ -18,8 +22,10 @@ from ..notetype_setting_definitions import (
     configurable_fields_for_notetype,
     general_settings,
     general_settings_defaults_dict,
-    setting_configs,
+    is_ankihub_notetype_version,
+    is_notetype_copy,
     notetype_base_name,
+    setting_configs,
 )
 from ..utils import update_notetype_to_newest_version
 from .anking_widgets import AnkingIconsLayout, GithubLinkLayout
@@ -390,7 +396,7 @@ class NotetypesConfigWindow:
             return
 
         nt_base_name = notetype_base_name(model["name"])
-        for model_version in _note_type_versions(model["name"]):
+        for model_version in _note_type_versions(nt_base_name):
             update_notetype_to_newest_version(model_version, nt_base_name)
             mw.col.models.update_dict(model_version)  # type: ignore
 
@@ -631,26 +637,45 @@ def _note_type_versions(nt_base_name: str) -> List["NotetypeDict"]:
     """Returns a list of all notetype versions of the notetype in the collection.
     Version of a note type are created by the AnkiHub add-on and by copying
     the base AnKing note types or importing them from different sources."""
+    matching_names = matching_notetype_names(canonical_notetype_name(nt_base_name))
     models = [
         mw.col.models.get(x.id)  # type: ignore
         for x in mw.col.models.all_names_and_ids()
-        if x.name == nt_base_name
-        or re.match(ANKIHUB_NOTETYPE_RE.format(notetype_base_name=nt_base_name), x.name)
-        or re.match(NOTETYPE_COPY_RE.format(notetype_base_name=nt_base_name), x.name)
+        for matching_name in matching_names
+        if _matches_notetype_version(x.name, matching_name)
     ]
     return models
 
 
+def _matches_notetype_version(model_name: str, base_name: str) -> bool:
+    return (
+        model_name == base_name
+        or is_ankihub_notetype_version(model_name, base_name)
+        or is_notetype_copy(model_name, base_name)
+    )
+
+
 def _most_basic_notetype_version(nt_base_name: str) -> Optional["NotetypeDict"]:
-    """Returns the most basic version of a note type, that is the version with the shortest name."""
+    """Returns the most basic version of a note type.
+
+    Prefers an exact match on the canonical name, then an exact legacy name,
+    then falls back to the shortest name. Without the canonical/legacy
+    preference, a legacy main like ``AnKingMCAT`` would beat ``AnKing MCAT``
+    on name length alone.
+    """
+    canonical = canonical_notetype_name(nt_base_name)
     model_versions = _note_type_versions(nt_base_name)
-    result = min(
+    versions_by_name = {model["name"]: model for model in model_versions}
+
+    for preferred in [canonical, *legacy_notetype_names(canonical)]:
+        if preferred in versions_by_name:
+            return versions_by_name[preferred]
+
+    return min(
         model_versions,
-        # sort by length of name and then alphabetically
         key=lambda model: (len(model["name"]), model["name"]),
         default=None,
     )
-    return result
 
 
 def _names_of_all_supported_note_types() -> List[str]:

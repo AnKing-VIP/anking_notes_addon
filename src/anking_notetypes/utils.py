@@ -12,6 +12,7 @@ from .constants import (
     ANKIHUB_HTML_END_COMMENT_RE,
     ANKIHUB_TEMPLATE_SNIPPET_RE,
 )
+from .notetype_renames import renamed_notetype_name
 from .notetype_setting_definitions import anking_notetype_model
 
 try:
@@ -25,7 +26,7 @@ def update_notetype_to_newest_version(
 ) -> None:
     new_model = anking_notetype_model(notetype_base_name)
     new_model["id"] = model["id"]
-    new_model["name"] = model["name"]  # keep the name
+    new_model["name"] = _updated_notetype_name(model["name"])
     new_model["mod"] = int(time.time())  # not sure if this is needed
     new_model["usn"] = -1  # triggers full sync
 
@@ -39,6 +40,13 @@ def update_notetype_to_newest_version(
     new_model = _retain_ankihub_modifications(model, new_model)
 
     model.update(new_model)
+
+
+def _updated_notetype_name(model_name: str) -> str:
+    new_name = renamed_notetype_name(model_name)
+    if new_name == model_name or mw.col.models.by_name(new_name):
+        return model_name
+    return new_name
 
 
 def _retain_ankihub_modifications(
