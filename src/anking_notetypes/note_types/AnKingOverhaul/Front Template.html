@@ -1,4 +1,4 @@
-<!-- version d10be55 -->
+<!-- version d9fcaa1 -->
 <div id="text">{{cloze:Text}}</div>
 
 <br>
@@ -195,7 +195,7 @@ if (typeof(window.Persistence) === 'undefined') {
 <script>
   // enables cloze one-by-one even when one-by-one field is empty
   // minNumberOfClozes is still considered in this case
-  // overridden in importance by selectiveOneByOne
+  // overridden in importance by selectiveOneByOne and minNumberOfClozes
   var alwaysOneByOne = false;
   var clozeOneByOneEnabled = true;
   var oneByOneFieldNotEmpty = document.getElementById("one-by-one").textContent !== "";
@@ -239,11 +239,11 @@ if (typeof(window.Persistence) === 'undefined') {
       var cardNumberIsOneByOne = !clozeNumbers.filter(n => !Number.isNaN(n)).length || clozeNumbers.includes(parseInt(getCardNumber()))
 
       // check the amount of clozes -> disable OneByOne if less than minimum value wanted (minNumberOfClozes)
-      var numClozesForNumber = (minNumberOfClozes) ? document.querySelectorAll('.cloze').length : 0
+      var numClozes = (minNumberOfClozes) ? document.querySelectorAll('.cloze').length : 0
 
       // stop OneByOne if selectiveOneByOne is not enabled for this specific card OR if OneByOne is disabled some other way
       // -> show normal backside
-      if (!alwaysOneByOne && ((selectiveOneByOne && !cardNumberIsOneByOne) || (oneByOneFieldNotEmpty && (numClozesForNumber < minNumberOfClozes)))) {
+      if (selectiveOneByOne && !cardNumberIsOneByOne || numClozes < minNumberOfClozes) {
         clozeOneByOneEnabled = false
       }
 
@@ -371,7 +371,7 @@ if (typeof(window.Persistence) === 'undefined') {
     (() => {
         const selectors = [".shuffle"];
         const shuffleMap = Persistence.getItem("shuffle") || {};
-        const shuffledWordClass = "shuffled-word";
+        const containerSelector = selectors.join(", ");
 
         function isFront() {
             const hasHrMarker = document.querySelector("hr[id=answer]");
@@ -392,14 +392,39 @@ if (typeof(window.Persistence) === 'undefined') {
             }
         }
 
-        function shuffleElements(elements) {
+        function getNearestIdElement(element) {
+            let current = element;
+            while (current && current !== document.body) {
+                if (current.id) {
+                    return current;
+                }
+                current = current.parentElement;
+            }
+            return null;
+        }
+
+        function getScopedIndex(element, selector) {
+            const scope = getNearestIdElement(element);
+            const candidates = scope
+                ? Array.from(scope.querySelectorAll(selector))
+                : Array.from(document.querySelectorAll(selector));
+            const index = candidates.indexOf(element);
+            return index === -1 ? 0 : index;
+        }
+
+        function shuffleKey(element, groupType, selector) {
+            const scope = getNearestIdElement(element);
+            const scopeKey = scope ? `${scope.tagName.toLowerCase()}#${scope.id}` : "document";
+            const index = selector ? getScopedIndex(element, selector) : 0;
+            return `${scopeKey}:${groupType}:${index}`;
+        }
+
+        function shuffleElements(elements, mapKey) {
             elements = elements.filter(e => !e.matches(".no-shuffle *"));
             if (elements.length === 0) {
                 return;
             }
             const shuffledElements = Array.from(elements);
-            // Assuming elements[0] is not also the first element in a different list to shuffle
-            const mapKey = shuffledElements[0];
             const indexMap = shuffleMap[mapKey] || {};
             elements = elements.map(el => {
                 const placeholder = document.createTextNode('');
@@ -415,7 +440,7 @@ if (typeof(window.Persistence) === 'undefined') {
 
         function shuffleList(listElement) {
             const items = Array.from(listElement.querySelectorAll("li"));
-            shuffleElements(items);
+            shuffleElements(items, shuffleKey(listElement, "list", "ol, ul"));
         }
 
         /**
@@ -476,11 +501,12 @@ if (typeof(window.Persistence) === 'undefined') {
                 return item.replace(/,\s*(?=<\/|$)/g, '');
             });
 
-            const indexMap = shuffleMap[element] || {};
+            const mapKey = shuffleKey(element, "sentence", ".shuffle-sentence");
+            const indexMap = shuffleMap[mapKey] || {};
 
             const itemsToShuffle = [...cleanedItems];
             shuffle(itemsToShuffle, indexMap);
-            shuffleMap[element] = indexMap;
+            shuffleMap[mapKey] = indexMap;
 
             let newHTML;
             if (itemsToShuffle.length === 2) {
@@ -505,7 +531,7 @@ if (typeof(window.Persistence) === 'undefined') {
                     shuffleList(parentElement);
                 }
                 const images = Array.from(container.querySelectorAll("img"));
-                shuffleElements(images);
+                shuffleElements(images, shuffleKey(container, "images", containerSelector));
             }
         }
         for (const element of document.querySelectorAll(".shuffle-sentence")) {
