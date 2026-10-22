@@ -6,6 +6,7 @@ from typing import Dict, List
 # The old name is still used to find existing note types in users' collections.
 NOTETYPE_RENAMES: Dict[str, str] = {
     "AnKingMCAT": "AnKing MCAT",
+    "AnKing-BLS-ACLS": "AnKing BLS/ACLS",
 }
 
 
